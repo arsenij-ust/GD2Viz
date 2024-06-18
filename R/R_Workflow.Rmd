@@ -1,0 +1,55 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-06-17"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+library(utils)
+library(plotly)
+library(fresh)
+library(kernlab)
+library(DESeq2)
+library(igraph)
+library(dplyr)
+library(shinycssloaders)
+
+source("R/utils.R")
+```
+
+```{r}
+# Read data
+dds_cell <- readRDS("./data/rus_cell_lines.rds")
+
+custom_coldata <- read.table(system.file("data", "GD2cells_GSE180514_metadata.tsv", package = "GD2Viz"))
+custom_counts <- read.table(system.file("data", "GD2cells_GSE180514_counts.tsv", package = "GD2Viz"))
+
+train.data <- readRDS(system.file("extdata", "train.data.Rds", package = "GD2Viz"))
+mgraph <- readRDS(system.file("extdata", "substrate_graph.Rds", package = "GD2Viz"))
+
+edges_df <- igraph::as_data_frame(mgraph)
+GD2_genes <- unique(unlist(edges_df[which(edges_df$miriam.kegg.reaction %in% c("R05946","R05940","R05939","R05948","R05947","R05941")),"symbol"]))
+
+c("B3GALT4","ST8SIA1","ST8SIA5","B4GALNT1") %in% rownames(custom_counts)
+custom_counts[GD2_genes,]
+
+
+```
+
+```{r}
+RAS_res_list <- computeReactionActivityScores(
+        counts = custom_counts, 
+        metadata = custom_coldata, 
+        mgraph = mgraph, 
+        geom = train.data$geom
+      )
+```
+

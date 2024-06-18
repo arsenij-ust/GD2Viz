@@ -1,0 +1,87 @@
+Label_RNA.seq.type..mRNA.	Group	Biospecimen.id	Research.subject.id	Location.and.additional.information	sizeFactor
+X01m	1-m	SHH	7316-489	C115743	Cerebellum/ Posterior Fossa	1.20526812759109
+X02m	2-m	SHH	7316-3010	C141696	Frontal Lobe,  progressive tumor	1.07329417557992
+X03m	3-m	SHH	7316-729	C141696	Cerebellum/Posterior Fossa	0.946292445608008
+X04m	4-m	SHH	7316-278	C25830	Cerebellum/Posterior Fossa	1.12352120174406
+X05m	5-m	SHH	7316-333	C25830	Cerebellum/Posterior Fossa, progressive tumor	0.7516834668267
+X06m	6-m	SHH	7316-3023	C270723	Cerebellum/Posterior Fossa,  progressive tumor	1.4513495374618
+X07m	7-m	SHH	7316-931	C270723	Cerebellum/Posterior Fossa	0.526179775158494
+X08m	8-m	SHH	7316-1104	C292371	Cerebellum/Posterior Fossa	0.521364881164456
+X09m	9-m	SHH	7316-2118	C300612	Ventricles,  progressive tumor	1.73768172357258
+X10m	10-m	SHH	7316-737	C300612	Ventricles	2.24737198745197
+X11m	11-m	SHH	7316-178	C39729	Cerebellum/Posterior Fossa	1.72131848883734
+X12m	12-m	SHH	7316-179	C40098	Cerebellum/Posterior Fossa	1.33691675450411
+X13m	13-m	SHH	7316-1680	C409221	Cerebellum/Posterior Fossa	1.27126363156354
+X14m	14-m	SHH	7316-2439	C533082	Cerebellum/Posterior Fossa	1.05175659499902
+X15m	15-m	SHH	7316-2502	C564078	Cerebellum/Posterior Fossa	0.532165802435533
+X16m	16-m	SHH	7316-2699	C700977	Cerebellum/Posterior Fossa	0.797000069028321
+X17m	17-m	SHH	7316-1669	C773547	Cerebellum/Posterior Fossa	1.75049436996471
+X18m	18-m	SHH	7316-2780	C817950	Cerebellum/Posterior Fossa	2.22487287542676
+X19m	19-m	SHH	7316-2865	C820287	Cerebellum/Posterior Fossa	0.758758990245582
+X20m	20-m	SHH	7316-1650	C823608	Cerebellum/Posterior Fossa	1.62410154068563
+X21m	21-m	SHH	7316-3202	C908478	Cerebellum/Posterior Fossa	0.790708834634946
+X22m	22-m	SHH	7316-3138	C944886	Cerebellum/Posterior Fossa	0.81723449612164
+X23m	23-m	SHH	7316-3809	C982401	Cerebellum/Posterior Fossa	0.762991042416319
+X24m	24-m	WNT	7316-906	C217095	Cerebellum/Posterior Fossa,Spinal Cord- Lumbar/Thecal Sac	1.29220547396888
+X25m	25-m	WNT	7316-1945	C457560	Cerebellum/Posterior Fossa	0.983130432468113
+X26m	26-m	WNT	7316-2252	C710325	Cerebellum/Posterior Fossa	2.25144404581076
+X27m	27-m	WNT	7316-3025	C794457	Ventricles	2.99339471179671
+X28m	28-m	WNT	7316-2934	C798270	Ventricles	0.976503861315912
+X29m	29-m	WNT	7316-1651	C823731	Cerebellum/Posterior Fossa	1.64279324976097
+X30m	30-m	Group4	7316-4028	C1002081	Cerebellum/Posterior Fossa	1.39817351794776
+X31m	31-m	Group4	7316-553	C122262	Cerebellum/Posterior Fossa, reccurent tumor	1.10709533211542
+X32m	32-m	Group4	7316-842	C129519	Cerebellum/Posterior Fossa, reccurent tumor	0.61788509869757
+X33m	33-m	Group4	7316-556	C138006	Cerebellum/Posterior Fossa	1.02440408240517
+X34m	34-m	Group4	7316-735	C138498	Ventricles	2.16199472023031
+X35m	35-m	Group4	7316-38	C17466	Cerebellum/Posterior Fossa,Spinal Cord- Cervical,Spinal Cord- Lumbar/Thecal Sac,Spinal Cord- Thoracic	1.69708016949543
+X36m	36-m	Group4	7316-1715	C179826	Cerebellum/Posterior Fossa	0.808913332601919
+X37m	37-m	Group4	7316-14	C19803	Cerebellum/Posterior Fossa,Suprasellar/Hypothalamic/Pituitary	0.512034353192209
+X38m	38-m	Group4	7316-22	C20910	Cerebellum/Posterior Fossa	0.729554505962757
+X39m	39-m	Group4	7316-897	C230994	Cerebellum/Posterior Fossa	0.926704984175851
+X40m	40-m	Group4	7316-109	C28905	Cerebellum/Posterior Fossa	1.11465744197169
+X41m	41-m	Group4	7316-1118	C293601	Cerebellum/Posterior Fossa	1.15717545427485
+X42m	42-m	Group4	7316-739	C300858	Cerebellum/Posterior Fossa	2.15420968740342
+X43m	43-m	Group4	7316-1700	C371583	Cerebellum/Posterior Fossa	0.727811304789063
+X44m	44-m	Group4	7316-747	C417585	Cerebellum/Posterior Fossa	0.747253950770841
+X45m	45-m	Group4	7316-908	C419553	Cerebellum/Posterior Fossa	0.208539827767029
+X46m	46-m	Group4	7316-1801	C478962	Cerebellum/Posterior Fossa	0.599340239718052
+X47m	47-m	Group4	7316-2398	C530130	Ventricles	0.377644135350849
+X48m	48-m	Group4	7316-2981	C530868	Cerebellum/Posterior Fossa	0.411091160257643
+X49m	49-m	Group4	7316-315	C53628	Cerebellum/Posterior Fossa	0.778262186259695
+X50m	50-m	Group4	7316-2240	C556575	Cerebellum/Posterior Fossa	0.706844666649382
+X51m	51-m	Group4	7316-309	C56088	Cerebellum/Posterior Fossa	0.377492286799625
+X52m	52-m	Group4	7316-2227	C565431	Cerebellum/Posterior Fossa	1.38429887395806
+X53m	53-m	Group4	7316-2178	C623979	Cerebellum/Posterior Fossa	0.778742412162826
+X54m	54-m	Group4	7316-221	C68265	Cerebellum/Posterior Fossa,Spinal Cord- Cervical,Spinal Cord- Lumbar/Thecal Sac,Spinal Cord- Thoracic	0.952891710035792
+X55m	55-m	Group4	7316-2155	C692613	Cerebellum/Posterior Fossa,Suprasellar/Hypothalamic/Pituitary	0.633264860949223
+X56m	56-m	Group4	7316-2708	C724962	Cerebellum/Posterior Fossa	0.503236332078738
+X57m	57-m	Group4	7316-2811	C758541	Cerebellum/Posterior Fossa	0.900664929727617
+X58m	58-m	Group4	7316-1670	C773424	Cerebellum/Posterior Fossa	1.80490019478437
+X59m	59-m	Group4	7316-3192	C833202	Cerebellum/Posterior Fossa	2.76524007352205
+X60m	60-m	Group4	7316-407	C84747	Cerebellum/Posterior Fossa, progressive tumor	1.55182837625317
+X61m	61-m	Group4	7316-3511	C942672	Cerebellum/Posterior Fossa	1.50793392722138
+X62m	62-m	Group4	7316-2221	C960999	Cerebellum/Posterior Fossa	0.806205659025008
+X63m	63-m	Group4	7316-3774	C972438	Cerebellum/Posterior Fossa,Ventricles	1.3804215992535
+X64m	64-m	Group4	7316-3756	C973545	Cerebellum/Posterior Fossa,Ventricles	0.698143697195833
+X65m	65-m	Group3	7316-3488	C1010076	Cerebellum/Posterior Fossa	1.04376979417533
+X66m	66-m	Group3	7316-843	C129642	Cerebellum/Posterior Fossa, reccurent tumor	1.08352245817405
+X67m	67-m	Group3	7316-883	C146247	Cerebellum/Posterior Fossa	1.07186907806949
+X68m	68-m	Group3	7316-99	C18081	Cerebellum/Posterior Fossa	1.39233426618918
+X69m	69-m	Group3	7316-302	C21402	Cerebellum/Posterior Fossa	1.06000237448946
+X70m	70-m	Group3	7316-96	C25092	Cerebellum/Posterior Fossa	1.4622089489446
+X71m	71-m	Group3	7316-310	C44403	Cerebellum/Posterior Fossa,Spinal Cord- Lumbar/Thecal Sac,Spinal Cord- Thoracic	0.6541020746048
+X72m	72-m	Group3	7316-304	C48216	Cerebellum/Posterior Fossa	0.946787488381805
+X73m	73-m	Group3	7316-312	C49323	Cerebellum/Posterior Fossa, reccurent tumor	1.21997806621372
+X74m	74-m	Group3	7316-2230	C567522	Cerebellum/Posterior Fossa,Ventricles	0.733958017809002
+X75m	75-m	Group3	7316-153	C58917	Cerebellum/Posterior Fossa,Spinal Cord- Cervical,Spinal Cord- Lumbar/Thecal Sac,Spinal Cord- Thoracic	1.16210596228398
+X76m	76-m	Group3	7316-2287	C607251	Cerebellum/Posterior Fossa	1.95016588539164
+X77m	77-m	Group3	7316-2309	C622257	Ventricles	0.651000411971829
+X78m	78-m	Group3	7316-2322	C647349	Cerebellum/Posterior Fossa	2.57189676802865
+X79m	79-m	Group3	7316-1676	C773793	Cerebellum/Posterior Fossa	0.532546842301109
+X80m	80-m	Group3	7316-378	C81918	Cerebellum/Posterior Fossa	1.05791648392807
+X81m	81-m	Group3	7316-3576	C914505	Cerebellum/Posterior Fossa	0.851675411722023
+X82m	82-m	CB	Cat. R1234039-50	Lot. A508112	Amsbio_Human nomral cerebellum, Total RNA , 2.8ug/ul,  Male 26 Y.	1.57300346607152
+X83m	83-m	CB	Cat. R1234040-10	Lot. B307003	Amsbio_Human brain cerebellum (left), Total Rna , 1.10 ug/ul, Male 24 Y. 	1.04100554390527
+X84m	84-m	CB	Cat. 636535	Lot. 1802037	Takara _Human normal Cerebellum RNA, Pool from 3 Asian Males 21-29 Y	0.858902394483627
+X85m	85-m	CB	Cat. R1234039-50	Lot. B910013	Amsbio/BioChain _Human normal Cerebellum RNA, Cat. R1234039-50, Male 29 Y	0.854922428763353
+X86m	86-m	CB	Cat. R1234039-50	Lot. C409088	Amsbio/BioChain _Human normal Cerebellum RNA,, Male 24 Y	0.789392283863864
