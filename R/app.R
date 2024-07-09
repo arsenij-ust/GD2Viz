@@ -36,6 +36,15 @@ library(DESeq2)
 library(igraph)
 library(dplyr)
 library(shinycssloaders)
+library(ComplexHeatmap)
+library(zip)
+library(stats)
+# library(KEGGREST)
+library(visNetwork)
+library(dplyr)
+library(tidyr)
+library(KEGGREST)
+library(DT)
 
 source("R/utils.R")
 source("R/ui.R")
@@ -53,7 +62,7 @@ GD2Viz <- function() {
     "##---------------------------------------------------------------------------##"
   )
   
-  shinyApp(ui = gd2vis_ui, server = gd2vis_server)
+  shinyApp(ui = gd2visUI, server = gd2visServer)
 }
 
 

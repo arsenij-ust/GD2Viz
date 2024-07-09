@@ -94,7 +94,7 @@ assignSampleExpression <- function(igraph, sample_expr, gene_column = "symbol", 
 
 #' Compute Reaction Activity Values for Graph Edges
 #'
-#' The `compute_reaction_activity` function computes and assigns reaction activity values to edges in an input graph based on the provided gene expression counts data. This function facilitates the computation of reaction activities and incorporates these values as edge attributes within the graph.
+#' The `computeReactionActivity` function computes and assigns reaction activity values to edges in an input graph based on the provided gene expression counts data. This function facilitates the computation of reaction activities and incorporates these values as edge attributes within the graph.
 #'
 #' @param igraph An igraph object representing the graph to which reaction activity values should be assigned.
 #' @param counts A numeric matrix or data frame containing gene expression counts data. Each column represents a sample, and each row corresponds to a gene.
@@ -119,11 +119,11 @@ assignSampleExpression <- function(igraph, sample_expr, gene_column = "symbol", 
 #' counts <- matrix(runif(260), nrow = 26, dimnames = list(letters, paste0("Sample", 1:10)))
 #'
 #' # Compute reaction activity values and modify the graph
-#' g_with_activity <- compute_reaction_activity(g, counts, output_graph = TRUE)
+#' g_with_activity <- computeReactionActivity(g, counts, output_graph = TRUE)
 #'
 #' # Compute reaction activity values and get as a data frame
-#' reaction_activity_df <- compute_reaction_activity(g, counts, output_graph = FALSE)
-compute_reaction_activity <- function(igraph, counts, gene_column = "symbol", attr_name = "edge_sum", output_graph = FALSE) {
+#' reaction_activity_df <- computeReactionActivity(g, counts, output_graph = FALSE)
+computeReactionActivity <- function(igraph, counts, gene_column = "symbol", attr_name = "edge_sum", output_graph = FALSE) {
   
   res <- apply(counts, 2, function(x) {
     assignSampleExpression(igraph, x, gene_column = gene_column, attr_name = attr_name, output_graph = output_graph)
@@ -140,7 +140,7 @@ compute_reaction_activity <- function(igraph, counts, gene_column = "symbol", at
 
 #' Get Edge Weight N Steps Away
 #'
-#' The `get_edge_weight_n_steps_away` function finds the weight of an edge that is a certain number of steps away from a specified node in a graph. This function is used within the context of the `compute_transition_probability` function to calculate transition probabilities along paths.
+#' The `getEdgeWeightNStepsAway` function finds the weight of an edge that is a certain number of steps away from a specified node in a graph. This function is used within the context of the `computeTransitionProbability` function to calculate transition probabilities along paths.
 #'
 #' @param g A numeric matrix representing the adjacency matrix of the graph. The matrix should contain edge weights as its values.
 #' @param start_col An integer specifying the column index of the starting node.
@@ -157,8 +157,8 @@ compute_reaction_activity <- function(igraph, counts, gene_column = "symbol", at
 #' g <- matrix(c(0, 1, 2, 0, 0, 0, 1, 0, 0), nrow = 3, byrow = TRUE)
 #'
 #' # Get the weight of an edge n steps away
-#' weight <- get_edge_weight_n_steps_away(g, 2, 3)
-get_edge_weight_n_steps_away <- function(g, start_col, start_row) {
+#' weight <- getEdgeWeightNStepsAway(g, 2, 3)
+getEdgeWeightNStepsAway <- function(g, start_col, start_row) {
   current_col <- start_col
   current_row <- start_row
   
@@ -181,7 +181,7 @@ get_edge_weight_n_steps_away <- function(g, start_col, start_row) {
     current_row <- prev_rows[max_index]
     
     if (g[current_row, current_col] == 1) {
-      return(get_edge_weight_n_steps_away(g, current_col, current_row))
+      return(getEdgeWeightNStepsAway(g, current_col, current_row))
     } else {
       return(g[current_row, current_col])
     }
@@ -192,7 +192,7 @@ get_edge_weight_n_steps_away <- function(g, start_col, start_row) {
 
 #' Assign Transition Probabilities to Graph Edges
 #'
-#' The `assignTP` function assigns transition probabilities to edges in an input graph based on the specified transition probability data. This function enhances a graph's edges with additional attributes representing transition probabilities associated with specific reactions or entities. It is used within the context of the `compute_transition_probability` function.
+#' The `assignTP` function assigns transition probabilities to edges in an input graph based on the specified transition probability data. This function enhances a graph's edges with additional attributes representing transition probabilities associated with specific reactions or entities. It is used within the context of the `computeTransitionProbability` function.
 #'
 #' @param igraph An igraph object representing the graph to which transition probabilities should be assigned.
 #' @param transition_probability A named numeric vector containing transition probabilities for individual reactions or entities. The names of the vector should correspond to the identifiers used in the specified column.
@@ -229,7 +229,7 @@ assignTP <- function(igraph, transition_probability, column="miriam.kegg.reactio
 
 #' Compute Transition Probabilities for Graph Edges
 #'
-#' The `compute_transition_probability` function computes transition probabilities for edges in a list of igraph objects based on adjacency and edge attributes. This function allows for the computation of transition probabilities and offers the option to adjust transition probability matrices for paths originating from a target node or using a recursive adjustment method.
+#' The `computeTransitionProbability` function computes transition probabilities for edges in a list of igraph objects based on adjacency and edge attributes. This function allows for the computation of transition probabilities and offers the option to adjust transition probability matrices for paths originating from a target node or using a recursive adjustment method.
 #'
 #' @param igraph_list A list of igraph objects for which transition probabilities are to be computed.
 #' @param attr_name A character string specifying the name of the edge attribute in the graph that contains transition probabilities.
@@ -254,8 +254,8 @@ assignTP <- function(igraph, transition_probability, column="miriam.kegg.reactio
 #' igraph_list <- list(g1, g2)
 #'
 #' # Compute transition probabilities
-#' transition_probs <- compute_transition_probability(igraph_list, attr_name = "weight", attr_rownames = "miriam.kegg.reaction")
-compute_transition_probablity <- function(igraph_list, attr_name, attr_rownames, target_node=NULL, pass_through=FALSE, mgraph){
+#' transition_probs <- computeTransitionProbability(igraph_list, attr_name = "weight", attr_rownames = "miriam.kegg.reaction")
+computeTransitionProbability <- function(igraph_list, attr_name, attr_rownames, target_node=NULL, pass_through=FALSE, mgraph){
   
   if(pass_through) target_node <- NULL
   
@@ -329,7 +329,7 @@ compute_transition_probablity <- function(igraph_list, attr_name, attr_rownames,
           to_node <- unlist(g_df[which(g_df[[attr_rownames]] == names(x)[i]),"to"])
           if(length(from_node)==1){
             new_weight <- tryCatch(
-              get_edge_weight_n_steps_away(adm, to_node, from_node),
+              getEdgeWeightNStepsAway(adm, to_node, from_node),
               error = function(e) {return(1)})
             if(!is.null(new_weight)){
               return(new_weight)
@@ -433,7 +433,7 @@ normalizeTestDataset <- function(counts = NULL, metadata = NULL, dds = NULL, geo
 #'
 #' @details This function integrates gene expression data with a metabolic network to compute reaction activity scores. It estimates size factors for the custom dataset based on the geometric means of the training dataset and normalizes the gene expression data accordingly. The function then computes Reaction Activity scores and transition probabilities for the custom dataset using the provided metabolic network. Various adjustments are applied to the Reaction Activity scores to derive different metrics, including those considering transition probabilities, target nodes, and recursive adjustment methods.
 #'
-#' @seealso \code{\link{DESeqDataSetFromMatrix}}, \code{\link{estimateSizeFactorsForMatrix}}, \code{\link{compute_reaction_activity}}, \code{\link{compute_transition_probablity}}
+#' @seealso \code{\link{DESeqDataSetFromMatrix}}, \code{\link{estimateSizeFactorsForMatrix}}, \code{\link{computeReactionActivity}}, \code{\link{computeTransitionProbability}}
 #' @import DESeq2
 #' @importFrom stringr str_detect
 #' @importFrom igraph as_data_frame
@@ -461,16 +461,16 @@ computeReactionActivityScores <- function(counts=NULL, metadata=NULL, dds=NULL, 
   norm_counts <- log10(counts(custom_dds, normalize = TRUE) + 1)
   
   message("Computing RAS...")
-  ras <- compute_reaction_activity(mgraph, norm_counts)
+  ras <- computeReactionActivity(mgraph, norm_counts)
   
   message("Computing graph per sample...")
-  graph_list <- compute_reaction_activity(mgraph, norm_counts, output_graph = TRUE)
+  graph_list <- computeReactionActivity(mgraph, norm_counts, output_graph = TRUE)
   
   message("Computing transition probabilities...")
   
-  transition_probability <- compute_transition_probablity(graph_list, "edge_sum", "miriam.kegg.reaction", target_node=NULL, mgraph = mgraph)
-  transition_probability_paths <- compute_transition_probablity(graph_list, "edge_sum", "miriam.kegg.reaction", target_node="C01290", mgraph = mgraph)
-  transition_probability_rec <- compute_transition_probablity(graph_list, "edge_sum", "miriam.kegg.reaction", target_node=NULL, pass_through=TRUE, mgraph = mgraph)
+  transition_probability <- computeTransitionProbability(graph_list, "edge_sum", "miriam.kegg.reaction", target_node=NULL, mgraph = mgraph)
+  transition_probability_paths <- computeTransitionProbability(graph_list, "edge_sum", "miriam.kegg.reaction", target_node="C01290", mgraph = mgraph)
+  transition_probability_rec <- computeTransitionProbability(graph_list, "edge_sum", "miriam.kegg.reaction", target_node=NULL, pass_through=TRUE, mgraph = mgraph)
   
   r <- intersect(rownames(ras), rownames(transition_probability))
   ras_prob <- ras[r,] * transition_probability[r,]
@@ -497,10 +497,10 @@ computeReactionActivityScores <- function(counts=NULL, metadata=NULL, dds=NULL, 
 #' It allows for various adjustments to the input data before scoring.
 #'
 #' @param RAS A matrix of reaction activity scores with reaction IDs as row names and samples as columns.
-#' @param SVMmodel An SVM model used for predicting the GD2 score.
-#' @param adjustInput A character string indicating how to adjust the input data. 
+#' @param svm_model An SVM model used for predicting the GD2 score.
+#' @param adjust_input A character string indicating how to adjust the input data. 
 #' Options are "raw" (no adjustment), "ranged" (rescale to [0, 1]), and "scaled" (standardize with mean 0 and standard deviation 1). Default is "raw".
-#' @param rangeOutput A logical value indicating whether to rescale the output data. Default is FALSE.
+#' @param range_output A logical value indicating whether to rescale the output data. Default is FALSE.
 #' @param center A logical value indicating whether to center the data when scaling. Default is TRUE.
 #'
 #' @return A numeric vector of GD2 scores for the samples.
@@ -510,13 +510,13 @@ computeReactionActivityScores <- function(counts=NULL, metadata=NULL, dds=NULL, 
 #' RAS <- matrix(runif(6 * 10), nrow = 6, dimnames = list(c("R05946", "R05940", "R05939", "R05948", "R05947", "R05941")))
 #' 
 #' # Example SVM model
-#' SVMmodel <- svm(x = data.frame(x = rnorm(10), y = rnorm(10)), y = rnorm(10), type = "eps-regression")
+#' svm_model <- svm(x = data.frame(x = rnorm(10), y = rnorm(10)), y = rnorm(10), type = "eps-regression")
 #'
 #' # Compute GD2 scores with raw input
-#' scores <- computeGD2Score(RAS, SVMmodel, adjustInput = "raw")
+#' scores <- computeGD2Score(RAS, svm_model, adjust_input = "raw")
 #'
 #' @export
-computeGD2Score <- function(RAS, SVMmodel, adjustInput = c("raw", "ranged", "scaled"), rangeOutput = FALSE, center=TRUE){
+computeGD2Score <- function(RAS, svm_model, adjust_input = c("raw", "ranged", "scaled"), range_output = FALSE, center=TRUE){
   
   key_reactions <- c("R05946", "R05940", "R05939", "R05948", "R05947", "R05941")
   RAS <- as.matrix(RAS)
@@ -537,30 +537,30 @@ computeGD2Score <- function(RAS, SVMmodel, adjustInput = c("raw", "ranged", "sca
     R05941 = RAS["R05941", ]
   )
   
-  if(adjustInput == "raw"){
+  if(adjust_input == "raw"){
     inputSum <- rowSums(input)
     outputSum <- rowSums(output)
-  } else if(adjustInput == "ranged"){
+  } else if(adjust_input == "ranged"){
     input <- apply(input, 2, range01)
     output <- apply(output, 2, range01)
     inputSum <- rowSums(input)
     outputSum <- rowSums(output)
-  } else if(adjustInput == "scaled"){
+  } else if(adjust_input == "scaled"){
     inputSum <- rowSums(scale(x=input, center=center))
     outputSum <- rowSums(scale(x=output, center=center))
   }
   
-  df.custom <- data.frame(x=inputSum, y=outputSum)
-  preds.custom <- predict(SVMmodel, df.custom[,c("x", "y")], type = "decision")
+  df_custom <- data.frame(x=inputSum, y=outputSum)
+  preds_custom <- predict(svm_model, df_custom[,c("x", "y")], type = "decision")
   
-  if (rangeOutput) {
-    preds.custom <- range01(preds.custom)
+  if (range_output) {
+    preds_custom <- range01(preds_custom)
   }
   
-  preds.custom <- as.numeric(preds.custom)
+  preds_custom <- as.numeric(preds_custom)
   
-  names(preds.custom) <- colnames(RAS)
-  return(preds.custom)
+  names(preds_custom) <- colnames(RAS)
+  return(list(preds = preds_custom, input_df = df_custom))
 }
 
 
@@ -569,7 +569,7 @@ computeGD2Score <- function(RAS, SVMmodel, adjustInput = c("raw", "ranged", "sca
 #' The `trainGD2model` function trains a GD2 model using a specified reaction activity score (RAS) matrix from training data.
 #' It allows for various adjustments to the input data before training and can rescale the output.
 #'
-#' @param train.data A list containing the training data. It should include:
+#' @param train_data A list containing the training data. It should include:
 #'   \itemize{
 #'     \item \code{geom} - Geometric information.
 #'     \item \code{coldata} - Column data information.
@@ -578,8 +578,8 @@ computeGD2Score <- function(RAS, SVMmodel, adjustInput = c("raw", "ranged", "sca
 #'     \item \code{ras_prob_path} - A matrix of pathway-specific reaction activity scores with probabilities.
 #'     \item \code{ras_prob_rec} - A matrix of receptor-specific reaction activity scores with probabilities.
 #'   }
-#' @param adjustRAS A character string indicating which RAS matrix to use from \code{train.data}. Options are "ras", "ras_prob", "ras_prob_path", and "ras_prob_rec". Default is "ras".
-#' @param adjustInput A character string indicating how to adjust the input data. 
+#' @param adjust_ras A character string indicating which RAS matrix to use from \code{train_data}. Options are "ras", "ras_prob", "ras_prob_path", and "ras_prob_rec". Default is "ras".
+#' @param adjust_input A character string indicating how to adjust the input data. 
 #' Options are "raw" (no adjustment), "ranged" (rescale to [0, 1]), and "scaled" (standardize with mean 0 and standard deviation 1). Default is "raw".
 #'
 #' @return An SVM model trained on the input and output sums derived from the RAS data.
@@ -587,17 +587,17 @@ computeGD2Score <- function(RAS, SVMmodel, adjustInput = c("raw", "ranged", "sca
 #' @examples
 #' \dontrun{
 #' # Train GD2 model with raw input
-#' model <- trainGD2model(train.data, adjustRAS = "ras", adjustInput = "raw")
+#' model <- trainGD2model(train_data, adjust_ras = "ras", adjust_input = "raw")
 #' }
-trainGD2model <- function(train.data, adjustRAS = c("ras", "ras_prob", "ras_prob_path", "ras_prob_rec"), adjustInput = c("raw", "ranged", "scaled"), center=TRUE){
+trainGD2model <- function(train_data, adjust_ras = c("ras", "ras_prob", "ras_prob_path", "ras_prob_rec"), adjust_input = c("raw", "ranged", "scaled"), center=TRUE){
   
   key_reactions <- c("R05946", "R05940", "R05939", "R05948", "R05947", "R05941")
   
-  if(!adjustRAS %in% names(train.data)) {
+  if(!adjust_ras %in% names(train_data)) {
     stop("Selected RAS type not in training data.")
   }
   
-  RAS <- train.data[[adjustRAS]]
+  RAS <- train_data[[adjust_ras]]
   
   if(!all(key_reactions %in% rownames(RAS))) {
     stop("Necessary reaction IDs not found in the RAS data.")
@@ -615,24 +615,171 @@ trainGD2model <- function(train.data, adjustRAS = c("ras", "ras_prob", "ras_prob
     R05941 = RAS["R05941", ]
   )
   
-  if(adjustInput == "raw"){
+  if(adjust_input == "raw"){
     inputSum <- rowSums(input)
     outputSum <- rowSums(output)
-  } else if(adjustInput == "ranged"){
+  } else if(adjust_input == "ranged"){
     input <- apply(input, 2, range01)
     output <- apply(output, 2, range01)
     inputSum <- rowSums(input)
     outputSum <- rowSums(output)
-  } else if(adjustInput == "scaled"){
+  } else if(adjust_input == "scaled"){
     inputSum <- rowSums(scale(x=input, center=center))
     outputSum <- rowSums(scale(x=output, center=center))
   }
   
-  df.train <- data.frame(x=inputSum, y=outputSum, type=train.data$coldata$sep)
+  df.train <- data.frame(x=inputSum, y=outputSum, type=train_data$coldata$sep)
   
   kernfit <- kernlab::ksvm(data=df.train, x=type~.,type = "C-svc", kernel = 'vanilladot')
   return(kernfit)
 }
+
+
+#' Plot GD2 Scores with Various Plot Types
+#'
+#' This function generates a plot for GD2 scores using different plot types (scatter, box, violin).
+#' It also allows highlighting specific groups within the plot.
+#'
+#' @param df A data frame containing the data to be plotted. Must include columns 'Score' and 'Group'.
+#' @param plot_type A character string specifying the type of plot to be generated. Can be "scatter", "box", or "violin". Default is "scatter".
+#' @param Group.1 A character vector specifying the order of the groups to be displayed on the axis.
+#' @param group_title A character string specifying the title for the group axis.
+#' @param colors A vector of colors to be used for the groups.
+#' @param HighlightGroup A character vector specifying the groups to be highlighted in the plot.
+#'
+#' @return A plotly object representing the generated plot.
+#' @examples
+#' plot_df <- data.frame(
+#'   Score = c(1.5, 2.3, 3.6, 4.8),
+#'   Group = c("A", "B", "A", "C")
+#' )
+#' Group.1 <- c("A", "B", "C")
+#' group_title <- "Groups"
+#' colors <- c("blue", "green", "orange")
+#' HighlightGroup <- c("B", "C")
+#'
+#' fig <- plotGD2Score(plot_df, "scatter", Group.1, group_title, colors, HighlightGroup)
+#' fig
+#' @export
+plotGD2Score <- function(df, plot_type = "scatter", Group.1 = NULL, group_title = "", colors = NULL, HighlightGroup = "") {
+  common_trace <- function(fig, df, HighlightGroup, plot_type, highlight_color = "red") {
+    if (length(HighlightGroup) != 0 && any(HighlightGroup != "")) {
+      trace_data <- df[df$Group %in% HighlightGroup, ]
+      if (plot_type == "scatter") {
+        fig <- fig %>% add_trace(
+          x = trace_data$Score,
+          y = trace_data$Group,
+          type = "scatter",
+          mode = "markers",
+          color = I(highlight_color),
+          inherit = FALSE,
+          name = "Highlighted"
+        )
+      } else if (plot_type == "box") {
+        fig <- fig %>% add_trace(
+          y = trace_data$Score,
+          x = trace_data$Group,
+          type = "box",
+          color = I(highlight_color),
+          inherit = FALSE,
+          name = "Highlighted"
+        )
+      } else if (plot_type == "violin") {
+        fig <- fig %>% add_trace(
+          y = trace_data$Score,
+          x = trace_data$Group,
+          type = "violin",
+          color = I(highlight_color),
+          inherit = FALSE,
+          box = list(visible = TRUE),
+          meanline = list(visible = TRUE),
+          name = "Highlighted"
+        )
+      }
+    }
+    return(fig)
+  }
+  
+  yaxisls <- NULL
+  xaxisls <- NULL
+  
+  if (plot_type == "scatter") {
+    fig <- plot_ly(
+      data = df,
+      x = ~Score,
+      y = ~as.character(Group),
+      type = "scatter",
+      mode = "markers",
+      text = rownames(df),
+      color = ~as.character(Group),
+      colors = colors
+    )
+    yaxisls <- list(
+      categoryorder = "array",
+      categoryarray = Group.1,
+      title = group_title,
+      showticklabels = TRUE
+    )
+    xaxisls <- list(
+      title = 'GD2 Score'
+    )
+  } else if (plot_type == "box") {
+    fig <- plot_ly(
+      data = df,
+      x = ~as.character(Group),
+      y = ~Score,
+      type = "box",
+      text = rownames(df),
+      color = ~as.character(Group),
+      colors = colors,
+      boxpoints = "all",
+      jitter = 0.2
+    )
+    xaxisls <- list(
+      categoryorder = "array",
+      categoryarray = Group.1,
+      title = group_title,
+      showticklabels = TRUE
+    )
+    yaxisls <- list(
+      title = 'GD2 Score'
+    )
+  } else if (plot_type == "violin") {
+    fig <- plot_ly(
+      data = df,
+      x = ~as.character(Group),
+      y = ~Score,
+      type = "violin",
+      text = rownames(df),
+      color = ~as.character(Group),
+      colors = colors,
+      box = list(visible = TRUE),
+      meanline = list(visible = TRUE)
+    )
+    xaxisls <- list(
+      categoryorder = "array",
+      categoryarray = Group.1,
+      title = group_title,
+      showticklabels = TRUE
+    )
+    yaxisls <- list(
+      title = 'GD2 Score'
+    )
+  }
+  
+  fig <- common_trace(fig, df, HighlightGroup, plot_type)
+  
+  fig <- fig %>%
+    layout(
+      showlegend = FALSE,
+      yaxis = yaxisls,
+      xaxis = xaxisls
+    )
+  
+  return(fig)
+}
+
+
 
 # Shiny resource paths ----------------------------------------------------
 .onLoad <- function(libname, pkgname) {
@@ -672,31 +819,94 @@ trainGD2model <- function(train.data, adjustRAS = c("ras", "ras_prob", "ras_prob
 # )
 
 theme <- fresh::create_theme(
+  bs4dash_status(
+    primary = "#164863", danger = "#ff851b", light = "#272c30"
+  ),
   bs4dash_vars(
     navbar_light_color = "#164863",
-    navbar_light_active_color = "#164863",
-    navbar_light_hover_color = "#164863"
+    navbar_light_active_color = "#ff851b",
+    navbar_light_hover_color = "#ff851b"
   ),
   bs4dash_yiq(
     contrasted_threshold = 10,
-    text_dark = "#FFF", 
+    text_dark = "#FFF",
     text_light = "#272c30"
   ),
-  bs4dash_layout(
-    main_bg = "#9BBEC8"
-  ),
-  bs4dash_sidebar_light(
-    bg = "#164863", 
-    color = "#DDF2FD",
-    hover_color = "#FFF",
-    submenu_bg = "#427D9D", 
-    submenu_color = "#427D9D", 
-    submenu_hover_color = "#FFF"
-  ),
-  bs4dash_status(
-    primary = "#427D9D", danger = "#BF616A", light = "#272c30"
+  # bs4dash_layout(
+  #   main_bg = "#9BBEC8"
+  # ),
+  # bs4dash_sidebar_light(
+  #   bg = "#164863",
+  #   color = "#DDF2FD",
+  #   hover_color = "#FFF",
+  #   submenu_bg = "#427D9D",
+  #   submenu_color = "#427D9D",
+  #   submenu_hover_color = "#FFF"
+  # ),
+  bs4dash_color(
+    blue = "#427D9D",
+    lightblue = NULL,
+    navy = "#164863",
+    cyan = NULL,
+    teal = NULL,
+    olive = NULL,
+    green = NULL,
+    lime = NULL,
+    orange = NULL,
+    yellow = NULL,
+    fuchsia = NULL,
+    purple = NULL,
+    maroon = NULL,
+    red = NULL,
+    black = NULL,
+    gray_x_light = NULL,
+    gray_600 = NULL,
+    gray_800 = NULL,
+    gray_900 = NULL,
+    white = NULL
   )
-  # bs4dash_color(
-  #   gray_900 = "#4D869C"
-  # )
 )
+
+add_plot_maximize_observer <- function(input,
+                                       box_id,
+                                       plot_name,
+                                       non_max_height = "400px") {
+  observeEvent(input[[box_id]]$maximized, {
+    # print(input[[box_id]]$maximized)
+    # plot_height <- if (input[[box_id]]$maximized) {
+    #   "100%"
+    # } else {
+    #   non_max_height
+    # }
+    
+    js_call <- sprintf(
+      "
+      $('#%s').trigger('resize');
+      ",
+      plot_name
+    )
+    # js_call <- sprintf(
+    #   "document.getElementById('%s').style.setProperty('height', '%s', 'important');
+    #    document.getElementById('%s').style.setProperty('height', '%s', 'important');",
+    #   box_id, plot_height, plot_name, plot_height
+    # )
+    
+    # js_call <- sprintf(
+    #   "document.getElementById('%s').style.height = '%s';
+    #    document.getElementById('%s').style.height = '%s';",
+    #   box_id, plot_height, plot_name, plot_height
+    # )
+    # js_call <- sprintf(
+    #   "
+    #   setTimeout(() => {
+    #     $('#%s').css('height', '%s');
+    #   }, 300)
+    #   $('#%s').trigger('resize');
+    #   ",
+    #   plot_name,
+    #   plot_height,
+    #   plot_name
+    # )
+    shinyjs::runjs(js_call)
+  }, ignoreInit = TRUE)
+}
