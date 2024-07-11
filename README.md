@@ -1,4 +1,4 @@
-![GD2Viz Logo](inst/GD2Viz6.png)
+![GD2Viz Logo](https://github.com/arsenij-ust/GD2Viz/blob/main/inst/www/GD2Viz6.png)
 
 # Welcome to GD2Viz
 
