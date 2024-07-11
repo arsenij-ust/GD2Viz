@@ -12,6 +12,8 @@ gd2visServer <- function(input, output, session) {
   stjudeData <- readRDS(system.file("extdata", "STJUDE_RAS.Rds", package = "GD2Viz"))
   cbttcData <- readRDS(system.file("extdata", "CBTTC_RAS.Rds", package = "GD2Viz"))
   
+  # cnv_data <- readRDS(system.file("extdata", "Gistic2_CopyNumber_Gistic2_all_thresholded_by_genes.Rds", package = "GD2Viz"))
+  
   # divide TCGA into Tumor and Normal Datasets
   tcgaNormalIndx <- which(tcgaData$coldata$X_sample_type == "Solid Tissue Normal")
   tcgaNormalData <- list(
@@ -72,6 +74,8 @@ gd2visServer <- function(input, output, session) {
     runjs("window.open('https://github.com/arsenij-ust/GD2Viz/issues', '_blank')")
   })
   
+  output$package_version <- renderText({paste("Version:", packageVersion("GD2Viz"))})
+  
   # computeCustomRAS
   # computeCustomScore
   # updateCustomPlots
@@ -119,9 +123,18 @@ gd2visServer <- function(input, output, session) {
     selectizeInput(
       "tcgaTumorHighlightGroup", 
       label = "Highlight Group:",
-      choices = c("", as.character(tcgaTumorData$coldata[[input$tcgaTumorColData]])),
+      choices = NULL,
+      selected = NULL,
       multiple=TRUE
     )
+  })
+  observe({
+    req(tcgaTumorData, input$tcgaTumorColData)
+    updateSelectizeInput(
+      session, 
+      "tcgaTumorHighlightGroup", 
+      choices = c("", as.character(tcgaTumorData$coldata[[input$tcgaTumorColData]])), 
+      server = TRUE)
   })
   
   ## TCGA Train GD2 model & predict values -----
@@ -165,9 +178,18 @@ gd2visServer <- function(input, output, session) {
     selectizeInput(
       "tcgaNormalHighlightGroup", 
       label = "Highlight Group:",
-      choices = c("", as.character(tcgaNormalData$coldata[[input$tcgaNormalColData]])),
+      choices = NULL,
+      selected = NULL,
       multiple=TRUE
     )
+  })
+  observe({
+    req(tcgaNormalData, input$tcgaNormalColData)
+    updateSelectizeInput(
+      session, 
+      "tcgaNormalHighlightGroup", 
+      choices = c("", as.character(tcgaNormalData$coldata[[input$tcgaNormalColData]])), 
+      server = TRUE)
   })
   
   ## GTEX Train GD2 model & predict values -----
@@ -211,9 +233,18 @@ gd2visServer <- function(input, output, session) {
     selectizeInput(
       "gtexHighlightGroup", 
       label = "Highlight Group:",
-      choices = c("", as.character(gtexData$coldata[[input$gtexColData]])),
+      choices = NULL,
+      selected = NULL,
       multiple=TRUE
     )
+  })
+  observe({
+    req(gtexData, input$gtexColData)
+    updateSelectizeInput(
+      session, 
+      "gtexHighlightGroup", 
+      choices = c("", as.character(gtexData$coldata[[input$gtexColData]])), 
+      server = TRUE)
   })
   
   ## TARGET Train GD2 model & predict values -----
@@ -257,9 +288,18 @@ gd2visServer <- function(input, output, session) {
     selectizeInput(
       "targetHighlightGroup", 
       label = "Highlight Group:",
-      choices = c("", as.character(targetData$coldata[[input$targetColData]])),
+      choices = NULL,
+      selected = NULL,
       multiple=TRUE
     )
+  })
+  observe({
+    req(targetData, input$targetColData)
+    updateSelectizeInput(
+      session, 
+      "targetHighlightGroup", 
+      choices = c("", as.character(targetData$coldata[[input$targetColData]])), 
+      server = TRUE)
   })
   
   ## St. Jude Train GD2 model & predict values -----
@@ -303,9 +343,18 @@ gd2visServer <- function(input, output, session) {
     selectizeInput(
       "stjudeHighlightGroup", 
       label = "Highlight Group:",
-      choices = c("", as.character(stjudeData$coldata[[input$stjudeColData]])),
+      choices = NULL,
+      selected = NULL,
       multiple=TRUE
     )
+  })
+  observe({
+    req(stjudeData, input$stjudeColData)
+    updateSelectizeInput(
+      session, 
+      "stjudeHighlightGroup", 
+      choices = c("", as.character(stjudeData$coldata[[input$stjudeColData]])), 
+      server = TRUE)
   })
   
   ## CBTTC Train GD2 model & predict values -----
@@ -349,15 +398,24 @@ gd2visServer <- function(input, output, session) {
     selectizeInput(
       "cbttcHighlightGroup", 
       label = "Highlight Group:",
-      choices = c("", as.character(cbttcData$coldata[[input$cbttcColData]])),
+      choices = NULL,
+      selected = NULL,
       multiple=TRUE
     )
+  })
+  observe({
+    req(cbttcData, input$cbttcColData)
+    updateSelectizeInput(
+      session, 
+      "cbttcHighlightGroup", 
+      choices = c("", as.character(cbttcData$coldata[[input$cbttcColData]])), 
+      server = TRUE)
   })
   
   ## TCGA Tumor GD2 Score Plot -----
   output$tcgaTumorGD2plot <- renderPlotly({
     req(tcgaTumorGD2(), tcgaTumorData, input$tcgaTumorColData, input$tcgaTumorGD2ScorePlotType)
-    
+
     if (input$tcgaTumorColData == "none") {
       group <- as.factor(rep(1, nrow(tcgaTumorData$coldata)))
       meandf_custom <- NULL
@@ -622,11 +680,33 @@ gd2visServer <- function(input, output, session) {
       selected = "primary_diagnosis"
     )
   })
+  
   output$tcgaProjectsTbl = DT::renderDataTable({
     req(tcgaTumorData)
     coldata.tcga.sum <- as.data.frame(table(as.factor(tcgaTumorData$coldata$cancer.type)))
-    DT::datatable(coldata.tcga.sum, selection = 'single')
+    colnames(coldata.tcga.sum) <- c("TCGA Project","Number of Samples")
+    DT::datatable(coldata.tcga.sum, selection = 'single', rownames = FALSE)
   })
+  
+  # output$tcgaTabCnvUI <- renderUI({
+  #   req(cnv_data)
+  #   selectizeInput(
+  #     inputId = "tcgaTabCnvSel",
+  #     label = "Color by CNV:",
+  #     choices = NULL,
+  #     selected = NULL
+  #   )
+  # })
+  # 
+  # observe({
+  #   req(cnv_data)
+  #   updateSelectizeInput(
+  #     session, 
+  #     "tcgaTabCnvSel", 
+  #     choices = c("none", as.character(rownames(cnv_data))), 
+  #     server = TRUE)
+  # })
+  
   tcgaTumorTabGD2 <- reactiveVal(NULL)
   observe({
     req(tcgaTumorData, input$tcgaTabScale, input$tcgaTabRASType)
@@ -657,8 +737,8 @@ gd2visServer <- function(input, output, session) {
     req(tcgaTumorTabGD2(), tcgaTumorData, input$tcgaTabGroup, input$tcgaProjectsTbl_row_last_clicked)
     
     coldata.tcga.sum <- as.data.frame(table(as.factor(tcgaTumorData$coldata$cancer.type)))
-    tcga.project <- coldata.tcga.sum[input$tcgaProjectsTbl_row_last_clicked,"Var1"]
-    
+    colnames(coldata.tcga.sum) <- c("TCGA Project","Number of Samples")
+    tcga.project <- coldata.tcga.sum[input$tcgaProjectsTbl_row_last_clicked,"TCGA Project"]
     indx <- which(tcgaTumorData$coldata$cancer.type==tcga.project)
     tcgaColData <- tcgaTumorData$coldata[indx,]
 
@@ -691,6 +771,21 @@ gd2visServer <- function(input, output, session) {
     } else {
       Group.1 <- meandf_custom[order(meandf_custom$x), "Group.1"]
     }
+    
+    # if(input$tcgaTabCnv != "none"){
+    #     # print(cnv_data[input$cnv_gene,1:10])
+    #     # SARCsamples <- colData(SE)[which(colData(SE)$cancer.type=="SARC"),"sample"]
+    # 
+    #   common_samples <- intersect(colnames(cnv_data), rownames(plot_df))
+    #   # print(common_samples)
+    #   # print(cnv_data[input$tcgaTabCnv, common_samples])
+    #   # df_all$cnv <- NA
+    #   # df_all[common_samples,"cnv"] <- as.character(cnv_data[input$cnv_gene, common_samples])
+    #   # # print(df_all)
+    #   # fig <- plot_ly(data=df_all, x=~Score, y = ~as.character(Group), type = "scatter", mode="markers", color=~as.factor(cnv)) %>%
+    #   #   layout(yaxis = list(categoryorder = "array", categoryarray = dataInput2()$Group.1, title = 'Group'),
+    #   #          xaxis = list(title = 'GD2 score'))
+    # }
     
     # Determine plot type
     plot_type <- "scatter"
@@ -766,9 +861,8 @@ gd2visServer <- function(input, output, session) {
         errorMessage <<- e$message
       })
     } else if (input$dataType == "dds" && !is.null(input$ddsFile)) {
-      custom_dds <- readRDS(input$ddsFile$datapath)
-      
       tryCatch({
+        custom_dds <- readRDS(input$ddsFile$datapath)
         customDataVal <- computeReactionActivityScores(
           dds = custom_dds,
           mgraph = mgraph, 
@@ -947,7 +1041,7 @@ gd2visServer <- function(input, output, session) {
   ## Heatmap of RAS -----
   output$customRASheatmap <- renderPlot({
     req(customData(), input$customColData)
-    
+    # print("heatmap plotted")
     if (input$customColData == "none") {
       col_side_colors <- NULL
       ann_col <- NULL
@@ -991,11 +1085,43 @@ gd2visServer <- function(input, output, session) {
     # if (scale != "none") {
     #   data <- t(scale(t(data), center = TRUE, scale = (scale == "row")))
     # }
+    viz_mgraph <- visNetwork::toVisNetworkData(mgraph, idToLabel = FALSE)
+    viz_mgraph$edges$miriam.kegg.reaction <- sapply(viz_mgraph$edges$miriam.kegg.reaction, function(x) paste(x, collapse = ","))
+    viz_mgraph$edges$to <- sapply(viz_mgraph$edges$to, function(x) paste(x, collapse = ","))
+    viz_mgraph$edges$from <- sapply(viz_mgraph$edges$from, function(x) paste(x, collapse = ","))
+    viz_mgraph$nodes$id <- sapply(viz_mgraph$nodes$id, function(x) paste(x, collapse = ","))
+    
+    from_label <- c()
+    for(i in viz_mgraph$edges$from){
+      from_label <- c(from_label, viz_mgraph$nodes[which(viz_mgraph$nodes$id == i), "label"])
+    }
+    to_label <- c()
+    for(i in viz_mgraph$edges$to){
+      to_label <- c(to_label, viz_mgraph$nodes[which(viz_mgraph$nodes$id == i), "label"])
+    }
+    
+    heatmap_rowlabels_df <- data.frame(
+      reactions = viz_mgraph$edges$miriam.kegg.reaction,
+      labels = paste0(viz_mgraph$edges$miriam.kegg.reaction, " (from: ", from_label, " - to: ",to_label, ")")
+    )
+    heatmap_rowlabels_df <- heatmap_rowlabels_df[-which(heatmap_rowlabels_df$labels == "R01281 (from: Palmitoyl-CoA - to: 3-Dehydrosphinganine)"),]
+    heatmap_rowlabels_df <- heatmap_rowlabels_df[which(heatmap_rowlabels_df$reactions %in% rownames(data)),]
+    
+    if(input$customRASheatmapRownamesFull){
+      row_labels <- rownames(data)
+    } else {
+      row_labels <- heatmap_rowlabels_df$labels
+    }
+    
+    f1 = colorRamp2(seq(min(data), max(data), length = 3), c("#164863", "#EEEEEE", "#ff851b"))
     
     # Create the heatmap
     heatmap <- Heatmap(
       data,
+      col = f1,
       name = paste0("Heatmap of ",input$customRASType),
+      row_names_side = "right",
+      row_names_max_width = unit(20, "cm"),
       row_title = "Reactions",
       column_title = "Samples",
       cluster_rows = cluster_rows,
@@ -1006,10 +1132,12 @@ gd2visServer <- function(input, output, session) {
       clustering_method_rows = clustering_method_rows,
       show_row_names = show_rownames,
       show_column_names = show_colnames,
-      # height = input$customRASheatmapHeight,
-      top_annotation = ann_col
+      # height = unit(0.5, "cm")*nrow(data),
+      top_annotation = ann_col,
+      row_labels = row_labels
     )
-    heatmap
+    draw(heatmap)
+    
   })
   
   add_plot_maximize_observer(input, "customRASheatmapBox", "customRASheatmap", non_max_height = "400px")
@@ -1047,8 +1175,29 @@ gd2visServer <- function(input, output, session) {
   })
   
   ## Scatterplot of the GD2 Score -----
+  output$customGD2ScorePlotTGeneUI <- renderUI({
+    data <- customData()$custom_dds
+    if(!is.null(data)) {
+      selectizeInput(
+        "customGD2ScorePlotTGene",
+        "Plot Gene vs. GD2Score (Only when Plot Type is 'scatter')",
+        # choices = c("none", rownames(customData()$custom_dds)),
+        choices = NULL,
+        selected = NULL
+      )
+    }
+  })
+  
+  observe({
+    data <- customData()$custom_dds
+    if (!is.null(data)) {
+      updateSelectizeInput(session, "customGD2ScorePlotTGene", choices = c("none", rownames(data)), server = TRUE)
+    }
+  })
+  
+  
   output$customGD2Score <- renderPlotly({
-    req(customGD2(), customData())
+    req(customGD2(), customData(), input$customGD2ScorePlotTGene)
     
     if (input$customColData == "none") {
       group <- as.factor(rep(1, nrow(colData(customData()$custom_dds))))
@@ -1081,24 +1230,41 @@ gd2visServer <- function(input, output, session) {
     
     # Determine plot type
     plot_type <- input$customGD2ScorePlotType
+    gene <- input$customGD2ScorePlotTGene
     
     if (plot_type == "scatter") {
-      fig <- plot_ly(
-        data = plot_df, 
-        x = ~Score, 
-        y = ~as.character(Group), 
-        type = "scatter", 
-        mode = "markers", 
-        text = rownames(plot_df), 
-        color = ~as.character(Group), 
-        colors = colors)
-      yaxisls <- list(
-        categoryorder = "array", 
-        categoryarray = Group.1, 
-        title = group_title, 
-        showticklabels = TRUE)
-      xaxisls = list(
-        title = 'GD2 Score')
+      if(gene != "none"){
+        fig <- plot_ly(
+          data = plot_df, 
+          x = ~Score, 
+          y = log2(counts(customData()$custom_dds)[gene,] + 1), 
+          type = "scatter", 
+          mode = "markers", 
+          text = rownames(plot_df), 
+          color = ~as.character(Group), 
+          colors = colors)
+        yaxisls <- list(
+          title = paste0("log2( ",gene, " )"))
+        xaxisls = list(
+          title = 'GD2 Score')
+      } else {
+        fig <- plot_ly(
+          data = plot_df, 
+          x = ~Score, 
+          y = ~as.character(Group), 
+          type = "scatter", 
+          mode = "markers", 
+          text = rownames(plot_df), 
+          color = ~as.character(Group), 
+          colors = colors)
+        yaxisls <- list(
+          categoryorder = "array", 
+          categoryarray = Group.1, 
+          title = group_title, 
+          showticklabels = TRUE)
+        xaxisls = list(
+          title = 'GD2 Score')
+      }
     } else if (plot_type == "box") {
       fig <- plot_ly(
         data = plot_df,
@@ -1250,6 +1416,28 @@ gd2visServer <- function(input, output, session) {
     })
     customLFCData(pval_df)
   })
+  
+  ## Download GD2 Comparison stats ----
+  # Render UI for downloadCustomGD2CompUI
+  output$downloadCustomGD2CompUI <- renderUI({
+    req(customLFCData())
+    downloadButton("downloadCustomGD2Comp", "Download Group Comparison Statistics", icon = icon("download"), style = "primary")
+  })
+  
+  # Download handler for customData
+  output$downloadCustomGD2Comp <- downloadHandler(
+    filename = function() {
+      paste0("GD2Viz_GroupComparisonData_", Sys.Date(), ".tsv")
+    },
+    content = function(file) {
+      temp_dir <- tempdir()
+      file_paths <- c()
+      pval_df <- customLFCData()
+      
+      write.table(pval_df, file, sep = "\t", row.names = TRUE, quote = FALSE)
+      
+    }
+  )
   
   ## RAS comparison graph -----
   output$customGroupCompGraph <- renderVisNetwork({
@@ -1422,12 +1610,15 @@ gd2visServer <- function(input, output, session) {
       facet_wrap(~group, ncol = 3, scales="free_x") +
       theme_classic() +
       ylab("") + xlab("") +
-      theme(panel.grid.major.y = element_line(color = "lightgray",
-                                              size = 0.5,
-                                              linetype = 1)) + xlab("")
+      theme(
+        panel.grid.major.y = element_line(color = "lightgray", size = 0.5, linetype = 1),
+        axis.text = element_text(size = 15), # Increase axis text size
+        strip.text = element_text(size = 15) # Increase facet label text size
+      )
     p1
 
   })
+  add_plot_maximize_observer(input, "customGroupCompBox", "customGroupComp", non_max_height = "530px")
   
   
 } 

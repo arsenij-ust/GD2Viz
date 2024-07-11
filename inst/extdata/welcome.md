@@ -1,28 +1,28 @@
 ### Welcome to GD2Viz
 
-Welcome to **GD2Viz**, a powerful and user-friendly visualization tool designed to help researchers and clinicians explore, analyze, and interpret complex genomic data. Developed by the Medical Informatics Division at the Institute for Medical Biostatistics, Epidemiology, and Informatics (IMBEI) of the University Medical Center of the Johannes Gutenberg University Mainz, GD2Viz aims to bridge the gap between raw genomic data and actionable insights.
+Welcome to **GD2Viz**, a powerful and user-friendly visualization tool designed to help researchers and clinicians explore, analyze, and interpret GD2 Scores across various RNA-Seq datasets. Utilizing the advanced methodology outlined by Ustjanzew et al. (2024), **GD2Viz** offers an in-depth examination of precomputed GD2 Scores from publicly available RNA-Seq datasets such as TCGA, GTEx, and TARGET. Users also have the flexibility to upload and analyze their own datasets within the context of GD2 Scores.
 
-#### Aim of GD2Viz
+This R Shiny application version of **GD2Viz** provides a range of interactive visualizations and preloaded datasets. Additionally, the **GD2Viz** R package includes several functions for computing Reaction Activity Scores of glycosphingolipid metabolism and predicting GD2 Scores directly within the R environment. For comprehensive guidance, refer to the [**GD2Viz Vignette**](#).
 
-**GD2Viz** is designed with the following goals in mind:
-
-1. **Facilitate Data Exploration**: Our software provides intuitive and interactive tools for exploring large genomic datasets. Whether you are investigating single-gene expressions or multi-gene interactions, GD2Viz offers various visualization options to help you uncover patterns and trends.
-
-2. **Support Data Interpretation**: Understanding complex genomic data can be challenging. GD2Viz includes features that make it easier to interpret your results, such as integrated statistical analyses, customizable visualizations, and comprehensive annotation tools.
-
-3. **Enhance Research Efficiency**: By providing a streamlined and user-friendly interface, GD2Viz helps you focus on your research rather than the technical details of data visualization. Our aim is to save you time and effort, allowing you to make faster and more accurate discoveries.
-
-4. **Promote Collaboration**: GD2Viz is built to support collaborative research. Share your visualizations and findings with colleagues easily, and work together to gain deeper insights into your data.
-
-5. **Ensure Reproducibility**: Reproducible research is a cornerstone of scientific progress. GD2Viz ensures that your analyses and visualizations can be easily reproduced and shared, enhancing the reliability and credibility of your work.
+---
 
 #### Key Features
 
-- **Interactive Visualizations**: Create dynamic and interactive plots, heatmaps, and network diagrams to explore your data in real time.
-- **Customizable Dashboards**: Tailor your workspace to suit your specific needs with customizable dashboards and widgets.
-- **Integrated Data Analysis**: Perform statistical analyses and apply various bioinformatics tools directly within the software.
-- **Easy Data Import and Export**: Seamlessly import your data from various sources and export your results in multiple formats.
-- **User-Friendly Interface**: Navigate through the software with ease thanks to our intuitive and well-designed user interface.
+- **Interactive Visualizations**: Generate dynamic, real-time interactive plots, heatmaps, and network diagrams to thoroughly explore your data.
+- **GD2 Score Analysis for Large Datasets**: Investigate GD2 Scores across extensive datasets like TCGA, TARGET, and GTEx. Dive deep into individual projects within the TCGA dataset and analyze GD2 Scores alongside various sample metadata.
+- **Predict GD2 Scores for Your Datasets**: Effortlessly compute Reaction Activity Scores and GD2 Scores for your datasets, with options to visualize and download the results.
+- **User-Friendly Interface**: Experience smooth navigation with our intuitive and thoughtfully designed user interface.
+- **Group Comparison**: Compare two groups or conditions within your dataset to observe log-fold changes in Reaction Activity Scores of glycosphingolipid metabolism.
+
+---
+
+#### Development Team
+
+**GD2Viz** was developed at the Institute for Medical Biostatistics, Epidemiology, and Informatics (IMBEI) of the University Medical Center of the Johannes Gutenberg University Mainz. The development team includes:
+
+- **Arsenij Ustjanzew**: Developer
+- **Federico Marini**: Developer
+- **Claudia Paret**: Methodological and Clinical Support
 
 ---
 

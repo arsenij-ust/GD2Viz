@@ -135,18 +135,31 @@ gd2visUI = dashboardPage(
         icon = icon("file-arrow-up")
       )
     ),
-    div(
-      img(id = "deco-image", src = "GD2Viz/deco.png",
-          style = "
-          width: 180px; 
-          height: auto;
-          margin-bottom: 30px;
-          display: block;
-          margin-left: auto;
-          margin-right: auto;
-          position: absolute;
-          bottom: 0;")
+    textOutput("package_version"),
+    tags$head(
+      tags$style("
+      #package_version {
+        position: absolute;
+        bottom: 0;
+        align: center;
+        padding-left: 80px;
+      }
+
+    ")
     )
+    # ,
+    # div(
+    #   img(id = "deco-image", src = "GD2Viz/deco.png",
+    #       style = "
+    #       width: 180px; 
+    #       height: auto;
+    #       margin-bottom: 30px;
+    #       display: block;
+    #       margin-left: auto;
+    #       margin-right: auto;
+    #       position: absolute;
+    #       bottom: 0;")
+    # )
   ),
  
   ## Footer----------------------------------------------------------
@@ -182,7 +195,7 @@ gd2visUI = dashboardPage(
   body = dashboardBody(
     use_theme(theme),
     shinyjs::useShinyjs(),
-    
+    use_prompt(),
     tabItems(
       ### Welcome tab -------------------
       tabItem(
@@ -196,7 +209,7 @@ gd2visUI = dashboardPage(
             ))
           ),
           box(
-            title = "GD2 score and model building", status = "primary", solidHeader = TRUE, width = 12,
+            title = "Background Information", status = "primary", solidHeader = TRUE, width = 12,
             collapsible = TRUE,
             tagList(includeMarkdown(
               system.file("extdata", "gd2score.md", package = "GD2Viz")
@@ -208,20 +221,20 @@ gd2visUI = dashboardPage(
             side = "right",
             # The id lets us use input$tabset1 on the server to find the current tab
             id = "tabsetWelcomeTab",
-            tabPanel("Custom dataset",
+            tabPanel("Explore datasets", 
                      tagList(includeMarkdown(
-                       system.file("extdata", "custom_data_description.md", package = "GD2Viz")
-                     )),
+                       system.file("extdata", "datasets_description.md", package = "GD2Viz")
+                     ))
             ),
             tabPanel("TCGA subgroups",
                      tagList(includeMarkdown(
                        system.file("extdata", "tcga_description.md", package = "GD2Viz")
                      )),
             ),
-            tabPanel("Explore datasets", 
+            tabPanel("Custom dataset",
                      tagList(includeMarkdown(
-                       system.file("extdata", "datasets_description.md", package = "GD2Viz")
-                     ))
+                       system.file("extdata", "custom_data_description.md", package = "GD2Viz")
+                     )),
             )
           )
         )
@@ -237,24 +250,44 @@ gd2visUI = dashboardPage(
             status = "danger",
             solidHeader = FALSE,
             fluidRow(
-              column(4,
-                radioButtons(
-                  "dataTabScale", 
+              column(4, radioButtons(
+                "dataTabScale",
+                label = div(
                   "Choose RAS processing:",
-                  choices = c("raw", "ranged", "scaled"),
-                  selected = "raw"
-                )
+                  tags$span(icon("circle-question")) %>%
+                    add_prompt(
+                      message = "this is a plot, and I add some text to show the size of the box.",
+                      position = "right",
+                      type = "info",
+                      size = "large",
+                      rounded = TRUE
+                    )
+                ),
+                choices = c("raw", "ranged", "scaled"),
+                selected = "raw"
+              )
               ),
-              column(4,
-                radioButtons(
-                  "dataTabRASType", 
-                  "Visuaize RAS type",
-                  choices = list(
-                    "unadjusted RAS" = "ras", 
-                    "RAS adj. by transision prob." = "ras_prob", 
-                    "RAS adj. by path-based transition probability" = "ras_prob_path", 
-                    "RAS adj. by recurive transition probability" = "ras_prob_rec"),
-                  selected = "ras_prob")
+              column(4, radioButtons(
+                "dataTabRASType",
+                label = div(
+                  "Visualize RAS type:",
+                  tags$span(icon("circle-question")) %>%
+                    add_prompt(
+                      message = "this is a plot, and I add some text to show the size of the box.",
+                      position = "right",
+                      type = "info",
+                      size = "large",
+                      rounded = TRUE
+                    )
+                ),
+                choices = list(
+                  "unadjusted RAS" = "ras",
+                  "RAS adj. by transision prob." = "ras_prob",
+                  "RAS adj. by path-based transition probability" = "ras_prob_path",
+                  "RAS adj. by recurive transition probability" = "ras_prob_rec"
+                ),
+                selected = "ras_prob"
+              )
               )
             )
           )
@@ -551,7 +584,7 @@ gd2visUI = dashboardPage(
       tabItem(
         tabName = "tcgaDetailTab",
         fluidRow(
-          h2("Explore the GD2 Score of large RNA-Seq datasets"), br(),br(),
+          h2("Explore the GD2 Score of TCGA subgroups"), br(),br(),
           box(
             width = 12,
             title = "Global Settings",
@@ -585,8 +618,7 @@ gd2visUI = dashboardPage(
               ),
               column(4,
                      uiOutput("tcgaTabGroupUI"),
-                     selectInput("cnv_gene", label = "Color by CNV:",
-                                 choices = c(""))
+                     uiOutput("tcgaTabCnvUI")
               )
             )
           )
@@ -680,7 +712,7 @@ gd2visUI = dashboardPage(
         fluidRow(
           box(id = "customRASheatmapBox",
               width = 12,
-              # height = "400px",
+              height = "500px",
               title = "Reaction Activity Scores", 
               status = "primary", 
               solidHeader = TRUE, 
@@ -702,20 +734,26 @@ gd2visUI = dashboardPage(
                   choices = c("none", "row", "column"),
                   selected = "none"
                 ),
-                numericInput(
-                  "customRASheatmapHeight",
-                  "Plot Height (px)", value = 1700),
+                # numericInput(
+                #   "customRASheatmapHeight",
+                #   "Plot Height (px)", value = 1700),
                 selectInput(
                   "customRASheatmapColnames",
-                  "Show Sample Names:",
+                  "Show Column Names:",
                   choices = list("yes" = TRUE, "no" = FALSE),
                   selected = "yes"
                 ),
                 selectInput(
                   "customRASheatmapRownames",
-                  "Show Reaction Names:",
+                  "Show Row Names:",
                   choices = list("yes" = TRUE, "no" = FALSE),
                   selected = "yes"
+                ),
+                selectInput(
+                  "customRASheatmapRownamesFull",
+                  "Show Only Reaction Names:",
+                  choices = list("yes" = TRUE, "no" = FALSE),
+                  selected = "no"
                 ),
                 selectInput(
                   "customRASheatmapDistMethod",
@@ -730,7 +768,8 @@ gd2visUI = dashboardPage(
                   selected = "complete"
                 )
               ),
-              plotOutput("customRASheatmap")
+              plotOutput("customRASheatmap", height = "1500px") %>% 
+                withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
           )
         ),
         fluidRow(
@@ -739,7 +778,8 @@ gd2visUI = dashboardPage(
               height = "500px", 
               status = "primary", 
               solidHeader = TRUE,
-              plotlyOutput("customInOutplot")
+              plotlyOutput("customInOutplot") %>% 
+                withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
           ),
           box(id = "customGD2ScoreBox",
               width = 6, 
@@ -764,9 +804,11 @@ gd2visUI = dashboardPage(
                   "Select Plot Type:",
                   choices = c("scatter", "box", "violin"),
                   selected = "scatter"
-                )
+                ),
+                uiOutput("customGD2ScorePlotTGeneUI")
               ),
-              plotlyOutput("customGD2Score")
+              plotlyOutput("customGD2Score") %>% 
+                withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
           )
         ), 
         fluidRow(
@@ -782,7 +824,8 @@ gd2visUI = dashboardPage(
                 column(3, uiOutput("SelectorRASUI"))
               ),
               fluidRow(
-                column(4, uiOutput("generateComparisonButtonUI"), offset = 4, align="center")
+                column(4, uiOutput("generateComparisonButtonUI"), offset = 4, class = "text-center"),
+                column(4, uiOutput("downloadCustomGD2CompUI"), class = "text-center")
               )
               # uiOutput("generateComparisonButtonUI")
               # bs4Dash::actionButton("generateComparison", "Generate comparison", status = "danger")
@@ -792,7 +835,7 @@ gd2visUI = dashboardPage(
           box(width = 6,
               title = "Ganglioside Metabolism",
               id = "customRASGraphBox",
-              height = "530px",
+              height = "570px",
               status = "primary", 
               solidHeader = TRUE,
               maximizable = TRUE,
@@ -809,15 +852,18 @@ gd2visUI = dashboardPage(
                   max = 1
                 )
               ),
-              visNetworkOutput("customGroupCompGraph", height = "400px")
+              visNetworkOutput("customGroupCompGraph", height = "440px") %>% 
+                withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
               # bs4Dash::actionButton("generateComparison", "Generate comparison", status = "danger")
           ),
           box(width = 6,
               title = "Group Comparison", 
-              status = "primary", 
+              id = "customGroupCompBox",
+              status = "primary",
               solidHeader = TRUE,
               maximizable = TRUE,
-              plotOutput("customGroupComp")
+              plotOutput("customGroupComp", height = "530px") %>% 
+                withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
               # bs4Dash::actionButton("generateComparison", "Generate comparison", status = "danger")
           )
         )

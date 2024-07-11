@@ -45,6 +45,8 @@ library(dplyr)
 library(tidyr)
 library(KEGGREST)
 library(DT)
+library(prompter)
+library(circlize)
 
 source("R/utils.R")
 source("R/ui.R")
