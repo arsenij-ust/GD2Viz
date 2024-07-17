@@ -779,7 +779,25 @@ plotGD2Score <- function(df, plot_type = "scatter", Group.1 = NULL, group_title 
   return(fig)
 }
 
+# helper function from R ideal package:
+# https://github.com/federicomarini/ideal/blob/devel/R/table-enhancers.R
+createLinkGeneSymbol <- function(val) {
+  # possibilities:
+  # ncbi
+  # genecards
+  paste0('<a href="http://www.ncbi.nlm.nih.gov/gene/?term=', val, '[sym]" target="_blank" class="btn btn-primary">', val, "</a>")
+}
 
+# helper function from R ideal package:
+# https://github.com/federicomarini/ideal/blob/devel/R/table-enhancers.R
+geneinfo <- function(gene_id) {
+  # the gene id has to be entrez_id
+  
+  ## TODO: will need to finish implementation
+  entrezinfo <- rentrez::entrez_summary("gene", gene_id)
+  
+  return(entrezinfo)
+}
 
 # Shiny resource paths ----------------------------------------------------
 .onLoad <- function(libname, pkgname) {
@@ -820,7 +838,7 @@ plotGD2Score <- function(df, plot_type = "scatter", Group.1 = NULL, group_title 
 
 theme <- fresh::create_theme(
   bs4dash_status(
-    primary = "#164863", danger = "#ff851b", light = "#272c30"
+    primary = "#164863", danger = "#ff851b", light = "#272c30", warning = "#ff851b"
   ),
   bs4dash_vars(
     navbar_light_color = "#164863",

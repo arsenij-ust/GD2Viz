@@ -5,14 +5,14 @@ gd2visServer <- function(input, output, session) {
   options(shiny.maxRequestSize=1000*1024^2)
   trainData <- readRDS(system.file("extdata", "train_data.Rds", package = "GD2Viz"))
   mgraph <- readRDS(system.file("extdata", "substrate_graph.Rds", package = "GD2Viz"))
+  stem <- read.delim(system.file("extdata", "stemness_sig_weights.tsv", package = "GD2Viz"),  header = FALSE, row.names = 1 ) %>% as.matrix() %>% drop()
 
-  tcgaData <- readRDS(system.file("extdata", "TCGA_RAS.Rds", package = "GD2Viz"))
-  gtexData <- readRDS(system.file("extdata", "GTEX_RAS.Rds", package = "GD2Viz"))
-  targetData <- readRDS(system.file("extdata", "TARGET_RAS.Rds", package = "GD2Viz"))
-  stjudeData <- readRDS(system.file("extdata", "STJUDE_RAS.Rds", package = "GD2Viz"))
-  cbttcData <- readRDS(system.file("extdata", "CBTTC_RAS.Rds", package = "GD2Viz"))
+  tcgaData <- readRDS(system.file("extdata/RAS_datasets", "TCGA_RAS.Rds", package = "GD2Viz"))
+  gtexData <- readRDS(system.file("extdata/RAS_datasets", "GTEX_RAS.Rds", package = "GD2Viz"))
+  targetData <- readRDS(system.file("extdata/RAS_datasets", "TARGET_RAS.Rds", package = "GD2Viz"))
+  stjudeData <- readRDS(system.file("extdata/RAS_datasets", "STJUDE_RAS.Rds", package = "GD2Viz"))
+  cbttcData <- readRDS(system.file("extdata/RAS_datasets", "CBTTC_RAS.Rds", package = "GD2Viz"))
   
-  # cnv_data <- readRDS(system.file("extdata", "Gistic2_CopyNumber_Gistic2_all_thresholded_by_genes.Rds", package = "GD2Viz"))
   
   # divide TCGA into Tumor and Normal Datasets
   tcgaNormalIndx <- which(tcgaData$coldata$X_sample_type == "Solid Tissue Normal")
@@ -61,7 +61,7 @@ gd2visServer <- function(input, output, session) {
         footer = NULL,
         easyClose = TRUE,
         tagList(includeMarkdown(
-          system.file("extdata", "about.md", package = "GD2Viz")
+          system.file("extdata/documentation", "about.md", package = "GD2Viz")
         ),
         renderPrint({
           utils::citation("GD2Viz")
@@ -671,42 +671,46 @@ gd2visServer <- function(input, output, session) {
   add_plot_maximize_observer(input, "cbttcGD2ScoreBox", "cbttcGD2plot")
   
   # TCGA Details tab ----------------
-  output$tcgaTabGroupUI <- renderUI({
+  
+  ## Group & Project UI -----
+  
+  output$tcgaTabProjectUI <- renderUI({
     req(tcgaTumorData)
+    projects <- unique(paste0(tcgaTumorData$coldata$detailed_category, " (", tcgaTumorData$coldata$cancer.type, ")"))
+    selectInput(
+      "tcgaTabProject",
+      "TCGA Projects:",
+      choices = c("", projects),
+      selected = ""
+    )
+  })
+  output$tcgaTabGroupUI <- renderUI({
+    req(tcgaTumorData, input$tcgaTabProject)
+    
+    tcgaProject <- sub(".*\\((.*)\\).*", "\\1", input$tcgaTabProject)
+    indx <- which(tcgaTumorData$coldata$cancer.type==tcgaProject)
+    projectColData <- tcgaTumorData$coldata[indx,]
+    projectColData <- projectColData[, apply(
+      projectColData, 2, function(col) !all(is.na(col)))]
+    removeColumns <- c("sample", 
+                       "detailed_category", 
+                       "primary.disease.or.tissue",
+                       "X_primary_site",
+                       "X_study",
+                       "sampleID",
+                       "pan.samplesID",
+                       "cancer.type"
+                       )
+    validColumns <- colnames(projectColData[,-which(colnames(projectColData) %in% removeColumns)])
     selectInput(
       "tcgaTabGroup",
       "Group by:",
-      choices = c("none", colnames(tcgaTumorData$coldata)),
+      choices = c("none", validColumns),
       selected = "primary_diagnosis"
     )
   })
   
-  output$tcgaProjectsTbl = DT::renderDataTable({
-    req(tcgaTumorData)
-    coldata.tcga.sum <- as.data.frame(table(as.factor(tcgaTumorData$coldata$cancer.type)))
-    colnames(coldata.tcga.sum) <- c("TCGA Project","Number of Samples")
-    DT::datatable(coldata.tcga.sum, selection = 'single', rownames = FALSE)
-  })
-  
-  # output$tcgaTabCnvUI <- renderUI({
-  #   req(cnv_data)
-  #   selectizeInput(
-  #     inputId = "tcgaTabCnvSel",
-  #     label = "Color by CNV:",
-  #     choices = NULL,
-  #     selected = NULL
-  #   )
-  # })
-  # 
-  # observe({
-  #   req(cnv_data)
-  #   updateSelectizeInput(
-  #     session, 
-  #     "tcgaTabCnvSel", 
-  #     choices = c("none", as.character(rownames(cnv_data))), 
-  #     server = TRUE)
-  # })
-  
+  ## Model training -----
   tcgaTumorTabGD2 <- reactiveVal(NULL)
   observe({
     req(tcgaTumorData, input$tcgaTabScale, input$tcgaTabRASType)
@@ -733,13 +737,16 @@ gd2visServer <- function(input, output, session) {
     
     tcgaTumorTabGD2(list(prediction = pred$preds, pred_input = pred$input_df))
   })
+  
+  ## GD2 plot -----
   output$tcgaDetailGD2plot <- renderPlotly({
-    req(tcgaTumorTabGD2(), tcgaTumorData, input$tcgaTabGroup, input$tcgaProjectsTbl_row_last_clicked)
+    req(tcgaTumorTabGD2(), tcgaTumorData, input$tcgaTabGroup, input$tcgaTabProject)
     
-    coldata.tcga.sum <- as.data.frame(table(as.factor(tcgaTumorData$coldata$cancer.type)))
-    colnames(coldata.tcga.sum) <- c("TCGA Project","Number of Samples")
-    tcga.project <- coldata.tcga.sum[input$tcgaProjectsTbl_row_last_clicked,"TCGA Project"]
-    indx <- which(tcgaTumorData$coldata$cancer.type==tcga.project)
+    # coldata.tcga.sum <- as.data.frame(table(as.factor(tcgaTumorData$coldata$cancer.type)))
+    # colnames(coldata.tcga.sum) <- c("TCGA Project","Number of Samples")
+    # tcga.project <- coldata.tcga.sum[input$tcgaProjectsTbl_row_last_clicked,"TCGA Project"]
+    tcgaProject <- sub(".*\\((.*)\\).*", "\\1", input$tcgaTabProject)
+    indx <- which(tcgaTumorData$coldata$cancer.type==tcgaProject)
     tcgaColData <- tcgaTumorData$coldata[indx,]
 
     
@@ -772,27 +779,485 @@ gd2visServer <- function(input, output, session) {
       Group.1 <- meandf_custom[order(meandf_custom$x), "Group.1"]
     }
     
-    # if(input$tcgaTabCnv != "none"){
-    #     # print(cnv_data[input$cnv_gene,1:10])
-    #     # SARCsamples <- colData(SE)[which(colData(SE)$cancer.type=="SARC"),"sample"]
-    # 
-    #   common_samples <- intersect(colnames(cnv_data), rownames(plot_df))
-    #   # print(common_samples)
-    #   # print(cnv_data[input$tcgaTabCnv, common_samples])
-    #   # df_all$cnv <- NA
-    #   # df_all[common_samples,"cnv"] <- as.character(cnv_data[input$cnv_gene, common_samples])
-    #   # # print(df_all)
-    #   # fig <- plot_ly(data=df_all, x=~Score, y = ~as.character(Group), type = "scatter", mode="markers", color=~as.factor(cnv)) %>%
-    #   #   layout(yaxis = list(categoryorder = "array", categoryarray = dataInput2()$Group.1, title = 'Group'),
-    #   #          xaxis = list(title = 'GD2 score'))
-    # }
-    
     # Determine plot type
     plot_type <- "scatter"
     highlightGroup <- NULL
     
     plotGD2Score(plot_df, plot_type, Group.1, group_title, colors, highlightGroup)
     
+  })
+  
+  # DEA ----
+  ## Input parameter UIs ----
+  
+  # output$tcgaTabDGEProjectUI <- renderUI({
+  #   req(tcgaTumorData)
+  #   projects <- unique(paste0(tcgaTumorData$coldata$detailed_category, " (", tcgaTumorData$coldata$cancer.type, ")"))
+  #   selectInput(
+  #     "tcgaTabDGEProject",
+  #     "Select TCGA Project:",
+  #     choices = c("", projects),
+  #     selected = ""
+  #   )
+  # })
+  # 
+  # output$tcgaTabDGEColDataUI <- renderUI({
+  #   req(tcgaTumorData)
+  #   
+  #   selectInput(
+  #     "tcgaTabDGEColData",
+  #     "Select factorial variable:",
+  #     choices = c("", colnames(tcgaTumorData$coldata)),
+  #     selected = ""
+  #   )
+  # })
+
+  DGEres <- reactiveVal(NULL)
+  
+  output$tcgaTabDGESubtypeUI <- renderUI({
+    req(tcgaTumorData, input$tcgaTabProject, input$tcgaTabGroup)
+    
+    tcgaProject <- sub(".*\\((.*)\\).*", "\\1", input$tcgaTabProject)
+    indx <- which(tcgaTumorData$coldata$cancer.type==tcgaProject)
+    projectColData <- tcgaTumorData$coldata[indx,]
+    
+    selectInput(
+      "tcgaTabDGESubtype",
+      "1. Select Subgroup:",
+      choices = c("", unique(projectColData[[input$tcgaTabGroup]])),
+      selected = ""
+    )
+  })
+  
+  output$tcgaTabDGEMethodUI <- renderUI({
+    req(tcgaTumorTabGD2(), input$tcgaTabDGEStratMethodSel)
+    
+    if(input$tcgaTabDGEStratMethodSel == "t"){
+      numericInput(
+        "tcgaTabDGEMethod",
+        "GD2 threshold for Stratification:",
+        value = 0,
+        step = 0.5
+      )
+    } else if(input$tcgaTabDGEStratMethodSel == "q"){
+      sliderInput(
+        "tcgaTabDGEMethod", 
+        "Upper & Lower Percentiles", 
+        min = 0, 
+        max = 1, 
+        value = c(0.3, 0.7)
+      )
+    }
+  })
+  
+  ## Sample number UI -----
+  output$ProjectSampleNr <- renderValueBox({
+    req(input$tcgaTabProject,
+        tcgaTumorData)
+    
+    tcgaProject <- sub(".*\\((.*)\\).*", "\\1", input$tcgaTabProject)
+    indx <- which(tcgaTumorData$coldata$cancer.type==tcgaProject)
+    value <- length(indx)
+    
+    bs4ValueBox(
+      value = h3(value),
+      paste0("# ",input$tcgaTabProject," Samples"),
+      icon = icon("list-ul"),
+      color = "primary"
+    )
+  })
+  output$SubgroupSampleNr <- renderValueBox({
+    req(tcgaTumorData, 
+        input$tcgaTabProject, 
+        input$tcgaTabDGESubtype)
+    
+    tcgaProject <- sub(".*\\((.*)\\).*", "\\1", input$tcgaTabProject)
+    indx <- which(tcgaTumorData$coldata$cancer.type==tcgaProject)
+    colDataSub <- tcgaTumorData$coldata[indx,]
+    colDataSubIndx <- which(colDataSub[,input$tcgaTabGroup] == input$tcgaTabDGESubtype)
+    
+    value <- length(colDataSubIndx)
+    
+    bs4ValueBox(
+      value = h3(value),
+      paste0("# ",input$tcgaTabDGESubtype," Samples"),
+      icon = icon("list-check"),
+      color = "info"
+    )
+  })
+  output$GD2HighSampleNr <- renderValueBox({
+    req(input$tcgaTabDGESubtype,
+        tcgaTumorData, 
+        tcgaTumorTabGD2(), 
+        input$tcgaTabDGEStratMethodSel)
+    
+    tcgaProject <- sub(".*\\((.*)\\).*", "\\1", input$tcgaTabProject)
+    indx <- which(tcgaTumorData$coldata$cancer.type==tcgaProject)
+    colDataSub <- tcgaTumorData$coldata[indx,]
+    indx2 <- which(colDataSub[[input$tcgaTabGroup]]==input$tcgaTabDGESubtype)
+    colDataSub <- colDataSub[indx2,]
+    # print(input$tcgaTabGroup)
+    # print(input$tcgaTabDGESubtype)
+    # colDataSub <- colDataSub[which(tcgaTumorData$coldata[,input$tcgaTabGroup] == input$tcgaTabDGESubtype),]
+    # print(colDataSub)
+    tcgaSubsetSamples <- rownames(colDataSub)
+    # print(tcgaSubsetSamples)
+    
+    if(input$tcgaTabDGEStratMethodSel == "m"){
+      threshold <- median(tcgaTumorTabGD2()$prediction[tcgaSubsetSamples])
+    } else if(input$tcgaTabDGEStratMethodSel == "t"){
+      threshold <- input$tcgaTabDGEMethod
+    } else if(input$tcgaTabDGEStratMethodSel == "q"){
+      threshold <- quantile(tcgaTumorTabGD2()$prediction[tcgaSubsetSamples],
+                            probs = input$tcgaTabDGEMethod)[2]
+      
+    }
+    predSub <- tcgaTumorTabGD2()$prediction[tcgaSubsetSamples]
+    value <- length(predSub[predSub >= threshold])
+    
+    bs4ValueBox(
+      value = h3(value),
+      "# GD2-High Samples",
+      icon = icon("circle-up"),
+      color = "success"
+    )
+  })
+  output$GD2LowSampleNr <- renderValueBox({
+    req(input$tcgaTabDGESubtype,
+        tcgaTumorData, 
+        tcgaTumorTabGD2(), 
+        input$tcgaTabDGEStratMethodSel)
+    
+    tcgaProject <- sub(".*\\((.*)\\).*", "\\1", input$tcgaTabProject)
+    indx <- which(tcgaTumorData$coldata$cancer.type==tcgaProject)
+    colDataSub <- tcgaTumorData$coldata[indx,]
+    indx2 <- which(colDataSub[[input$tcgaTabGroup]]==input$tcgaTabDGESubtype)
+    colDataSub <- colDataSub[indx2,]
+    # print(input$tcgaTabGroup)
+    # print(input$tcgaTabDGESubtype)
+    # colDataSub <- colDataSub[which(tcgaTumorData$coldata[,input$tcgaTabGroup] == input$tcgaTabDGESubtype),]
+    # print(colDataSub)
+    tcgaSubsetSamples <- rownames(colDataSub)
+    # print(tcgaSubsetSamples)
+    
+    if(input$tcgaTabDGEStratMethodSel == "m"){
+      threshold <- median(tcgaTumorTabGD2()$prediction[tcgaSubsetSamples])
+    } else if(input$tcgaTabDGEStratMethodSel == "t"){
+      threshold <- input$tcgaTabDGEMethod
+    } else if(input$tcgaTabDGEStratMethodSel == "q"){
+      threshold <- quantile(tcgaTumorTabGD2()$prediction[tcgaSubsetSamples],
+                            probs = input$tcgaTabDGEMethod)[1]
+    }
+    predSub <- tcgaTumorTabGD2()$prediction[tcgaSubsetSamples]
+    value <- length(predSub[predSub < threshold])
+    
+    bs4ValueBox(
+      value = h3(value),
+      "# GD2-Low Samples",
+      icon = icon("circle-down"),
+      color = "orange"
+    )
+  })
+  
+  ## Extract DGE results
+  observeEvent(input$tcgaTabDGECompute, {
+    req(input$tcgaTabProject, 
+        input$tcgaTabGroup,
+        input$tcgaTabDGESubtype,
+        tcgaTumorTabGD2(), 
+        input$tcgaTabDGEStratMethodSel)
+    
+    
+    withProgress(
+      message = "Computing the results...",
+      detail = "This step can take a little while",
+      value = 0,
+      {
+        project <- sub(".*\\((.*)\\).*", "\\1", input$tcgaTabProject)
+        metadata<- input$tcgaTabGroup
+        subtype <- input$tcgaTabDGESubtype
+        incProgress(amount = 0.1, detail = "Loadnig data...")
+        TCGA_dds <- readRDS(system.file("extdata/TCGA_projects", paste0("TCGA-",project,".Rds"), package = "GD2Viz"))
+
+        # TODO check sample number (prevent low sample numbers y stopping)
+
+        TCGA_dds <- TCGA_dds[,which(colData(TCGA_dds)[[metadata]] == subtype)]
+
+        prediction <- tcgaTumorTabGD2()$prediction[colnames(TCGA_dds)]
+
+        colData(TCGA_dds)$GD2Score <- prediction
+
+        # stratify by method
+        if(input$tcgaTabDGEStratMethodSel == "m"){
+          threshold <- median(colData(TCGA_dds)$GD2Score)
+          colData(TCGA_dds)$strat <- ifelse(colData(TCGA_dds)$GD2Score >= threshold, "GD2_High", "GD2_Low")
+        } else if(input$tcgaTabDGEStratMethodSel == "t"){
+          threshold <- input$tcgaTabDGEMethod
+          colData(TCGA_dds)$strat <- ifelse(colData(TCGA_dds)$GD2Score >= threshold, "GD2_High", "GD2_Low")
+        } else if(input$tcgaTabDGEStratMethodSel == "q"){
+          threshold <- quantile(colData(TCGA_dds)$GD2Score,
+                                probs = input$tcgaTabDGEMethod)
+          # TODO colData(TCGA_dds)$strat <- ifelse(colData(TCGA_dds)$GD2Score >= threshold, "GD2_High", "GD2_Low")
+          
+        }
+
+        colData(TCGA_dds)$strat <- as.factor(colData(TCGA_dds)$strat)
+
+        design(TCGA_dds) <- ~strat
+        keep <- rowSums(counts(TCGA_dds)) >= 10 # TODO make interactive filtering params
+        TCGA_dds <- TCGA_dds[keep,]
+        incProgress(amount = 0.2, detail = "Performing DESeq...")
+        if (input$tcgaTabDGEParallel) {
+          TCGA_dds <- DESeq(TCGA_dds,
+                            parallel = TRUE)
+        } else {
+          TCGA_dds <- DESeq(TCGA_dds)
+        }
+        
+        # handling the experimental covariate correctly to extract the results...
+        
+        if (input$tcgaTabDGEWeight) {
+          res_obj <- results(
+            TCGA_dds,
+            contrast = c("strat", "GD2_High", "GD2_Low"),
+            independentFiltering = input$tcgaTabDGEFiltering,
+            alpha = input$tcgaTabDGEFDR,
+            filterFun = ihw
+          )
+          
+          if (input$tcgaTabDGEShrink) {
+            incProgress(amount = 0.3, detail = "Results extracted. Shrinking the logFC now...")
+            res_obj <- lfcShrink(
+              TCGA_dds,
+              contrast = c("strat", "GD2_High", "GD2_Low"),
+              res = res_obj,
+              type = "normal"
+            )
+            
+            incProgress(amount = 0.8, detail = "logFC shrunken, adding annotation info...")
+          } else {
+            incProgress(amount = 0.9, detail = "logFC left unshrunken, adding annotation info...")
+          }
+        } else {
+          res_obj <- results(
+            TCGA_dds,
+            contrast = c("strat", "GD2_High", "GD2_Low"),
+            independentFiltering = input$tcgaTabDGEFiltering,
+            alpha = input$tcgaTabDGEFDR
+          )
+          if (input$tcgaTabDGEShrink) {
+            incProgress(amount = 0.3, detail = "Results extracted. Shrinking the logFC now...")
+            res_obj <- lfcShrink(
+              TCGA_dds,
+              contrast = c("strat", "GD2_High", "GD2_Low"),
+              res = res_obj,
+              type = "normal"
+            )
+            incProgress(amount = 0.8, detail = "logFC shrunken, adding annotation info...")
+          } else {
+            incProgress(amount = 0.9, detail = "logFC left unshrunken, adding annotation info...")
+          }
+        }
+        res_obj$symbol <- rownames(res_obj)
+        DGEres(list(dds = TCGA_dds, res = res_obj))
+        
+        # if (class(colData(values$dds_obj)[, input$choose_expfac]) %in% c("integer", "numeric")) {
+        #   values$res_obj <- results(
+        #     values$dds_obj,
+        #     name = input$choose_expfac,
+        #     independentFiltering = input$resu_indfil,
+        #     alpha = input$FDR
+        #     # , addMLE = input$resu_lfcshrink
+        #   )
+        # }
+        
+        # adding info from the annotation
+        # if (!is.null(values$annotation_obj)) {
+        #   values$res_obj$symbol <- values$annotation_obj$gene_name[
+        #     match(
+        #       rownames(values$res_obj),
+        #       rownames(values$annotation_obj)
+        #     )
+        #   ]
+        # }
+      }
+    )
+  })
+  
+  ## DEA Result -----
+  output$diyres_summary <- renderPrint({
+    req(DGEres(), input$tcgaTabDGEFDR)
+    # summary(DGEres()$res, alpha = as.numeric(input$tcgaTabDGEFDR))
+    DESeq2::summary(DGEres()$res)
+  })
+  
+  output$table_res <- DT::renderDataTable({
+    req(DGEres())
+    mydf <- as.data.frame(DGEres()$res) # [1:500,]
+    # mydf <- as.data.frame(DGEres()$res[order(DGEres()$res$padj), ])
+    # rownames(mydf) <- createLinkENS(rownames(mydf), species = annoSpecies_df$ensembl_db[match(input$speciesSelect, annoSpecies_df$species)]) 
+    mydf$symbol <- createLinkGeneSymbol(mydf$symbol)
+    datatable(
+      mydf,
+      escape = FALSE,
+      selection = 'single',
+      options = list(order = list(list(6, 'asc')),
+                     scrollX = TRUE)
+      )
+  })
+  
+  output$pvals_hist <- renderPlot({
+    req(DGEres())
+
+    res_df <- as.data.frame(DGEres()$res)
+    res_df <- dplyr::filter(res_df, !is.na(pvalue))
+    p <- ggplot(res_df, aes_string("pvalue")) +
+      geom_histogram(binwidth = 0.01, boundary = 0) +
+      theme_bw()
+
+    # for visual estimation of the false discovery proportion in the first bin
+    alpha <- binw <- input$tcgaTabDGEFDR
+    pi0 <- 2 * mean(res_df$pvalue > 0.5)
+    p <- p + geom_hline(yintercept = pi0 * binw * nrow(res_df), col = "steelblue") +
+      geom_vline(xintercept = alpha, col = "red")
+
+    p <- p + ggtitle(
+      label = "p-value histogram",
+      subtitle = paste0(
+        "Expected nulls = ", pi0 * binw * nrow(res_df),
+        " - #elements in the selected bins = ", sum(res_df$pvalue < alpha)
+      )
+    )
+
+    p
+  })
+
+  output$logfc_hist <- renderPlot({
+    req(DGEres())
+
+    res_df <- as.data.frame(DGEres()$res)
+    res_df <- dplyr::filter(res_df, !is.na(pvalue))
+
+    p <- ggplot(res_df, aes_string("log2FoldChange")) +
+      geom_histogram(binwidth = 0.1) +
+      theme_bw()
+
+    p <- p + ggtitle(
+      "Histogram of the log2 fold changes"
+    )
+
+    p
+  })
+
+  output$plotma <- renderPlot({
+    req(DGEres())
+
+    p <- ideal::plot_ma(DGEres()$res, annotation_obj = NULL, FDR = input$tcgaTabDGEFDR)
+
+    p
+  })
+
+  output$volcanoplot <- renderPlotly({
+    req(DGEres())
+
+    # p <- ideal::plot_volcano(DGEres()$res, FDR = input$tcgaTabDGEFDR)
+    
+    # ggplotly(p)
+    
+    res_df <- DGEres()$res
+    res_df <- res_df[-which(is.na(res_df$padj)),]
+    
+    # add a column of NAs
+    res_df$diffexpressed <- "NO"
+    # if log2Foldchange > 0.6 and pvalue < 0.05, set as "UP" 
+    res_df$diffexpressed[res_df$log2FoldChange > 0.6 & res_df$padj < 0.05] <- "UP"
+    # if log2Foldchange < -0.6 and pvalue < 0.05, set as "DOWN"
+    res_df$diffexpressed[res_df$log2FoldChange < -0.6 & res_df$padj < 0.05] <- "DOWN"
+    
+    res_df$delabel <-rownames(res_df)
+    # res_df$delabel[res_df$diffexpressed != "NO"] <- rownames(res_df)[res_df$diffexpressed != "NO"]
+    
+    
+    
+    mycolors <- c("#164863", "#ff851b", "black")
+    names(mycolors) <- c("DOWN", "UP", "NO")
+    
+    # library(ggrepel)
+    p <- ggplot(data=res_df, aes(x=log2FoldChange, y=-log10(pvalue), col=diffexpressed, label=symbol)) +
+      geom_point() +
+      theme_minimal() +
+      # geom_text_repel() +
+      scale_color_manual(values=c("#164863", "black", "#ff851b")) +
+      geom_vline(xintercept=c(-0.6, 0.6), col="red") +
+      geom_hline(yintercept=-log10(input$tcgaTabDGEFDR), col="red")
+    plotly::ggplotly(p)
+  })
+
+  output$genefinder_plot <- renderPlotly({
+    req(DGEres())
+    shiny::validate(
+      need(
+        length(input$table_res_row_last_clicked) > 0,
+        "Select a Gene in the 'DEA Genes' Table"
+      )
+    )
+
+    selectedGene <- rownames(DGEres()$res)[input$table_res_row_last_clicked]
+    # selectedGeneSymbol <- values$annotation_obj$gene_name[match(selectedGene, values$annotation_obj$gene_id)]
+
+    p <- ggplotCounts(DGEres()$dds, selectedGene, intgroup = "strat", annotation_obj = NULL)
+
+    # if (input$ylimZero_genes) {
+    #   p <- p + ylim(0.1, NA)
+    # }
+
+    ggplotly(p)
+  })
+
+  output$rentrez_infobox <- renderUI({
+    req(DGEres())
+    shiny::validate(
+      need(
+        (length(input$table_res_row_last_clicked) > 0),
+        "Select a gene in the 'DEA Genes' Table to display additional info (retrieved from the NCBI/ENTREZ db website)"
+      )
+    )
+
+    selectedGene <- rownames(DGEres()$res)[input$table_res_row_last_clicked]
+    
+    tryCatch({
+      selgene_entrez <- AnnotationDbi::mapIds(org.Hs.eg.db,
+                                              keys = selectedGene,
+                                              column = "ENTREZID",
+                                              keytype = "SYMBOL")
+      fullinfo <- geneinfo(selgene_entrez)
+  
+      ## TODO: build up link manually to paste under the info!
+      #
+      link_pubmed <- paste0(
+        '<a href="http://www.ncbi.nlm.nih.gov/gene/?term=',
+        selgene_entrez,
+        '" target="_blank" >Click here to see more at NCBI</a>'
+      )
+  
+      if (fullinfo$summary == "") {
+        return(HTML(paste0(
+          "<b>", fullinfo$name, "</b><br/><br/>",
+          fullinfo$description, "<br/><br/>",
+          link_pubmed
+        )))
+      } else {
+        return(HTML(paste0(
+          "<b>", fullinfo$name, "</b><br/><br/>",
+          fullinfo$description, "<br/><br/>",
+          fullinfo$summary, "<br/><br/>",
+          link_pubmed
+        )))
+      }
+    },
+    error = function(cond){
+      message("No Entrez ID found for selected gene.")
+    }) 
   })
   
   # Custom dataset tab ----------------
@@ -1066,6 +1531,12 @@ gd2visServer <- function(input, output, session) {
       cluster_columns <- TRUE
     }
     
+    if (input$customRASheatmapScale == "row") {
+      data <- t(scale(t(data)))
+    } else if (input$customRASheatmapScale == "column") {
+      data <- scale(data)
+    }
+    
     clustering_distance_columns <- input$customRASheatmapDistMethod
     clustering_method_columns <- input$customRASheatmapHclustMethod
     
@@ -1080,11 +1551,6 @@ gd2visServer <- function(input, output, session) {
     show_colnames <- as.logical(input$customRASheatmapColnames)
     show_rownames <- as.logical(input$customRASheatmapRownames)
     
-    # TODO implement scaling
-    # Scale the data if necessary
-    # if (scale != "none") {
-    #   data <- t(scale(t(data), center = TRUE, scale = (scale == "row")))
-    # }
     viz_mgraph <- visNetwork::toVisNetworkData(mgraph, idToLabel = FALSE)
     viz_mgraph$edges$miriam.kegg.reaction <- sapply(viz_mgraph$edges$miriam.kegg.reaction, function(x) paste(x, collapse = ","))
     viz_mgraph$edges$to <- sapply(viz_mgraph$edges$to, function(x) paste(x, collapse = ","))
@@ -1114,6 +1580,7 @@ gd2visServer <- function(input, output, session) {
     }
     
     f1 = colorRamp2(seq(min(data), max(data), length = 3), c("#164863", "#EEEEEE", "#ff851b"))
+  
     
     # Create the heatmap
     heatmap <- Heatmap(
@@ -1304,6 +1771,64 @@ gd2visServer <- function(input, output, session) {
         title = 'GD2 Score')
     }
     
+    fig <- fig %>%
+      layout(
+        yaxis = yaxisls,
+        xaxis = xaxisls)
+    
+    fig
+  })
+  
+  ## Stemness Score vs GD2 Score ----
+  output$customGD2Stemness <- renderPlotly({
+    req(customGD2(), customData(), input$customGD2StemnessRange, stem)
+    
+    norm_counts <- DESeq2::counts(customData()$custom_dds, normalized=TRUE)
+    norm_counts <- log2(norm_counts + 1)
+    i_genes <- intersect(names(stem), rownames(norm_counts))
+    X <- norm_counts[i_genes,]
+    w <- stem[i_genes]
+    
+    if (input$customColData == "none") {
+      group <- as.factor(rep(1, nrow(colData(customData()$custom_dds))))
+      meandf_custom <- NULL
+      group_title <- ""
+      colors <- "#164863"
+    } else {
+      group <- colData(customData()$custom_dds)[, input$customColData]
+      meandf_custom <- aggregate(customGD2()$predList[[input$customRASType]], list(group), FUN = mean)
+      group_title <- input$customColData
+      if(length(unique(group)) == 2){
+        colors <- c("#164863", "#ff851b")
+      } else {
+        colors <- NULL
+      }
+    }
+    
+    s <- apply( X, 2, function(z) {cor( z, w, method="sp", use="complete.obs" )} )
+    s <- range01(s)
+    
+    pred_values <- customGD2()$predList[[input$customRASType]]
+    if(input$customGD2StemnessRange == "yes"){
+      pred_values <- range01(pred_values)
+    }
+    
+    plot_df <- data.frame(Group = group, GD2Score = pred_values, Stemness = s)
+    
+    fig <- plot_ly(
+      data = plot_df, 
+      x = ~GD2Score, 
+      y = ~Stemness, 
+      type = "scatter", 
+      mode = "markers", 
+      text = rownames(plot_df), 
+      color = ~as.character(Group), 
+      colors = colors)
+    yaxisls <- list(
+      title = "mRNAsi")
+    xaxisls = list(
+      title = 'GD2 Score')
+
     fig <- fig %>%
       layout(
         yaxis = yaxisls,
@@ -1536,7 +2061,6 @@ gd2visServer <- function(input, output, session) {
     # Merge the edge data with pval_df
     viz_mgraph$edges <- viz_mgraph$edges %>%
       left_join(pval_df, by = c("miriam.kegg.reaction" = "reaction"))
-
 
     e_df <- as.data.frame(viz_mgraph$edges)
     # print(e_df)

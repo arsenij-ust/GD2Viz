@@ -205,14 +205,14 @@ gd2visUI = dashboardPage(
             title = "Welcome to GD2Viz", status = "primary", solidHeader = TRUE, width = 12,
             collapsible = TRUE,
             tagList(includeMarkdown(
-              system.file("extdata", "welcome.md", package = "GD2Viz")
+              system.file("extdata/documentation", "welcome.md", package = "GD2Viz")
             ))
           ),
           box(
             title = "Background Information", status = "primary", solidHeader = TRUE, width = 12,
             collapsible = TRUE,
             tagList(includeMarkdown(
-              system.file("extdata", "gd2score.md", package = "GD2Viz")
+              system.file("extdata/documentation", "gd2score.md", package = "GD2Viz")
             ))
           ),
           tabBox(
@@ -223,17 +223,17 @@ gd2visUI = dashboardPage(
             id = "tabsetWelcomeTab",
             tabPanel("Explore datasets", 
                      tagList(includeMarkdown(
-                       system.file("extdata", "datasets_description.md", package = "GD2Viz")
+                       system.file("extdata/documentation", "datasets_description.md", package = "GD2Viz")
                      ))
             ),
             tabPanel("TCGA subgroups",
                      tagList(includeMarkdown(
-                       system.file("extdata", "tcga_description.md", package = "GD2Viz")
+                       system.file("extdata/documentation", "tcga_description.md", package = "GD2Viz")
                      )),
             ),
             tabPanel("Custom dataset",
                      tagList(includeMarkdown(
-                       system.file("extdata", "custom_data_description.md", package = "GD2Viz")
+                       system.file("extdata/documentation", "custom_data_description.md", package = "GD2Viz")
                      )),
             )
           )
@@ -243,7 +243,13 @@ gd2visUI = dashboardPage(
       tabItem(
         tabName = "exploreDataTab",
         fluidRow(
-          h2("Explore the GD2 Score of large RNA-Seq datasets"), br(),br(),
+          column(
+            width = 12,
+            h3("Explore the GD2 Score of large RNA-Seq datasets")
+          )
+        ),
+        fluidRow(
+          # h2("Explore the GD2 Score of large RNA-Seq datasets"), br(),br(),
           box(
             width = 12,
             title = "Global Settings",
@@ -340,7 +346,7 @@ gd2visUI = dashboardPage(
                 status = "primary",
                 collapsible = FALSE,
                 tagList(includeMarkdown(
-                  system.file("extdata", "tcga_citation.md", package = "GD2Viz")
+                  system.file("extdata/documentation", "tcga_citation.md", package = "GD2Viz")
                 ))
               )
             ),
@@ -386,7 +392,7 @@ gd2visUI = dashboardPage(
                 status = "primary",
                 collapsible = FALSE,
                 tagList(includeMarkdown(
-                  system.file("extdata", "tcga_citation.md", package = "GD2Viz")
+                  system.file("extdata/documentation", "tcga_citation.md", package = "GD2Viz")
                 ))
               )
             ),
@@ -433,7 +439,7 @@ gd2visUI = dashboardPage(
                 status = "primary",
                 collapsible = FALSE,
                 tagList(includeMarkdown(
-                  system.file("extdata", "gtex_citation.md", package = "GD2Viz")
+                  system.file("extdata/documentation", "gtex_citation.md", package = "GD2Viz")
                 ))
               )
             ),
@@ -480,7 +486,7 @@ gd2visUI = dashboardPage(
                 status = "primary",
                 collapsible = FALSE,
                 tagList(includeMarkdown(
-                  system.file("extdata", "target_citation.md", package = "GD2Viz")
+                  system.file("extdata/documentation", "target_citation.md", package = "GD2Viz")
                 ))
               )
             ),
@@ -527,7 +533,7 @@ gd2visUI = dashboardPage(
                 status = "primary",
                 collapsible = FALSE,
                 tagList(includeMarkdown(
-                  system.file("extdata", "stjude_citation.md", package = "GD2Viz")
+                  system.file("extdata/documentation", "stjude_citation.md", package = "GD2Viz")
                 ))
               )
             ),
@@ -573,7 +579,7 @@ gd2visUI = dashboardPage(
                 status = "primary",
                 collapsible = FALSE,
                 tagList(includeMarkdown(
-                  system.file("extdata", "cbttc_citation.md", package = "GD2Viz")
+                  system.file("extdata/documentation", "cbttc_citation.md", package = "GD2Viz")
                 ))
               )
             )
@@ -584,10 +590,25 @@ gd2visUI = dashboardPage(
       tabItem(
         tabName = "tcgaDetailTab",
         fluidRow(
-          h2("Explore the GD2 Score of TCGA subgroups"), br(),br(),
-          box(
+          column(
             width = 12,
-            title = "Global Settings",
+            h3("GD2 Score in TCGA Subgroups")
+          )
+        ),
+        fluidRow(
+          #h2("Explore the GD2 Score of TCGA subgroups"), br(),br(),
+          box(
+            width = 4,
+            title = "1. Select TCGA Project",
+            status = "danger",
+            solidHeader = FALSE,
+            uiOutput("tcgaTabProjectUI"),
+            uiOutput("tcgaTabGroupUI")
+            # uiOutput("tcgaTabCnvUI")
+          ),
+          box(
+            width = 8,
+            title = "2. Global Settings",
             status = "danger",
             solidHeader = FALSE,
             fluidRow(
@@ -615,18 +636,107 @@ gd2visUI = dashboardPage(
                          "RAS adj. by path-based transition probability" = "ras_prob_path", 
                          "RAS adj. by recurive transition probability" = "ras_prob_rec"),
                        selected = "ras_prob")
-              ),
-              column(4,
-                     uiOutput("tcgaTabGroupUI"),
-                     uiOutput("tcgaTabCnvUI")
               )
+              
+            )
+          )
+        ),
+        fluidRow(
+          box(
+            width = 12,
+            title = "GD2 Score of TCGA Project:",
+            status = "primary",
+            solidHeader = TRUE,
+            plotlyOutput("tcgaDetailGD2plot", height = "90vh") %>% withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
+          )
+        ),
+        fluidRow(
+          column(
+            width = 12,
+            h3("Perform Differential Expression Analysis")
+          )
+        ),
+        fluidRow(
+          #h2("Explore the GD2 Score of TCGA subgroups"), br(),br(),
+          box(
+            width = 12,
+            title = "Settings for Differential Expression Analysis",
+            status = "danger",
+            solidHeader = FALSE,
+            fluidRow(
+              column(4, 
+                     # h4("Subset TCGA data:"),
+                     # uiOutput("tcgaTabDGEProjectUI"),
+                     # uiOutput("tcgaTabDGEColDataUI"),
+                     uiOutput("tcgaTabDGESubtypeUI"),
+                     fluidRow(
+                       column(6,valueBoxOutput("ProjectSampleNr", width = 12)),
+                       column(6,valueBoxOutput("SubgroupSampleNr", width = 12))
+                     )
+                     ),
+              column(4, 
+                     selectInput(
+                       "tcgaTabDGEStratMethodSel",
+                       "2. Select stratification method:",
+                       choices = list("Median"="m", "One Threshold"="t", "Upper/Lower Percentiles"="q"),
+                       selected = "m"
+                     ),
+                     uiOutput("tcgaTabDGEMethodUI"),
+                     # uiOutput("tcgaTabDGESampleNrUI")
+                     fluidRow(
+                       column(6,valueBoxOutput("GD2LowSampleNr", width = 12)),
+                       column(6,valueBoxOutput("GD2HighSampleNr", width = 12))
+                     )
+                     ),
+              column(4, 
+                     numericInput(
+                       "tcgaTabDGEFDR", 
+                       "False Discovery Rate", 
+                       value = 0.05,
+                       min = 0, 
+                       max = 1, 
+                       step = 0.01),
+                     selectInput(
+                       "tcgaTabDGEFiltering",
+                       "Apply independent filtering automatically:",
+                       choices = c("TRUE", "FALSE"),
+                       selected = "TRUE"
+                     ),
+                     selectInput(
+                       "tcgaTabDGEShrink",
+                       "Shrink the log fold change for the contrast of interest:",
+                       choices = c("TRUE", "FALSE"),
+                       selected = "TRUE"
+                     ),
+                     selectInput(
+                       "tcgaTabDGEWeight",
+                       "Use Independent Hypothesis Weighting (IHW) as a filtering function:",
+                       choices = c("TRUE", "FALSE"),
+                       selected = "FALSE"
+                     ),
+                     selectInput(
+                       "tcgaTabDGEParallel",
+                       "Use parallel execution of DESeq function using BiocParallel:",
+                       choices = c("TRUE", "FALSE"),
+                       selected = "FALSE"
+                     ),
+                     bs4Dash::actionButton("tcgaTabDGECompute", "Run Differential Expression Analysis", status = "warning")
+                     )
             )
           )
         ),
         fluidRow(
           box(
             width = 4,
-            title = "Select TCGA Project:",
+            title = "DEA Result",
+            status = "primary",
+            solidHeader = TRUE,
+            verbatimTextOutput("diyres_summary") %>% 
+              withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
+          ),
+          box(
+            width = 8,
+            title = "DEA Genes",
             status = "primary",
             solidHeader = TRUE,
             tags$head(tags$style(HTML(
@@ -650,20 +760,96 @@ gd2visUI = dashboardPage(
               }"
             ))
             ),
-            DT::dataTableOutput("tcgaProjectsTbl")
-          ),
+            DT::dataTableOutput("table_res") %>% 
+              withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
+          )
+        ),
+        fluidRow(
           box(
-            width = 8,
-            title = "GD2 Score of TCGA Project:",
+            width = 6,
+            title = "Selected Gene",
             status = "primary",
             solidHeader = TRUE,
-            plotlyOutput("tcgaDetailGD2plot", height = "90vh") %>% withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
+            plotlyOutput("genefinder_plot") %>% 
+              withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
+          ),
+          box(
+            width = 6,
+            title = "Gene infobox",
+            status = "primary",
+            solidHeader = TRUE,
+            htmlOutput("rentrez_infobox") %>% 
+              withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
+          )
+        ),
+        fluidRow(
+          column(
+            width = 12,
+            h3("Diagnostic plots")
+          )
+        ),
+        fluidRow(
+          box(
+            width = 6,
+            title = "p-Value Histogram",
+            status = "primary",
+            solidHeader = TRUE,
+            plotOutput("pvals_hist") %>% 
+              withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
+          ),
+          box(
+            width = 6,
+            title = "Histogram of the Log2 Fold-Changes",
+            status = "primary",
+            solidHeader = TRUE,
+            plotOutput("logfc_hist") %>% 
+              withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
+          )
+        ),
+        fluidRow(
+          column(
+            width = 12,
+            h3("Summary plots")
+          )
+        ),
+        fluidRow(
+          box(
+            width = 6,
+            title = "MA plot",
+            status = "primary",
+            solidHeader = TRUE,
+            plotOutput("plotma") %>% 
+              withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
+          ),
+          box(
+            width = 6,
+            title = "Volcano plot",
+            status = "primary",
+            solidHeader = TRUE,
+            plotlyOutput("volcanoplot") %>% 
+              withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
+          )
+        ),
+        fluidRow(
+          box(
+            width = 12,
+            status = "primary",
+            collapsible = FALSE,
+            tagList(includeMarkdown(
+              system.file("extdata/documentation", "DEA_acknowledgment.md", package = "GD2Viz")
+            ))
           )
         )
       ),
       ### Custom data tab -------------------
       tabItem(
         tabName = "customDataTab",
+        fluidRow(
+          column(
+            width = 12,
+            h3("Upload Your Dataset and Compute the GD2 Score")
+          )
+        ),
         fluidRow(
           box(
             width = 3,
@@ -778,7 +964,7 @@ gd2visUI = dashboardPage(
               height = "500px", 
               status = "primary", 
               solidHeader = TRUE,
-              plotlyOutput("customInOutplot") %>% 
+              plotlyOutput("customInOutplot", height = "auto") %>% 
                 withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
           ),
           box(id = "customGD2ScoreBox",
@@ -803,14 +989,52 @@ gd2visUI = dashboardPage(
                   "customGD2ScorePlotType",
                   "Select Plot Type:",
                   choices = c("scatter", "box", "violin"),
-                  selected = "scatter"
+                  selected = "box"
                 ),
                 uiOutput("customGD2ScorePlotTGeneUI")
               ),
-              plotlyOutput("customGD2Score") %>% 
+              plotlyOutput("customGD2Score", height = "auto") %>% 
                 withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
           )
         ), 
+        # Malta TM, Sokolov A, Gentles AJ, Burzykowski T, Poisson L, Weinstein JN, Kamińska B, Huelsken J, Omberg L, Gevaert O, Colaprico A, Czerwińska P, Mazurek S, Mishra L, Heyn H, Krasnitz A, Godwin AK, Lazar AJ; Cancer Genome Atlas Research Network; Stuart JM, Hoadley KA, Laird PW, Noushmehr H, Wiznerowicz M. Machine Learning Identifies Stemness Features Associated with Oncogenic Dedifferentiation. Cell. 2018 Apr 5;173(2):338-354.e15. doi: 10.1016/j.cell.2018.03.034.
+        fluidRow(
+          column(
+            width = 6,
+            offset = 3,
+            box(id = "customGD2StemnessBox",
+                width = 12,
+                title = div(
+                  "GD2 Score vs. Stemness Score (mRNAsi)",
+                  tags$span(icon("circle-question")) %>%
+                    add_prompt(
+                      message = "Malta TM, Sokolov A, et al.; Cancer Genome Atlas Research Network; Stuart JM, Hoadley KA, Laird PW, Noushmehr H, Wiznerowicz M. Machine Learning Identifies Stemness Features Associated with Oncogenic Dedifferentiation. Cell. 2018 Apr 5;173(2):338-354.e15. doi: 10.1016/j.cell.2018.03.034.",
+                      position = "right",
+                      type = "info",
+                      size = "large",
+                      rounded = TRUE
+                    )), 
+                status = "primary", 
+                solidHeader = TRUE,
+                height = "500px",
+                maximizable = FALSE,
+                sidebar = boxSidebar(
+                  startOpen = TRUE,
+                  background = "#427D9D",
+                  width = 50,
+                  id = "customGD2StemnessBoxSidebar",
+                  selectInput(
+                    "customGD2StemnessRange",
+                    "Range Values [0-1]:",
+                    choices = c("yes", "no"),
+                    selected = "no"
+                  )
+                ),
+                plotlyOutput("customGD2Stemness", height = "auto") %>% 
+                  withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
+                )
+          )
+        ),
         fluidRow(
           box(width = 12, 
               height = "170px",
