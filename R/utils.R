@@ -123,14 +123,14 @@ assignSampleExpression <- function(igraph, sample_expr, gene_column = "symbol", 
 #'
 #' # Compute reaction activity values and get as a data frame
 #' reaction_activity_df <- computeReactionActivity(g, counts, output_graph = FALSE)
-computeReactionActivity <- function(igraph, counts, gene_column = "symbol", attr_name = "edge_sum", output_graph = FALSE) {
+computeReactionActivity <- function(igraph, counts, gene_column = "symbol", attr_name = "edge_sum", output_graph = FALSE, rowname_column = "miriam.kegg.reaction") {
   
   res <- apply(counts, 2, function(x) {
     assignSampleExpression(igraph, x, gene_column = gene_column, attr_name = attr_name, output_graph = output_graph)
   })
   
   if (!output_graph) {
-    rownames(res) <- unlist(igraph::edge_attr(igraph, "miriam.kegg.reaction"))
+    rownames(res) <- unlist(igraph::edge_attr(igraph, rowname_column))
     res <- res[!duplicated(rownames(res)), ]
   }
   
@@ -405,7 +405,7 @@ normalizeTestDataset <- function(counts = NULL, metadata = NULL, dds = NULL, geo
   }
   
   # Estimate size factors for the new dataset based on the training dataset
-  sizeFactors(dds) <- estimateSizeFactorsForMatrix(counts(dds)[features, ], geoMeans = geom[features])
+  sizeFactors(dds) <- DESeq2::estimateSizeFactorsForMatrix(DESeq2::counts(dds)[features, ], geoMeans = geom[features])
   
   return(dds)
 }
@@ -458,7 +458,7 @@ computeReactionActivityScores <- function(counts=NULL, metadata=NULL, dds=NULL, 
     stop("Necessary gene symbols not found in the count matrix.")
   }
   
-  norm_counts <- log10(counts(custom_dds, normalize = TRUE) + 1)
+  norm_counts <- log10(DESeq2::counts(custom_dds, normalize = TRUE) + 1)
   
   message("Computing RAS...")
   ras <- computeReactionActivity(mgraph, norm_counts)
@@ -791,9 +791,6 @@ createLinkGeneSymbol <- function(val) {
 # helper function from R ideal package:
 # https://github.com/federicomarini/ideal/blob/devel/R/table-enhancers.R
 geneinfo <- function(gene_id) {
-  # the gene id has to be entrez_id
-  
-  ## TODO: will need to finish implementation
   entrezinfo <- rentrez::entrez_summary("gene", gene_id)
   
   return(entrezinfo)
@@ -836,54 +833,54 @@ geneinfo <- function(gene_id) {
 #   # )
 # )
 
-theme <- fresh::create_theme(
-  bs4dash_status(
-    primary = "#164863", danger = "#ff851b", light = "#272c30", warning = "#ff851b"
-  ),
-  bs4dash_vars(
-    navbar_light_color = "#164863",
-    navbar_light_active_color = "#ff851b",
-    navbar_light_hover_color = "#ff851b"
-  ),
-  bs4dash_yiq(
-    contrasted_threshold = 10,
-    text_dark = "#FFF",
-    text_light = "#272c30"
-  ),
-  # bs4dash_layout(
-  #   main_bg = "#9BBEC8"
-  # ),
-  # bs4dash_sidebar_light(
-  #   bg = "#164863",
-  #   color = "#DDF2FD",
-  #   hover_color = "#FFF",
-  #   submenu_bg = "#427D9D",
-  #   submenu_color = "#427D9D",
-  #   submenu_hover_color = "#FFF"
-  # ),
-  bs4dash_color(
-    blue = "#427D9D",
-    lightblue = NULL,
-    navy = "#164863",
-    cyan = NULL,
-    teal = NULL,
-    olive = NULL,
-    green = NULL,
-    lime = NULL,
-    orange = NULL,
-    yellow = NULL,
-    fuchsia = NULL,
-    purple = NULL,
-    maroon = NULL,
-    red = NULL,
-    black = NULL,
-    gray_x_light = NULL,
-    gray_600 = NULL,
-    gray_800 = NULL,
-    gray_900 = NULL,
-    white = NULL
-  )
-)
+# theme <- create_theme(
+#   bs4dash_status(
+#     primary = "#164863", danger = "#ff851b", light = "#272c30", warning = "#ff851b"
+#   ),
+#   bs4dash_vars(
+#     navbar_light_color = "#164863",
+#     navbar_light_active_color = "#ff851b",
+#     navbar_light_hover_color = "#ff851b"
+#   ),
+#   bs4dash_yiq(
+#     contrasted_threshold = 10,
+#     text_dark = "#FFF",
+#     text_light = "#272c30"
+#   ),
+#   # bs4dash_layout(
+#   #   main_bg = "#9BBEC8"
+#   # ),
+#   # bs4dash_sidebar_light(
+#   #   bg = "#164863",
+#   #   color = "#DDF2FD",
+#   #   hover_color = "#FFF",
+#   #   submenu_bg = "#427D9D",
+#   #   submenu_color = "#427D9D",
+#   #   submenu_hover_color = "#FFF"
+#   # ),
+#   bs4dash_color(
+#     blue = "#427D9D",
+#     lightblue = NULL,
+#     navy = "#164863",
+#     cyan = NULL,
+#     teal = NULL,
+#     olive = NULL,
+#     green = NULL,
+#     lime = NULL,
+#     orange = NULL,
+#     yellow = NULL,
+#     fuchsia = NULL,
+#     purple = NULL,
+#     maroon = NULL,
+#     red = NULL,
+#     black = NULL,
+#     gray_x_light = NULL,
+#     gray_600 = NULL,
+#     gray_800 = NULL,
+#     gray_900 = NULL,
+#     white = NULL
+#   )
+# )
 
 add_plot_maximize_observer <- function(input,
                                        box_id,

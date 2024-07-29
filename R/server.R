@@ -1,7 +1,6 @@
 
 # server definition ---------------------------------------------------------
 gd2visServer <- function(input, output, session) {
-  
   options(shiny.maxRequestSize=1000*1024^2)
   trainData <- readRDS(system.file("extdata", "train_data.Rds", package = "GD2Viz"))
   mgraph <- readRDS(system.file("extdata", "substrate_graph.Rds", package = "GD2Viz"))
@@ -76,31 +75,27 @@ gd2visServer <- function(input, output, session) {
   
   output$package_version <- renderText({paste("Version:", packageVersion("GD2Viz"))})
   
-  # computeCustomRAS
-  # computeCustomScore
-  # updateCustomPlots
-  
   # Datasets tab ----------------
-  ## TCGA Train GD2 model & predict values -----
-  tcgaTumorGD2 <- reactiveVal(NULL)
+  ## Train GD2 model -----
+  GD2model <- reactiveVal(NULL)
   observe({
-    req(tcgaTumorData, input$dataTabScale, input$dataTabRASType)
-    # rasTypes <- c("ras", "ras_prob", "ras_prob_path", "ras_prob_rec")
-    # modelList <- list()
-    # predList <- list()
-    # inDataList <- list()
-    rasType <- input$dataTabRASType
-    
+    req(input$dataTabScale, input$dataTabRASType)
+
     model <- trainGD2model(
       train_data = trainData, 
-      adjust_ras = rasType, 
+      adjust_ras = input$dataTabRASType, 
       adjust_input = input$dataTabScale
     )
-    # print(paste0("Model: ", rasType, "; adjust_input: ", input$dataTabScale))
-    # print(model)
+    GD2model(model)
+  })
+  ## TCGA Tumor predict values -----
+  tcgaTumorGD2 <- reactiveVal(NULL)
+  observe({
+    req(tcgaTumorData, GD2model(), input$dataTabScale, input$dataTabRASType)
+    
     pred <- computeGD2Score(
-      RAS = tcgaTumorData[[rasType]],
-      svm_model = model,
+      RAS = tcgaTumorData[[input$dataTabRASType]],
+      svm_model = GD2model(),
       adjust_input = input$dataTabScale,
       range_output = FALSE,
       center = TRUE
@@ -137,25 +132,14 @@ gd2visServer <- function(input, output, session) {
       server = TRUE)
   })
   
-  ## TCGA Train GD2 model & predict values -----
+  ## TCGA Normal predict values -----
   tcgaNormalGD2 <- reactiveVal(NULL)
   observe({
-    req(tcgaNormalData, input$dataTabScale, input$dataTabRASType)
-    # rasTypes <- c("ras", "ras_prob", "ras_prob_path", "ras_prob_rec")
-    # modelList <- list()
-    # predList <- list()
-    # inDataList <- list()
-    rasType <- input$dataTabRASType
-    
-    model <- trainGD2model(
-      train_data = trainData, 
-      adjust_ras = rasType, 
-      adjust_input = input$dataTabScale
-    )
+    req(tcgaNormalData, GD2model(), input$dataTabScale, input$dataTabRASType)
     
     pred <- computeGD2Score(
-      RAS = tcgaNormalData[[rasType]],
-      svm_model = model,
+      RAS = tcgaNormalData[[input$dataTabRASType]],
+      svm_model = GD2model(),
       adjust_input = input$dataTabScale,
       range_output = FALSE,
       center = TRUE
@@ -192,25 +176,14 @@ gd2visServer <- function(input, output, session) {
       server = TRUE)
   })
   
-  ## GTEX Train GD2 model & predict values -----
+  ## GTEX predict values -----
   gtexGD2 <- reactiveVal(NULL)
   observe({
-    req(gtexData, input$dataTabScale, input$dataTabRASType)
-    # rasTypes <- c("ras", "ras_prob", "ras_prob_path", "ras_prob_rec")
-    # modelList <- list()
-    # predList <- list()
-    # inDataList <- list()
-    rasType <- input$dataTabRASType
-    
-    model <- trainGD2model(
-      train_data = trainData, 
-      adjust_ras = rasType, 
-      adjust_input = input$dataTabScale
-    )
-    
+    req(gtexData, GD2model(), input$dataTabScale, input$dataTabRASType)
+
     pred <- computeGD2Score(
-      RAS = gtexData[[rasType]],
-      svm_model = model,
+      RAS = gtexData[[input$dataTabRASType]],
+      svm_model = GD2model(),
       adjust_input = input$dataTabScale,
       range_output = FALSE,
       center = TRUE
@@ -247,25 +220,14 @@ gd2visServer <- function(input, output, session) {
       server = TRUE)
   })
   
-  ## TARGET Train GD2 model & predict values -----
+  ## TARGET predict values -----
   targetGD2 <- reactiveVal(NULL)
   observe({
-    req(targetData, input$dataTabScale, input$dataTabRASType)
-    # rasTypes <- c("ras", "ras_prob", "ras_prob_path", "ras_prob_rec")
-    # modelList <- list()
-    # predList <- list()
-    # inDataList <- list()
-    rasType <- input$dataTabRASType
-    
-    model <- trainGD2model(
-      train_data = trainData, 
-      adjust_ras = rasType, 
-      adjust_input = input$dataTabScale
-    )
-    
+    req(targetData, GD2model(), input$dataTabScale, input$dataTabRASType)
+
     pred <- computeGD2Score(
-      RAS = targetData[[rasType]],
-      svm_model = model,
+      RAS = targetData[[input$dataTabRASType]],
+      svm_model = GD2model(),
       adjust_input = input$dataTabScale,
       range_output = FALSE,
       center = TRUE
@@ -302,25 +264,14 @@ gd2visServer <- function(input, output, session) {
       server = TRUE)
   })
   
-  ## St. Jude Train GD2 model & predict values -----
+  ## St. Jude predict values -----
   stjudeGD2 <- reactiveVal(NULL)
   observe({
-    req(stjudeData, input$dataTabScale, input$dataTabRASType)
-    # rasTypes <- c("ras", "ras_prob", "ras_prob_path", "ras_prob_rec")
-    # modelList <- list()
-    # predList <- list()
-    # inDataList <- list()
-    rasType <- input$dataTabRASType
-    
-    model <- trainGD2model(
-      train_data = trainData, 
-      adjust_ras = rasType, 
-      adjust_input = input$dataTabScale
-    )
+    req(stjudeData, GD2model(), input$dataTabScale, input$dataTabRASType)
     
     pred <- computeGD2Score(
-      RAS = stjudeData[[rasType]],
-      svm_model = model,
+      RAS = stjudeData[[input$dataTabRASType]],
+      svm_model = GD2model(),
       adjust_input = input$dataTabScale,
       range_output = FALSE,
       center = TRUE
@@ -357,25 +308,14 @@ gd2visServer <- function(input, output, session) {
       server = TRUE)
   })
   
-  ## CBTTC Train GD2 model & predict values -----
+  ## CBTTC predict values -----
   cbttcGD2 <- reactiveVal(NULL)
   observe({
-    req(cbttcData, input$dataTabScale, input$dataTabRASType)
-    # rasTypes <- c("ras", "ras_prob", "ras_prob_path", "ras_prob_rec")
-    # modelList <- list()
-    # predList <- list()
-    # inDataList <- list()
-    rasType <- input$dataTabRASType
-    
-    model <- trainGD2model(
-      train_data = trainData, 
-      adjust_ras = rasType, 
-      adjust_input = input$dataTabScale
-    )
+    req(cbttcData, GD2model(), input$dataTabScale, input$dataTabRASType)
     
     pred <- computeGD2Score(
-      RAS = cbttcData[[rasType]],
-      svm_model = model,
+      RAS = cbttcData[[input$dataTabRASType]],
+      svm_model = GD2model(),
       adjust_input = input$dataTabScale,
       range_output = FALSE,
       center = TRUE
@@ -449,7 +389,7 @@ gd2visServer <- function(input, output, session) {
     plot_type <- input$tcgaTumorGD2ScorePlotType
     highlightGroup <- input$tcgaTumorHighlightGroup
     
-    plotGD2Score(plot_df, plot_type, Group.1, group_title, colors, highlightGroup)
+    plotGD2Score(plot_df, plot_type, Group.1, group_title, colors, highlightGroup) %>% toWebGL()
     
   })
   
@@ -492,7 +432,7 @@ gd2visServer <- function(input, output, session) {
     plot_type <- input$tcgaNormalGD2ScorePlotType
     highlightGroup <- input$tcgaNormalHighlightGroup
     
-    plotGD2Score(plot_df, plot_type, Group.1, group_title, colors, highlightGroup)
+    plotGD2Score(plot_df, plot_type, Group.1, group_title, colors, highlightGroup) %>% toWebGL()
     
   })
   
@@ -535,7 +475,7 @@ gd2visServer <- function(input, output, session) {
     plot_type <- input$gtexGD2ScorePlotType
     highlightGroup <- input$gtexHighlightGroup
     
-    plotGD2Score(plot_df, plot_type, Group.1, group_title, colors, highlightGroup)
+    plotGD2Score(plot_df, plot_type, Group.1, group_title, colors, highlightGroup) %>% toWebGL()
     
   })
   
@@ -578,7 +518,7 @@ gd2visServer <- function(input, output, session) {
     plot_type <- input$targetGD2ScorePlotType
     highlightGroup <- input$targetHighlightGroup
     
-    plotGD2Score(plot_df, plot_type, Group.1, group_title, colors, highlightGroup)
+    plotGD2Score(plot_df, plot_type, Group.1, group_title, colors, highlightGroup) %>% toWebGL()
     
   })
   
@@ -621,7 +561,7 @@ gd2visServer <- function(input, output, session) {
     plot_type <- input$stjudeGD2ScorePlotType
     highlightGroup <- input$stjudeHighlightGroup
     
-    plotGD2Score(plot_df, plot_type, Group.1, group_title, colors, highlightGroup)
+    plotGD2Score(plot_df, plot_type, Group.1, group_title, colors, highlightGroup) %>% toWebGL()
     
   })
   
@@ -664,7 +604,7 @@ gd2visServer <- function(input, output, session) {
     plot_type <- input$cbttcGD2ScorePlotType
     highlightGroup <- input$cbttcHighlightGroup
     
-    plotGD2Score(plot_df, plot_type, Group.1, group_title, colors, highlightGroup)
+    plotGD2Score(plot_df, plot_type, Group.1, group_title, colors, highlightGroup) %>% toWebGL()
     
   })
   
@@ -967,119 +907,141 @@ gd2visServer <- function(input, output, session) {
         tcgaTumorTabGD2(), 
         input$tcgaTabDGEStratMethodSel)
     
-    
     withProgress(
       message = "Computing the results...",
       detail = "This step can take a little while",
       value = 0,
       {
-        project <- sub(".*\\((.*)\\).*", "\\1", input$tcgaTabProject)
-        metadata<- input$tcgaTabGroup
-        subtype <- input$tcgaTabDGESubtype
-        incProgress(amount = 0.1, detail = "Loadnig data...")
-        TCGA_dds <- readRDS(system.file("extdata/TCGA_projects", paste0("TCGA-",project,".Rds"), package = "GD2Viz"))
-
-        # TODO check sample number (prevent low sample numbers y stopping)
-
-        TCGA_dds <- TCGA_dds[,which(colData(TCGA_dds)[[metadata]] == subtype)]
-
-        prediction <- tcgaTumorTabGD2()$prediction[colnames(TCGA_dds)]
-
-        colData(TCGA_dds)$GD2Score <- prediction
-
-        # stratify by method
-        if(input$tcgaTabDGEStratMethodSel == "m"){
-          threshold <- median(colData(TCGA_dds)$GD2Score)
-          colData(TCGA_dds)$strat <- ifelse(colData(TCGA_dds)$GD2Score >= threshold, "GD2_High", "GD2_Low")
-        } else if(input$tcgaTabDGEStratMethodSel == "t"){
-          threshold <- input$tcgaTabDGEMethod
-          colData(TCGA_dds)$strat <- ifelse(colData(TCGA_dds)$GD2Score >= threshold, "GD2_High", "GD2_Low")
-        } else if(input$tcgaTabDGEStratMethodSel == "q"){
-          threshold <- quantile(colData(TCGA_dds)$GD2Score,
-                                probs = input$tcgaTabDGEMethod)
-          # TODO colData(TCGA_dds)$strat <- ifelse(colData(TCGA_dds)$GD2Score >= threshold, "GD2_High", "GD2_Low")
+        tryCatch({
+          project <- sub(".*\\((.*)\\).*", "\\1", input$tcgaTabProject)
+          metadata <- input$tcgaTabGroup
+          subtype <- input$tcgaTabDGESubtype
+          incProgress(amount = 0.1, detail = "Loading data...")
+          TCGA_dds <- readRDS(system.file("extdata/TCGA_projects", paste0("TCGA-", project, ".Rds"), package = "GD2Viz"))
           
-        }
-
-        colData(TCGA_dds)$strat <- as.factor(colData(TCGA_dds)$strat)
-
-        design(TCGA_dds) <- ~strat
-        keep <- rowSums(counts(TCGA_dds)) >= 10 # TODO make interactive filtering params
-        TCGA_dds <- TCGA_dds[keep,]
-        incProgress(amount = 0.2, detail = "Performing DESeq...")
-        if (input$tcgaTabDGEParallel) {
-          TCGA_dds <- DESeq(TCGA_dds,
-                            parallel = TRUE)
-        } else {
-          TCGA_dds <- DESeq(TCGA_dds)
-        }
-        
-        # handling the experimental covariate correctly to extract the results...
-        
-        if (input$tcgaTabDGEWeight) {
-          res_obj <- results(
-            TCGA_dds,
-            contrast = c("strat", "GD2_High", "GD2_Low"),
-            independentFiltering = input$tcgaTabDGEFiltering,
-            alpha = input$tcgaTabDGEFDR,
-            filterFun = ihw
-          )
+          # Check sample number
+          TCGA_dds <- TCGA_dds[, which(colData(TCGA_dds)[[metadata]] == subtype)]
+          if (ncol(TCGA_dds) <= 1) {
+            stop("Selected subgroup has less than two samples. Please select a different subgroup.")
+          }
           
-          if (input$tcgaTabDGEShrink) {
-            incProgress(amount = 0.3, detail = "Results extracted. Shrinking the logFC now...")
-            res_obj <- lfcShrink(
+          prediction <- tcgaTumorTabGD2()$prediction[colnames(TCGA_dds)]
+          colData(TCGA_dds)$GD2Score <- prediction
+          
+          # Stratify by method
+          if (input$tcgaTabDGEStratMethodSel == "m") {
+            threshold <- median(colData(TCGA_dds)$GD2Score)
+            colData(TCGA_dds)$strat <- ifelse(colData(TCGA_dds)$GD2Score >= threshold, "GD2_High", "GD2_Low")
+          } else if (input$tcgaTabDGEStratMethodSel == "t") {
+            threshold <- input$tcgaTabDGEMethod
+            colData(TCGA_dds)$strat <- ifelse(colData(TCGA_dds)$GD2Score >= threshold, "GD2_High", "GD2_Low")
+          } else if (input$tcgaTabDGEStratMethodSel == "q") {
+            quantiles <- quantile(colData(TCGA_dds)$GD2Score, probs = input$tcgaTabDGEMethod)
+            low_threshold <- quantiles[1]
+            high_threshold <- quantiles[2]
+            
+            colData(TCGA_dds)$strat <- cut(
+              colData(TCGA_dds)$GD2Score,
+              breaks = c(-Inf, low_threshold, high_threshold, Inf),
+              labels = c("GD2_Low", "GD2_Medium", "GD2_High"),
+              right = FALSE
+            )
+          }
+          
+          colData(TCGA_dds)$strat <- as.factor(colData(TCGA_dds)$strat)
+          
+          # Check if both GD2_High and GD2_Low groups have at least one sample
+          strat_table <- as.data.frame(table(colData(TCGA_dds)$strat))
+          if (!"GD2_Low" %in% strat_table[,1] | !"GD2_High" %in% strat_table[,1]) {
+            stop("Stratification resulted in a group with no samples. Please adjust the stratification method or parameters.")
+          }
+          
+          DESeq2::design(TCGA_dds) <- ~strat
+          keep <- rowSums(DESeq2::counts(TCGA_dds)) >= 10 # TODO make interactive filtering params
+          TCGA_dds <- TCGA_dds[keep,]
+          incProgress(amount = 0.2, detail = "Performing DESeq...")
+          
+          TCGA_dds <- DESeq2::DESeq(TCGA_dds)
+          
+          # if (input$tcgaTabDGEParallel) {
+          #   TCGA_dds <- DESeq(TCGA_dds,
+          #                     parallel = TRUE)
+          # } else {
+          #   TCGA_dds <- DESeq(TCGA_dds)
+          # }
+          
+          # Handling the experimental covariate correctly to extract the results...
+          
+          if (input$tcgaTabDGEWeight) {
+            res_obj <- results(
               TCGA_dds,
               contrast = c("strat", "GD2_High", "GD2_Low"),
-              res = res_obj,
-              type = "normal"
+              independentFiltering = input$tcgaTabDGEFiltering,
+              alpha = input$tcgaTabDGEFDR,
+              filterFun = ihw
             )
             
-            incProgress(amount = 0.8, detail = "logFC shrunken, adding annotation info...")
+            if (input$tcgaTabDGEShrink) {
+              incProgress(amount = 0.3, detail = "Results extracted. Shrinking the logFC now...")
+              res_obj <- DESeq2::lfcShrink(
+                TCGA_dds,
+                contrast = c("strat", "GD2_High", "GD2_Low"),
+                res = res_obj,
+                type = "normal"
+              )
+              
+              incProgress(amount = 0.8, detail = "logFC shrunken, adding annotation info...")
+            } else {
+              incProgress(amount = 0.9, detail = "logFC left unshrunken, adding annotation info...")
+            }
           } else {
-            incProgress(amount = 0.9, detail = "logFC left unshrunken, adding annotation info...")
-          }
-        } else {
-          res_obj <- results(
-            TCGA_dds,
-            contrast = c("strat", "GD2_High", "GD2_Low"),
-            independentFiltering = input$tcgaTabDGEFiltering,
-            alpha = input$tcgaTabDGEFDR
-          )
-          if (input$tcgaTabDGEShrink) {
-            incProgress(amount = 0.3, detail = "Results extracted. Shrinking the logFC now...")
-            res_obj <- lfcShrink(
+            res_obj <- results(
               TCGA_dds,
               contrast = c("strat", "GD2_High", "GD2_Low"),
-              res = res_obj,
-              type = "normal"
+              independentFiltering = input$tcgaTabDGEFiltering,
+              alpha = input$tcgaTabDGEFDR
             )
-            incProgress(amount = 0.8, detail = "logFC shrunken, adding annotation info...")
-          } else {
-            incProgress(amount = 0.9, detail = "logFC left unshrunken, adding annotation info...")
+            if (input$tcgaTabDGEShrink) {
+              incProgress(amount = 0.3, detail = "Results extracted. Shrinking the logFC now...")
+              res_obj <- DESeq2::lfcShrink(
+                TCGA_dds,
+                contrast = c("strat", "GD2_High", "GD2_Low"),
+                res = res_obj,
+                type = "normal"
+              )
+              incProgress(amount = 0.8, detail = "logFC shrunken, adding annotation info...")
+            } else {
+              incProgress(amount = 0.9, detail = "logFC left unshrunken, adding annotation info...")
+            }
           }
-        }
-        res_obj$symbol <- rownames(res_obj)
-        DGEres(list(dds = TCGA_dds, res = res_obj))
-        
-        # if (class(colData(values$dds_obj)[, input$choose_expfac]) %in% c("integer", "numeric")) {
-        #   values$res_obj <- results(
-        #     values$dds_obj,
-        #     name = input$choose_expfac,
-        #     independentFiltering = input$resu_indfil,
-        #     alpha = input$FDR
-        #     # , addMLE = input$resu_lfcshrink
-        #   )
-        # }
-        
-        # adding info from the annotation
-        # if (!is.null(values$annotation_obj)) {
-        #   values$res_obj$symbol <- values$annotation_obj$gene_name[
-        #     match(
-        #       rownames(values$res_obj),
-        #       rownames(values$annotation_obj)
-        #     )
-        #   ]
-        # }
+          res_obj$symbol <- rownames(res_obj)
+          DGEres(list(dds = TCGA_dds, res = res_obj))
+          
+          # if (class(colData(values$dds_obj)[, input$choose_expfac]) %in% c("integer", "numeric")) {
+          #   values$res_obj <- results(
+          #     values$dds_obj,
+          #     name = input$choose_expfac,
+          #     independentFiltering = input$resu_indfil,
+          #     alpha = input$FDR
+          #     # , addMLE = input$resu_lfcshrink
+          #   )
+          # }
+          
+          # adding info from the annotation
+          # if (!is.null(values$annotation_obj)) {
+          #   values$res_obj$symbol <- values$annotation_obj$gene_name[
+          #     match(
+          #       rownames(values$res_obj),
+          #       rownames(values$annotation_obj)
+          #     )
+          #   ]
+          # }
+        }, error = function(e) {
+          showModal(modalDialog(
+            title = "Error",
+            paste("An error occurred:", e$message)
+          ))
+        })
       }
     )
   })
@@ -1205,7 +1167,7 @@ gd2visServer <- function(input, output, session) {
     selectedGene <- rownames(DGEres()$res)[input$table_res_row_last_clicked]
     # selectedGeneSymbol <- values$annotation_obj$gene_name[match(selectedGene, values$annotation_obj$gene_id)]
 
-    p <- ggplotCounts(DGEres()$dds, selectedGene, intgroup = "strat", annotation_obj = NULL)
+    p <- ideal::ggplotCounts(DGEres()$dds, selectedGene, intgroup = "strat", annotation_obj = NULL)
 
     # if (input$ylimZero_genes) {
     #   p <- p + ylim(0.1, NA)
@@ -1232,8 +1194,6 @@ gd2visServer <- function(input, output, session) {
                                               keytype = "SYMBOL")
       fullinfo <- geneinfo(selgene_entrez)
   
-      ## TODO: build up link manually to paste under the info!
-      #
       link_pubmed <- paste0(
         '<a href="http://www.ncbi.nlm.nih.gov/gene/?term=',
         selgene_entrez,
@@ -1704,7 +1664,7 @@ gd2visServer <- function(input, output, session) {
         fig <- plot_ly(
           data = plot_df, 
           x = ~Score, 
-          y = log2(counts(customData()$custom_dds)[gene,] + 1), 
+          y = log2(DESeq2::counts(customData()$custom_dds)[gene,] + 1), 
           type = "scatter", 
           mode = "markers", 
           text = rownames(plot_df), 
@@ -1987,7 +1947,7 @@ gd2visServer <- function(input, output, session) {
     
     # Define edge colors based on log2fc values
     viz_mgraph$edges <- viz_mgraph$edges %>%
-      mutate(color = case_when(
+      dplyr::mutate(color = case_when(
         padj > input$customRASGraphBoxPThreshold ~ "gray",
         log2fc > 0 ~ "red",
         log2fc <= 0 ~ "blue"
@@ -1997,12 +1957,12 @@ gd2visServer <- function(input, output, session) {
     # Define edge widths based on padj values
     # Normalize padj values to a suitable range for widths (e.g., 1 to 10)
     viz_mgraph$edges <- viz_mgraph$edges %>%
-      mutate(width = (1 - log2fc) * 10)
+      dplyr::mutate(width = (1 - log2fc) * 10)
     
     # Extract unique to nodes and their pathways
     to_pathways <- viz_mgraph$edges %>%
-      select(to, pathway) %>%
-      distinct()
+      dplyr::select(to, pathway) %>%
+      dplyr::distinct()
     
     viz_mgraph$edges$title <- paste0("Reaction: ", viz_mgraph$edges$miriam.kegg.reaction,
                                      "<br>Involved genes: ", viz_mgraph$edges$symbol,
@@ -2089,7 +2049,7 @@ gd2visServer <- function(input, output, session) {
     e_df_lg[which(e_df_lg$group == input$selected_level_A),paste0("sd_", input$selected_level_B)] <- NA
 
     e_df_lg <- e_df_lg %>% 
-      mutate(sd = coalesce(
+      dplyr::mutate(sd = coalesce(
         paste0("sd_", input$selected_level_A),
         paste0("sd_", input$selected_level_B)))
 
@@ -2134,7 +2094,7 @@ gd2visServer <- function(input, output, session) {
       facet_wrap(~group, ncol = 3, scales="free_x") +
       theme_classic() +
       ylab("") + xlab("") +
-      theme(
+      ggplot2::theme(
         panel.grid.major.y = element_line(color = "lightgray", size = 0.5, linetype = 1),
         axis.text = element_text(size = 15), # Increase axis text size
         strip.text = element_text(size = 15) # Increase facet label text size

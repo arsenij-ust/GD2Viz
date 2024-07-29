@@ -8,7 +8,7 @@ Authors@R:
             given = "Arsenij", family = "Ustjanzew", role = c("aut", "cre"),
             email = "arsenij.ustjanzew@uni-mainz.de", comment = c(ORCID = "0000-0000-0000-0000")),
         person(
-            given = "Claudia", family = "Paret", role = c("aut", "cre"),
+            given = "Claudia", family = "Paret", role = c("aut"),
             email = "paretc@uni-mainz.de", comment = c(ORCID = "0000-0000-0000-0000")),
         person(
             given = "Federico", family = "Marini", role = c("aut"), 
@@ -19,25 +19,42 @@ Description: Compute GD2 score for your RNA-seq datasets and visualize the resul
 Depends:
     R (>= 4.4.0)
 Imports: 
-    shiny,
-    shinyjs,
-    shinyWidgets,
-    bs4Dash,
-    rintrojs,
-    utils,
-    DT,
-    dplyr
+  shiny,
+  bs4Dash,
+  fresh,
+  dplyr,
+  prompter,
+  shinycssloaders,
+  tidyr,
+  utils,
+  ggplot2,
+  plotly,
+  AnnotationDbi,
+  DESeq2,
+  SummarizedExperiment,
+  GenomicRanges,
+  DT,
+  zip,
+  circlize,
+  ComplexHeatmap,
+  KEGGREST,
+  shinyjs,
+  visNetwork,
+  igraph,
+  kernlab,
+  rentrez,
+  IHW
 Suggests: 
-    knitr,
-    rmarkdown,
+    org.Hs.eg.db,
     testthat (>= 3.0.0),
-    htmltools
+    htmltools,
+    markdown
 License: MIT + file LICENSE
 Encoding: UTF-8
 VignetteBuilder: knitr
 URL: https://github.com/yourusername/GD2Viz
 BugReports: https://github.com/yourusername/GD2Viz/issues
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3
 biocViews: GUI, GD2, Transcription, RNASeq, Ganglioside, Score, Pathways, ShinyApps

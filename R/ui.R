@@ -193,7 +193,56 @@ gd2visUI = dashboardPage(
      ), right = NULL), 
   ## Body----------------------------------------------------------
   body = dashboardBody(
-    use_theme(theme),
+    fresh::use_theme(
+      fresh::create_theme(
+        bs4dash_status(
+          primary = "#164863", danger = "#ff851b", light = "#272c30", warning = "#ff851b"
+        ),
+        bs4dash_vars(
+          navbar_light_color = "#164863",
+          navbar_light_active_color = "#ff851b",
+          navbar_light_hover_color = "#ff851b"
+        ),
+        bs4dash_yiq(
+          contrasted_threshold = 10,
+          text_dark = "#FFF",
+          text_light = "#272c30"
+        ),
+        # # bs4dash_layout(
+        # #   main_bg = "#9BBEC8"
+        # # ),
+        # # bs4dash_sidebar_light(
+        # #   bg = "#164863",
+        # #   color = "#DDF2FD",
+        # #   hover_color = "#FFF",
+        # #   submenu_bg = "#427D9D",
+        # #   submenu_color = "#427D9D",
+        # #   submenu_hover_color = "#FFF"
+        # # ),
+        bs4dash_color(
+          blue = "#427D9D",
+          lightblue = NULL,
+          navy = "#164863",
+          cyan = NULL,
+          teal = NULL,
+          olive = NULL,
+          green = NULL,
+          lime = NULL,
+          orange = NULL,
+          yellow = NULL,
+          fuchsia = NULL,
+          purple = NULL,
+          maroon = NULL,
+          red = NULL,
+          black = NULL,
+          gray_x_light = NULL,
+          gray_600 = NULL,
+          gray_800 = NULL,
+          gray_900 = NULL,
+          white = NULL
+        )
+      )
+    ),
     shinyjs::useShinyjs(),
     use_prompt(),
     tabItems(
@@ -221,7 +270,7 @@ gd2visUI = dashboardPage(
             side = "right",
             # The id lets us use input$tabset1 on the server to find the current tab
             id = "tabsetWelcomeTab",
-            tabPanel("Explore datasets", 
+            tabPanel("Explore datasets",
                      tagList(includeMarkdown(
                        system.file("extdata/documentation", "datasets_description.md", package = "GD2Viz")
                      ))
@@ -338,7 +387,7 @@ gd2visUI = dashboardPage(
                 status = "primary",
                 solidHeader = TRUE,
                 maximizable = TRUE,
-                plotlyOutput("tcgaTumorGD2plot", height = "90vh") %>% 
+                plotlyOutput("tcgaTumorGD2plot", height = "90vh") %>%
                   withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
               ),
               box(
@@ -384,7 +433,7 @@ gd2visUI = dashboardPage(
                 status = "primary",
                 solidHeader = TRUE,
                 maximizable = TRUE,
-                plotlyOutput("tcgaNormalGD2plot", height = "90vh") %>% 
+                plotlyOutput("tcgaNormalGD2plot", height = "90vh") %>%
                   withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
               ),
               box(
@@ -431,7 +480,7 @@ gd2visUI = dashboardPage(
                 status = "primary",
                 solidHeader = TRUE,
                 maximizable = TRUE,
-                plotlyOutput("gtexGD2plot", height = "90vh") %>% 
+                plotlyOutput("gtexGD2plot", height = "90vh") %>%
                   withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
               ),
               box(
@@ -478,7 +527,7 @@ gd2visUI = dashboardPage(
                 status = "primary",
                 solidHeader = TRUE,
                 maximizable = TRUE,
-                plotlyOutput("targetGD2plot", height = "90vh") %>% 
+                plotlyOutput("targetGD2plot", height = "90vh") %>%
                   withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
               ),
               box(
@@ -525,7 +574,7 @@ gd2visUI = dashboardPage(
                 status = "primary",
                 solidHeader = TRUE,
                 maximizable = TRUE,
-                plotlyOutput("stjudeGD2plot", height = "90vh") %>% 
+                plotlyOutput("stjudeGD2plot", height = "90vh") %>%
                   withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
               ),
               box(
@@ -614,7 +663,7 @@ gd2visUI = dashboardPage(
             fluidRow(
               column(4,
                      radioButtons(
-                       "tcgaTabScale", 
+                       "tcgaTabScale",
                        "Choose RAS processing:",
                        choices = c("raw", "ranged", "scaled"),
                        selected = "raw"
@@ -628,16 +677,16 @@ gd2visUI = dashboardPage(
               ),
               column(4,
                      radioButtons(
-                       "tcgaTabRASType", 
+                       "tcgaTabRASType",
                        "Visuaize RAS type",
                        choices = list(
-                         "unadjusted RAS" = "ras", 
-                         "RAS adj. by transision prob." = "ras_prob", 
-                         "RAS adj. by path-based transition probability" = "ras_prob_path", 
+                         "unadjusted RAS" = "ras",
+                         "RAS adj. by transision prob." = "ras_prob",
+                         "RAS adj. by path-based transition probability" = "ras_prob_path",
                          "RAS adj. by recurive transition probability" = "ras_prob_rec"),
                        selected = "ras_prob")
               )
-              
+
             )
           )
         ),
@@ -664,7 +713,7 @@ gd2visUI = dashboardPage(
             status = "danger",
             solidHeader = FALSE,
             fluidRow(
-              column(4, 
+              column(4,
                      # h4("Subset TCGA data:"),
                      # uiOutput("tcgaTabDGEProjectUI"),
                      # uiOutput("tcgaTabDGEColDataUI"),
@@ -674,7 +723,7 @@ gd2visUI = dashboardPage(
                        column(6,valueBoxOutput("SubgroupSampleNr", width = 12))
                      )
                      ),
-              column(4, 
+              column(4,
                      selectInput(
                        "tcgaTabDGEStratMethodSel",
                        "2. Select stratification method:",
@@ -688,13 +737,13 @@ gd2visUI = dashboardPage(
                        column(6,valueBoxOutput("GD2HighSampleNr", width = 12))
                      )
                      ),
-              column(4, 
+              column(4,
                      numericInput(
-                       "tcgaTabDGEFDR", 
-                       "False Discovery Rate", 
+                       "tcgaTabDGEFDR",
+                       "False Discovery Rate",
                        value = 0.05,
-                       min = 0, 
-                       max = 1, 
+                       min = 0,
+                       max = 1,
                        step = 0.01),
                      selectInput(
                        "tcgaTabDGEFiltering",
@@ -714,12 +763,12 @@ gd2visUI = dashboardPage(
                        choices = c("TRUE", "FALSE"),
                        selected = "FALSE"
                      ),
-                     selectInput(
-                       "tcgaTabDGEParallel",
-                       "Use parallel execution of DESeq function using BiocParallel:",
-                       choices = c("TRUE", "FALSE"),
-                       selected = "FALSE"
-                     ),
+                     # selectInput(
+                     #   "tcgaTabDGEParallel",
+                     #   "Use parallel execution of DESeq function using BiocParallel:",
+                     #   choices = c("TRUE", "FALSE"),
+                     #   selected = "FALSE"
+                     # ),
                      bs4Dash::actionButton("tcgaTabDGECompute", "Run Differential Expression Analysis", status = "warning")
                      )
             )
@@ -731,7 +780,7 @@ gd2visUI = dashboardPage(
             title = "DEA Result",
             status = "primary",
             solidHeader = TRUE,
-            verbatimTextOutput("diyres_summary") %>% 
+            verbatimTextOutput("diyres_summary") %>%
               withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
           ),
           box(
@@ -746,21 +795,21 @@ gd2visUI = dashboardPage(
                   border-top-color: white !important;
                   box-shadow: inset 0 0 0 9999px #ff851b !important;
               }
-              
+
               table.dataTable tbody tr:active td {
                   background-color: #ff851b !important;
               }
-              
+
               :root {
                   --dt-row-selected: transparent !important;
               }
-              
+
               table.dataTable tbody tr:hover, table.dataTable tbody tr:hover td {
                   background-color: #ff851b !important;
               }"
             ))
             ),
-            DT::dataTableOutput("table_res") %>% 
+            DT::dataTableOutput("table_res") %>%
               withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
           )
         ),
@@ -770,7 +819,7 @@ gd2visUI = dashboardPage(
             title = "Selected Gene",
             status = "primary",
             solidHeader = TRUE,
-            plotlyOutput("genefinder_plot") %>% 
+            plotlyOutput("genefinder_plot") %>%
               withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
           ),
           box(
@@ -778,7 +827,7 @@ gd2visUI = dashboardPage(
             title = "Gene infobox",
             status = "primary",
             solidHeader = TRUE,
-            htmlOutput("rentrez_infobox") %>% 
+            htmlOutput("rentrez_infobox") %>%
               withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
           )
         ),
@@ -794,7 +843,7 @@ gd2visUI = dashboardPage(
             title = "p-Value Histogram",
             status = "primary",
             solidHeader = TRUE,
-            plotOutput("pvals_hist") %>% 
+            plotOutput("pvals_hist") %>%
               withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
           ),
           box(
@@ -802,7 +851,7 @@ gd2visUI = dashboardPage(
             title = "Histogram of the Log2 Fold-Changes",
             status = "primary",
             solidHeader = TRUE,
-            plotOutput("logfc_hist") %>% 
+            plotOutput("logfc_hist") %>%
               withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
           )
         ),
@@ -818,7 +867,7 @@ gd2visUI = dashboardPage(
             title = "MA plot",
             status = "primary",
             solidHeader = TRUE,
-            plotOutput("plotma") %>% 
+            plotOutput("plotma") %>%
               withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
           ),
           box(
@@ -826,7 +875,7 @@ gd2visUI = dashboardPage(
             title = "Volcano plot",
             status = "primary",
             solidHeader = TRUE,
-            plotlyOutput("volcanoplot") %>% 
+            plotlyOutput("volcanoplot") %>%
               withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
           )
         ),
@@ -854,14 +903,14 @@ gd2visUI = dashboardPage(
           box(
             width = 3,
             title = "1. Data Input",
-            status = "warning", 
+            status = "warning",
             solidHeader = FALSE,
-               
-            radioButtons("dataType", "Choose Data Type:", 
-                         choices = list("count matrix & metadata" = "countMeta", 
+
+            radioButtons("dataType", "Choose Data Type:",
+                         choices = list("count matrix & metadata" = "countMeta",
                                         "DESeqDataSet object" = "dds"),
                          selected = "countMeta"),
-          
+
             conditionalPanel(
               condition = "input.dataType == 'countMeta'",
               fileInput("countsFile", "Upload counts matrix file (.tsv):"),
@@ -875,16 +924,16 @@ gd2visUI = dashboardPage(
             uiOutput("customRASmessageUI") %>% withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
           ),
           box(width = 3, title = "2. Model Settings", status = "info", solidHeader = FALSE,
-              
-              radioButtons("customScale", "Choose RAS processing:", 
+
+              radioButtons("customScale", "Choose RAS processing:",
                            choices = c("raw", "ranged", "scaled"),
                            selected = "raw"),
               bs4Dash::actionButton("computeCustomScore", "Compute GD2 Score", status = "info"),
               uiOutput("customGD2messageUI") %>% withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
           ),
           box(width = 3, title = "3. Global Plot Settings", solidHeader = FALSE, status = "olive",
-              radioButtons("customRASType", "Visuaize RAS type", 
-                           choices = list("unadjusted RAS" = "ras", "RAS adj. by transision prob." = "ras_prob", "RAS adj. by path-based transition probability" = "ras_prob_path", "RAS adj. by recurive transition probability" = "ras_prob_rec"), 
+              radioButtons("customRASType", "Visuaize RAS type",
+                           choices = list("unadjusted RAS" = "ras", "RAS adj. by transision prob." = "ras_prob", "RAS adj. by path-based transition probability" = "ras_prob_path", "RAS adj. by recurive transition probability" = "ras_prob_rec"),
                            selected = "ras_prob"),
               uiOutput("selectCustomGroupUI")
               # bs4Dash::actionButton("updateCustoPlots", "Update plots", status = "success")
@@ -899,9 +948,9 @@ gd2visUI = dashboardPage(
           box(id = "customRASheatmapBox",
               width = 12,
               height = "500px",
-              title = "Reaction Activity Scores", 
-              status = "primary", 
-              solidHeader = TRUE, 
+              title = "Reaction Activity Scores",
+              status = "primary",
+              solidHeader = TRUE,
               maximizable = TRUE,
               sidebar = boxSidebar(
                 startOpen = TRUE,
@@ -954,23 +1003,23 @@ gd2visUI = dashboardPage(
                   selected = "complete"
                 )
               ),
-              plotOutput("customRASheatmap", height = "1500px") %>% 
+              plotOutput("customRASheatmap", height = "1500px") %>%
                 withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
           )
         ),
         fluidRow(
-          box(width = 6, 
-              title = "GD2 Promoting & Diminishing Reaction Activity", 
-              height = "500px", 
-              status = "primary", 
+          box(width = 6,
+              title = "GD2 Promoting & Diminishing Reaction Activity",
+              height = "500px",
+              status = "primary",
               solidHeader = TRUE,
-              plotlyOutput("customInOutplot", height = "auto") %>% 
+              plotlyOutput("customInOutplot", height = "auto") %>%
                 withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
           ),
           box(id = "customGD2ScoreBox",
-              width = 6, 
-              title = "GD2 Score", 
-              status = "primary", 
+              width = 6,
+              title = "GD2 Score",
+              status = "primary",
               solidHeader = TRUE,
               height = "500px",
               maximizable = FALSE,
@@ -993,10 +1042,10 @@ gd2visUI = dashboardPage(
                 ),
                 uiOutput("customGD2ScorePlotTGeneUI")
               ),
-              plotlyOutput("customGD2Score", height = "auto") %>% 
+              plotlyOutput("customGD2Score", height = "auto") %>%
                 withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
           )
-        ), 
+        ),
         # Malta TM, Sokolov A, Gentles AJ, Burzykowski T, Poisson L, Weinstein JN, Kamińska B, Huelsken J, Omberg L, Gevaert O, Colaprico A, Czerwińska P, Mazurek S, Mishra L, Heyn H, Krasnitz A, Godwin AK, Lazar AJ; Cancer Genome Atlas Research Network; Stuart JM, Hoadley KA, Laird PW, Noushmehr H, Wiznerowicz M. Machine Learning Identifies Stemness Features Associated with Oncogenic Dedifferentiation. Cell. 2018 Apr 5;173(2):338-354.e15. doi: 10.1016/j.cell.2018.03.034.
         fluidRow(
           column(
@@ -1013,8 +1062,8 @@ gd2visUI = dashboardPage(
                       type = "info",
                       size = "large",
                       rounded = TRUE
-                    )), 
-                status = "primary", 
+                    )),
+                status = "primary",
                 solidHeader = TRUE,
                 height = "500px",
                 maximizable = FALSE,
@@ -1030,16 +1079,16 @@ gd2visUI = dashboardPage(
                     selected = "no"
                   )
                 ),
-                plotlyOutput("customGD2Stemness", height = "auto") %>% 
+                plotlyOutput("customGD2Stemness", height = "auto") %>%
                   withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
                 )
           )
         ),
         fluidRow(
-          box(width = 12, 
+          box(width = 12,
               height = "170px",
-              title = "Compare Two Groups", 
-              status = "danger", 
+              title = "Compare Two Groups",
+              status = "danger",
               solidHeader = FALSE,
               fluidRow(
                 column(3, uiOutput("groupSelectorUI")),
@@ -1060,7 +1109,7 @@ gd2visUI = dashboardPage(
               title = "Ganglioside Metabolism",
               id = "customRASGraphBox",
               height = "570px",
-              status = "primary", 
+              status = "primary",
               solidHeader = TRUE,
               maximizable = TRUE,
               sidebar = boxSidebar(
@@ -1076,17 +1125,17 @@ gd2visUI = dashboardPage(
                   max = 1
                 )
               ),
-              visNetworkOutput("customGroupCompGraph", height = "440px") %>% 
+              visNetworkOutput("customGroupCompGraph", height = "440px") %>%
                 withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
               # bs4Dash::actionButton("generateComparison", "Generate comparison", status = "danger")
           ),
           box(width = 6,
-              title = "Group Comparison", 
+              title = "Group Comparison",
               id = "customGroupCompBox",
               status = "primary",
               solidHeader = TRUE,
               maximizable = TRUE,
-              plotOutput("customGroupComp", height = "530px") %>% 
+              plotOutput("customGroupComp", height = "530px") %>%
                 withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
               # bs4Dash::actionButton("generateComparison", "Generate comparison", status = "danger")
           )

@@ -6,19 +6,12 @@
 \usage{
 GD2Viz()
 }
-\arguments{
-\item{TODO}{a \code{data.frame}, The input data used for GeDi. This should be
-a \code{data.frame} of at least two columns.}
-}
 \value{
-A Shiny app object is returned
+A Shiny App is launched for interactive data exploration
 }
 \description{
 GD2Viz main function
 }
 \examples{
-if (interactive()) {
-  GD2Viz()
-}
-
+TODO
 }

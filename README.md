@@ -1,4 +1,4 @@
-<img src="https://github.com/arsenij-ust/GD2Viz/blob/main/inst/www/GD2Viz6.png" alt="GD2Viz Logo" width="400px"/>
+<img src="https://github.com/arsenij-ust/GD2Viz/blob/main/inst/www/GD2Viz6.png" alt="GD2Viz Logo" width="200px"/>
 
 # Welcome to GD2Viz
 

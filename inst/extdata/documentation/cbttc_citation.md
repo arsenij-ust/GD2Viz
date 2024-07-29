@@ -1,6 +1,6 @@
 ## Acknowledgements
 
-The  Children’s Brain Tumor Tissue Consortium ([CBTTC](https://cbtn.org/) RNA-seq data  and phenotype data for computing and visualizing the GD2 Score can be accessed from the [Kids First Data Resource Portal](https://portal.kidsfirstdrc.org/login?redirect_path=/dashboard). 
+The  Children’s Brain Tumor Tissue Consortium ([CBTTC](https://cbtn.org/) RNA-seq data  and phenotype data for computing and visualizing the GD2 Score can be accessed from the [Kids First Data Resource Portal](https://portal.kidsfirstdrc.org/login?redirect_path=/dashboard). The RNA-seq data (RSEM expected counts) and phenotype data for computing and visualizing the GD2 Score were downloaded from the [Xena data portal](https://xenabrowser.net/). 
 
 
 ### Citation CBTTC
