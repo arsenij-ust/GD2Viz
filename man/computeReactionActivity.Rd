@@ -9,7 +9,8 @@ computeReactionActivity(
   counts,
   gene_column = "symbol",
   attr_name = "edge_sum",
-  output_graph = FALSE
+  output_graph = FALSE,
+  rowname_column = "miriam.kegg.reaction"
 )
 }
 \arguments{

@@ -1,5 +1,13 @@
 ### Analalyze your own data
 
-To get started with GD2Viz, simply upload your genomic data and begin exploring the rich array of visualization and analysis tools available. Our comprehensive user guide and support resources are here to assist you every step of the way.
+The third tab "Custom dataset" allows you to upload your dataset and compute the RAS values and the GD2 score. You can either upload a count matrix .tsv file and a metadata .tsv file or a DESeqDataSet object as .rds file. The counts should be raw, not normalized counts, and genes should be annotated as Gene Symbols. The column names (samples) of the count matrix should be identical with the rownames of the metadata file. The metadata file can contain further columns with experimental variables, e.g. subgroups, treatments, etc.(for further documentation see the package vignette at <LINK>)
 
-Thank you for choosing GD2Viz. We are excited to be a part of your journey in genomic research and look forward to helping you achieve your research goals.
+When uploaded your data files, click on the "Compute Reaction Activity Scores" button to compute adjusted and raw RAS values. Set then the model setting, wheather raw, ranged or scaled RAS values should be used for the model training. After clicking the "Compute GD2 Score" button, the models and GD2 scores for all 4 RAS matrices are calculated. You can then download the GD2 score predictions and the RAS matrices. The "Global Plot Settings" allow you to choose the RAS adjustment method that will be visualized in the plots below. You can also select one of your experimental variables to group the dataset in the next plots.
+
+The first plot shows a heatmap of the RAS values. THe heatmap is adjustable, so you can activate or deactivate the dendograms, choose wheather the values should be scaled, wheather the row (reactions) or column (samples) names should be displayed, or select the distance and clustering methods.
+
+The next scatter plot shows the sum of GD2-promoting vs. GD2-diminishing reactions, that were used for the SVM. The third plot shows the predicted GD2 score for yor dataset. THe plot settings allow you to visualize the GD2 score as a box, scatter or violin plot. When "scatter" is selected as plot type, you can also choose a gene to visualize the GD2 score against the selected gene. The fourth plot shows the GD2 score vs. the stemness score, as the stemness sometimes has an impact on the GD2 concentration.
+
+The next section allows you to compare the RAS values of two groups. A log2-fold change graph of the Glycosphingolipid metabolism is generated. as well as a detailed comparison of reactions of the ganglioside metabolism pathway.
+
+The last section is similar to the "TCGA subgroups" tab and allows you to perform a differential gene expression analysis based on the predicted GD2-score stratification.

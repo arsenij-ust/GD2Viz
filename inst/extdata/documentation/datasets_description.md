@@ -1,6 +1,4 @@
 
-### Explore the GD2 score of three RNA-Seq datasets
+### Explore the GD2 score of six RNA-Seq datasets
 
-To get started with GD2Viz, simply upload your genomic data and begin exploring the rich array of visualization and analysis tools available. Our comprehensive user guide and support resources are here to assist you every step of the way.
-
-Thank you for choosing GD2Viz. We are excited to be a part of your journey in genomic research and look forward to helping you achieve your research goals.
+The "Explore Datasets" tab allows you to analyze the GD2 score across six major RNA-seq datasets: TCGA Tumor samples, TCGA normal samples, GTEx, TARGET, St. Jude Cloud, and the CBTTC dataset from the Pediatric Brain Tumor Atlas. To save time, we've precomputed both adjusted and unadjusted RAS values for these datasets. You can fine-tune the SVM model settings by selecting how the RAS values should be used—either raw, ranged, or scaled—and choose the preferred RAS adjustment method. Customize the GD2 score visualization with various plot options, such as scatter, box, or violin plots. Additionally, you can normalize the GD2 score to a 0-1 range, select a grouping variable, or highlight specific sample groups, like Glioblastoma Multiforme within the TCGA dataset.

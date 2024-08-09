@@ -19,3 +19,5 @@ If you have some suggestions on new features, or would like to contribute to the
 If you use `GD2Viz` for your analysis, please cite it as here below:
 
 `> utils::citation("GD2Viz")`
+
+Thank you for choosing GD2Viz. We are excited to be a part of your journey in transcriptomic research and look forward to helping you achieve your research goals.

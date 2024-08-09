@@ -125,7 +125,7 @@ gd2visUI = dashboardPage(
         icon = icon("database")
       ),
       menuItem(
-        "TCGA subgroups",
+        "TCGA Project Exploration",
         tabName = "tcgaDetailTab",
         icon = icon("magnifying-glass-plus")
       ),
@@ -259,32 +259,96 @@ gd2visUI = dashboardPage(
           ),
           box(
             title = "Background Information", status = "primary", solidHeader = TRUE, width = 12,
+            imageOutput("visual_abstract", height="auto"),
             collapsible = TRUE,
-            tagList(includeMarkdown(
-              system.file("extdata/documentation", "gd2score.md", package = "GD2Viz")
-            ))
-          ),
-          tabBox(
-            title = "Getting started:",
-            width = 12,
-            side = "right",
-            # The id lets us use input$tabset1 on the server to find the current tab
-            id = "tabsetWelcomeTab",
-            tabPanel("Explore datasets",
-                     tagList(includeMarkdown(
-                       system.file("extdata/documentation", "datasets_description.md", package = "GD2Viz")
-                     ))
-            ),
-            tabPanel("TCGA subgroups",
-                     tagList(includeMarkdown(
-                       system.file("extdata/documentation", "tcga_description.md", package = "GD2Viz")
-                     )),
-            ),
-            tabPanel("Custom dataset",
-                     tagList(includeMarkdown(
-                       system.file("extdata/documentation", "custom_data_description.md", package = "GD2Viz")
-                     )),
+            accordion(
+              id = "welcome_accordion",
+              width = 12,
+              .list = 
+                list(
+                  accordionItem(
+                    title = "What is GD2?",
+                    p("Gangliosides are sialylated glycosphingolipids (GSLs) crucial to the nervous system, with GD2 being a significant member. GD2, a simple ganglioside, is predominantly expressed in embryonic tissues and certain neuroblastic tumors, such as neuroblastoma (NB). Its expression is linked to the undifferentiated state of neural stem cells and NB. GD2 is particularly important because it serves as a target for immunotherapies, including monoclonal antibodies like Dinutuximab and Naxitamab, and CAR-T cell treatments, which are pivotal in treating high-risk NB. Consequently, understanding GD2's role and its expression in tumors can enhance therapeutic strategies and improve patient outcomes not only in neuroblastoma but also in other tumor entities."),
+                    status = NULL,
+                    collapsed = TRUE,
+                    solidHeader = FALSE
+                  ),
+                  accordionItem(
+                    title = "Metabolic network of GSL",
+                    p("We created a graph where nodes are metabolites and edges represent reactions. Reactions describe which enzymes are involved in the respective metabolic step. This graph includes four pathways from the KEGG database related to sphingolipid and glycosphingolipid metabolism, including the lacto-, neolacto-, globo-, and ganglio series. The reactions representing the degradation of GM1 to GM2 and GM2 to GM3 were removed from the graph. This is justified because these reactions represent the degradation process and are not competing enzymatic processes of the biosynthesis. Several enzymes in this metabolic network are specific to GSLs, though some are also involved in other lipid-related pathways."),
+                    status = NULL,
+                    collapsed = TRUE,
+                    solidHeader = FALSE
+                  ),
+                  accordionItem(
+                    title = "What is Reaction Activity Score (RAS)?",
+                    p("The graph is weighted using Reaction Activity Scores (RAS), calculated from gene expression data. Some reactions of the graph have more than one emzyme involved, then it is useful to compute the RAS values. RAS values depend on whether the enzymes of a reaction are subunits and work only in presence of all enzyme subunits (AND relation) or as independent enzymes (OR relation). In case of an AND relation, the minimal gene expression value of the involved reactions is used as the RAS value. If the enzymes of a reaction are in an OR relation, the RAS value is computed as the sum of all involved gene expression values. These values weight the graph's edges, creating a directed graph with metabolites as nodes."),
+                    p("Early steps in the ganglioside pathway are performed with enzymes of relative high substrate specificity, whereas downstream enzymes are promiscuitive and elongate in the parallel series of this pathway. To adjust for identical RAS values we used the topological information of transition probabilities (TP), three methods were developed: the 'TP adjustment', 'recursively adjusted RAS' and 'path-based RAS adjustment.' For the simple 'TP adjustment' we compute the TPs from one node to the next following node(s) proportional to the RAS values of the outgoing edge(s) and multiply the RAS values of the edges with the TP values. 'Recursively adjusted RAS' replaces TP values that are equal to 1 by recursively prolongate the TP value from previous edges in the chain, that are not equal to 1, while 'path-based RAS adjustment' sums transition probabilities along all paths from a starting node. Lactosylceramide was chosen as the starting node for this calculation. For further details on the used methods, see 'Ustjanzew et al., Unraveling the Glycosphingolipid Metabolism by Leveraging Transcriptome-weighted Network Analysis on Neuroblastic Tumors. Cancer and Metabolism, 2024.'"),
+                    status = NULL,
+                    collapsed = TRUE,
+                    solidHeader = FALSE
+                  ),
+                  accordionItem(
+                    title = "Model Building for GD2 Score",
+                    p("For the model, we combined and normalized RNA-seq data from two sources: TARGET Neuroblastoma samples and the GTEx dataset. After weighting the graph's edges per sample with the (adjusted) RAS values, the next step was to identify GD2-mitigating and GD2-promoting reactions, as shown in the figure above (step 3). For each sample, we calculated the sum of GD2-mitigating and GD2-promoting reactions and used these scores to train a Support Vector Machine (SVM) with a linear kernel to differentiate between Neuroblastoma and other GTEx tissues."),
+                    p("It is important to note that the goal was not to create a perfect discriminator model. Since GD2 concentration is a continuous variable, we use the sample's distance from the hyperplane as the GD2 score. If a sample's GD2 score is positive or slightly below zero, it suggests a higher accumulation of GD2 in that sample, based solely on the RNA-seq data."),
+                    status = NULL,
+                    collapsed = TRUE,
+                    solidHeader = FALSE
+                  ),
+                  accordionItem(
+                    title = "GD2 Score Prediction",
+                    p("We have to normalize the RNA-seq dataset (test dataset) we use to predict the GD2 score based on the training dataset. Therefore, we use DESeq median ratio normalization method, where the size factor of a test case will be estimated using gene-wise geometric means from training set. The normalized count data is further processed to RAS-values as described previously. The sum of GD2-mitigating and GD2-promoting reactions is computed for each sample and used as input for the Support Vector Machne model to predict the GD2 score."),
+                    status = NULL,
+                    collapsed = TRUE,
+                    solidHeader = FALSE
+                  )
+                )
             )
+            # tagList(includeMarkdown(
+            #   system.file("extdata/documentation", "gd2score.md", package = "GD2Viz")
+            # ))
+          ),
+          box(
+            title = "Gatting started with GD2Viz", status = "primary", solidHeader = TRUE, width = 12,
+            collapsible = TRUE,
+            accordion(
+              id = "tabdescription_accordion",
+              width = 12,
+              .list =
+                list(
+                  accordionItem(
+                    title = "Tab: Explore datasets",
+                    tagList(includeMarkdown(
+                      system.file("extdata/documentation", "datasets_description.md", package = "GD2Viz")
+                    )),
+                    status = NULL,
+                    collapsed = TRUE,
+                    solidHeader = FALSE
+                  ),
+                  accordionItem(
+                    title = "Tab: TCGA Project Exploration",
+                    tagList(includeMarkdown(
+                      system.file("extdata/documentation", "tcga_description.md", package = "GD2Viz")
+                    )),
+                    status = NULL,
+                    collapsed = TRUE,
+                    solidHeader = FALSE
+                  ),
+                  accordionItem(
+                    title = "Tab: Custom dataset",
+                    tagList(includeMarkdown(
+                      system.file("extdata/documentation", "custom_data_description.md", package = "GD2Viz")
+                    )),
+                    status = NULL,
+                    collapsed = TRUE,
+                    solidHeader = FALSE
+                  )
+              )
+            )
+            # tagList(includeMarkdown(
+            #   system.file("extdata/documentation", "gd2score.md", package = "GD2Viz")
+            # ))
           )
         )
       ),
@@ -641,7 +705,7 @@ gd2visUI = dashboardPage(
         fluidRow(
           column(
             width = 12,
-            h3("GD2 Score in TCGA Subgroups")
+            h3("GD2 Score of TCGA projects")
           )
         ),
         fluidRow(
@@ -819,6 +883,18 @@ gd2visUI = dashboardPage(
             title = "Selected Gene",
             status = "primary",
             solidHeader = TRUE,
+            sidebar = boxSidebar(
+              startOpen = FALSE,
+              background = "#427D9D",
+              width = 25,
+              id = "genefinder_plot_box",
+              selectInput(
+                "genefinder_plotType",
+                "Select Plot Type:",
+                choices = c("scatter", "box"),
+                selected = "box"
+              )
+            ),
             plotlyOutput("genefinder_plot") %>%
               withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
           ),
@@ -1046,7 +1122,6 @@ gd2visUI = dashboardPage(
                 withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
           )
         ),
-        # Malta TM, Sokolov A, Gentles AJ, Burzykowski T, Poisson L, Weinstein JN, Kamińska B, Huelsken J, Omberg L, Gevaert O, Colaprico A, Czerwińska P, Mazurek S, Mishra L, Heyn H, Krasnitz A, Godwin AK, Lazar AJ; Cancer Genome Atlas Research Network; Stuart JM, Hoadley KA, Laird PW, Noushmehr H, Wiznerowicz M. Machine Learning Identifies Stemness Features Associated with Oncogenic Dedifferentiation. Cell. 2018 Apr 5;173(2):338-354.e15. doi: 10.1016/j.cell.2018.03.034.
         fluidRow(
           column(
             width = 6,
@@ -1085,9 +1160,15 @@ gd2visUI = dashboardPage(
           )
         ),
         fluidRow(
+          column(
+            width = 12,
+            h3("Compare Two Groups")
+          )
+        ),
+        fluidRow(
           box(width = 12,
               height = "170px",
-              title = "Compare Two Groups",
+              title = "Settings for Comparison",
               status = "danger",
               solidHeader = FALSE,
               fluidRow(
@@ -1138,6 +1219,212 @@ gd2visUI = dashboardPage(
               plotOutput("customGroupComp", height = "530px") %>%
                 withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
               # bs4Dash::actionButton("generateComparison", "Generate comparison", status = "danger")
+          )
+        ),
+        fluidRow(
+          column(
+            width = 12,
+            h3("Perform Differential Expression Analysis")
+          )
+        ),
+        fluidRow(
+          #h2("Explore the GD2 Score of TCGA projects"), br(),br(),
+          box(
+            width = 12,
+            title = "Settings for Differential Expression Analysis",
+            status = "danger",
+            solidHeader = FALSE,
+            fluidRow(
+              column(4,
+                     # h4("Subset TCGA data:"),
+                     # uiOutput("tcgaTabDGEProjectUI"),
+                     # uiOutput("tcgaTabDGEColDataUI"),
+                     uiOutput("customTabDGEExVarUI"),
+                     uiOutput("customTabDGESubtypeUI"),
+                     fluidRow(
+                       column(6,valueBoxOutput("customProjectSampleNr", width = 12)),
+                       column(6,valueBoxOutput("customSubgroupSampleNr", width = 12))
+                     ),
+                     radioButtons("customRASTypeDGE", "Use RAS type",
+                                  choices = list("unadjusted RAS" = "ras", "RAS adj. by transision prob." = "ras_prob", "RAS adj. by path-based transition probability" = "ras_prob_path", "RAS adj. by recurive transition probability" = "ras_prob_rec"),
+                                  selected = "ras_prob")
+              ),
+              column(4,
+                     selectInput(
+                       "customTabDGEStratMethodSel",
+                       "2. Select stratification method:",
+                       choices = list("Median"="m", "One Threshold"="t", "Upper/Lower Percentiles"="q"),
+                       selected = "m"
+                     ),
+                     uiOutput("customTabDGEMethodUI"),
+                     # uiOutput("tcgaTabDGESampleNrUI")
+                     fluidRow(
+                       column(6,valueBoxOutput("customGD2LowSampleNr", width = 12)),
+                       column(6,valueBoxOutput("customGD2HighSampleNr", width = 12))
+                     )
+              ),
+              column(4,
+                     numericInput(
+                       "customTabDGEFDR",
+                       "False Discovery Rate",
+                       value = 0.05,
+                       min = 0,
+                       max = 1,
+                       step = 0.01),
+                     selectInput(
+                       "customTabDGEFiltering",
+                       "Apply independent filtering automatically:",
+                       choices = c("TRUE", "FALSE"),
+                       selected = "TRUE"
+                     ),
+                     selectInput(
+                       "customTabDGEShrink",
+                       "Shrink the log fold change for the contrast of interest:",
+                       choices = c("TRUE", "FALSE"),
+                       selected = "TRUE"
+                     ),
+                     selectInput(
+                       "customTabDGEWeight",
+                       "Use Independent Hypothesis Weighting (IHW) as a filtering function:",
+                       choices = c("TRUE", "FALSE"),
+                       selected = "FALSE"
+                     ),
+                     # selectInput(
+                     #   "tcgaTabDGEParallel",
+                     #   "Use parallel execution of DESeq function using BiocParallel:",
+                     #   choices = c("TRUE", "FALSE"),
+                     #   selected = "FALSE"
+                     # ),
+                     bs4Dash::actionButton("customTabDGECompute", "Run Differential Expression Analysis", status = "warning")
+              )
+            )
+          )
+        ),
+        fluidRow(
+          box(
+            width = 4,
+            title = "DEA Result",
+            status = "primary",
+            solidHeader = TRUE,
+            verbatimTextOutput("custom_diyres_summary") %>%
+              withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
+          ),
+          box(
+            width = 8,
+            title = "DEA Genes",
+            status = "primary",
+            solidHeader = TRUE,
+            tags$head(tags$style(HTML(
+              "
+              table.dataTable tbody tr.selected td,
+              table.dataTable tbody td.selected {
+                  border-top-color: white !important;
+                  box-shadow: inset 0 0 0 9999px #ff851b !important;
+              }
+
+              table.dataTable tbody tr:active td {
+                  background-color: #ff851b !important;
+              }
+
+              :root {
+                  --dt-row-selected: transparent !important;
+              }
+
+              table.dataTable tbody tr:hover, table.dataTable tbody tr:hover td {
+                  background-color: #ff851b !important;
+              }"
+            ))
+            ),
+            DT::dataTableOutput("custom_table_res") %>%
+              withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
+          )
+        ),
+        fluidRow(
+          box(
+            width = 6,
+            title = "Selected Gene",
+            status = "primary",
+            solidHeader = TRUE,
+            sidebar = boxSidebar(
+              startOpen = TRUE,
+              background = "#427D9D",
+              width = 25,
+              id = "custom_genefinder_plot_box",
+              selectInput(
+                "custom_genefinder_plotType",
+                "Select Plot Type:",
+                choices = c("scatter", "box"),
+                selected = "box"
+              )
+            ),
+            plotlyOutput("custom_genefinder_plot") %>%
+              withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
+          ),
+          box(
+            width = 6,
+            title = "Gene infobox",
+            status = "primary",
+            solidHeader = TRUE,
+            htmlOutput("custom_rentrez_infobox") %>%
+              withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
+          )
+        ),
+        fluidRow(
+          column(
+            width = 12,
+            h3("Diagnostic plots")
+          )
+        ),
+        fluidRow(
+          box(
+            width = 6,
+            title = "p-Value Histogram",
+            status = "primary",
+            solidHeader = TRUE,
+            plotOutput("custom_pvals_hist") %>%
+              withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
+          ),
+          box(
+            width = 6,
+            title = "Histogram of the Log2 Fold-Changes",
+            status = "primary",
+            solidHeader = TRUE,
+            plotOutput("custom_logfc_hist") %>%
+              withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
+          )
+        ),
+        fluidRow(
+          column(
+            width = 12,
+            h3("Summary plots")
+          )
+        ),
+        fluidRow(
+          box(
+            width = 6,
+            title = "MA plot",
+            status = "primary",
+            solidHeader = TRUE,
+            plotOutput("custom_plotma") %>%
+              withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
+          ),
+          box(
+            width = 6,
+            title = "Volcano plot",
+            status = "primary",
+            solidHeader = TRUE,
+            plotlyOutput("custom_volcanoplot") %>%
+              withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
+          )
+        ),
+        fluidRow(
+          box(
+            width = 12,
+            status = "primary",
+            collapsible = FALSE,
+            tagList(includeMarkdown(
+              system.file("extdata/documentation", "DEA_acknowledgment.md", package = "GD2Viz")
+            ))
           )
         )
       )
