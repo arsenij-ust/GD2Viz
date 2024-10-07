@@ -1245,14 +1245,14 @@ gd2visUI = dashboardPage(
                        column(6,valueBoxOutput("customProjectSampleNr", width = 12)),
                        column(6,valueBoxOutput("customSubgroupSampleNr", width = 12))
                      ),
-                     radioButtons("customRASTypeDGE", "Use RAS type",
+                     radioButtons("customRASTypeDGE", "3. Use RAS type",
                                   choices = list("unadjusted RAS" = "ras", "RAS adj. by transision prob." = "ras_prob", "RAS adj. by path-based transition probability" = "ras_prob_path", "RAS adj. by recurive transition probability" = "ras_prob_rec"),
                                   selected = "ras_prob")
               ),
               column(4,
                      selectInput(
                        "customTabDGEStratMethodSel",
-                       "2. Select stratification method:",
+                       "4. Select stratification method:",
                        choices = list("Median"="m", "One Threshold"="t", "Upper/Lower Percentiles"="q"),
                        selected = "m"
                      ),

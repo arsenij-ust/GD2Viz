@@ -945,15 +945,23 @@ gd2visServer <- function(input, output, session) {
           incProgress(amount = 0.1, detail = "Loading data...")
           TCGA_dds <- readRDS(system.file("extdata/TCGA_projects", paste0("TCGA-", project, ".Rds"), package = "GD2Viz"))
           
+          # print(TCGA_dds)
+          
           # Check sample number
           if(subtype != "All Samples"){
             TCGA_dds <- TCGA_dds[, which(colData(TCGA_dds)[[metadata]] == subtype)]
+            # print(metadata)
+            # print(subtype)
+            # print(TCGA_dds)
             if (ncol(TCGA_dds) < 2) {
               stop("Selected subgroup has less than two samples. Please select a different subgroup.")
             }
           }
-
-          prediction <- tcgaTumorTabGD2()$prediction[colnames(TCGA_dds)]
+          
+          common_samples <- intersect(names(tcgaTumorTabGD2()$prediction), colnames(TCGA_dds))
+          prediction <- tcgaTumorTabGD2()$prediction[common_samples]
+          # print(prediction)
+          TCGA_dds <- TCGA_dds[,common_samples]
           colData(TCGA_dds)$GD2Score <- prediction
           
           # Stratify by method
@@ -977,7 +985,8 @@ gd2visServer <- function(input, output, session) {
           }
           
           colData(TCGA_dds)$strat <- as.factor(colData(TCGA_dds)$strat)
-          
+          # print(colData(TCGA_dds)$strat)
+          # print(table(colData(TCGA_dds)$strat))
           # Check if both GD2_High and GD2_Low groups have at least one sample
           strat_table <- as.data.frame(table(colData(TCGA_dds)$strat))
           if (!"GD2_Low" %in% strat_table[,1] | !"GD2_High" %in% strat_table[,1]) {

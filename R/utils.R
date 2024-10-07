@@ -589,7 +589,7 @@ computeGD2Score <- function(RAS, svm_model, adjust_input = c("raw", "ranged", "s
 #' # Train GD2 model with raw input
 #' model <- trainGD2model(train_data, adjust_ras = "ras", adjust_input = "raw")
 #' }
-trainGD2model <- function(train_data, adjust_ras = c("ras", "ras_prob", "ras_prob_path", "ras_prob_rec"), adjust_input = c("raw", "ranged", "scaled"), center=TRUE){
+trainGD2model <- function(train_data, adjust_ras = c("ras", "ras_prob", "ras_prob_path", "ras_prob_rec"), adjust_input = c("raw", "ranged", "scaled"), center=TRUE, type_column = "X_study"){
   
   key_reactions <- c("R05946", "R05940", "R05939", "R05948", "R05947", "R05941")
   
@@ -628,7 +628,11 @@ trainGD2model <- function(train_data, adjust_ras = c("ras", "ras_prob", "ras_pro
     outputSum <- rowSums(scale(x=output, center=center))
   }
   
-  df.train <- data.frame(x=inputSum, y=outputSum, type=train_data$coldata$sep)
+  df.train <- data.frame(
+    x=inputSum, 
+    y=outputSum, 
+    type=factor(train_data$coldata[[type_column]])
+  )
   
   kernfit <- kernlab::ksvm(data=df.train, x=type~.,type = "C-svc", kernel = 'vanilladot')
   return(kernfit)
