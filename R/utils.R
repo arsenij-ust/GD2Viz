@@ -256,7 +256,9 @@ assignTP <- function(igraph, transition_probability, column="miriam.kegg.reactio
 #' igraph_list <- list(g1, g2)
 #'
 #' # Compute transition probabilities
-#' transition_probs <- computeTransitionProbability(igraph_list, attr_name = "weight", attr_rownames = "miriam.kegg.reaction")
+#' transition_probs <-
+#'   computeTransitionProbability(igraph_list, attr_name = "weight",
+#'                                attr_rownames = "miriam.kegg.reaction")
 computeTransitionProbability <- function(igraph_list, attr_name, attr_rownames, target_node=NULL, pass_through=FALSE, mgraph){
 
   if(pass_through) target_node <- NULL
@@ -372,8 +374,12 @@ computeTransitionProbability <- function(igraph_list, attr_name, attr_rownames, 
 #' \dontrun{
 #' geom <- readRDS("./SVM_GD2_dashboard/data/geom_train_data.Rds")
 #'
-#' counts <- read.table("SVM_GD2_dashboard/data/datasets/rus_cell_lines_counts.tsv", sep = "\t", header = TRUE)
-#' metadata <- read.table("SVM_GD2_dashboard/data/datasets/rus_cell_lines_metadata.tsv", sep = "\t", header = TRUE)
+#' counts <-
+#'   read.table("SVM_GD2_dashboard/data/datasets/rus_cell_lines_counts.tsv",
+#'              sep = "\t", header = TRUE)
+#' metadata <-
+#'   read.table("SVM_GD2_dashboard/data/datasets/rus_cell_lines_metadata.tsv",
+#'              sep = "\t", header = TRUE)
 #'
 #' dds <- normalizeTestDataset(counts = counts, metadata = metadata, geom = geom)
 #' }
@@ -445,8 +451,10 @@ normalizeTestDataset <- function(counts = NULL, metadata = NULL, dds = NULL, geo
 #' \dontrun{
 #' # Load necessary data
 #' geom <- readRDS("./SVM_GD2_dashboard/data/geom_train_data.Rds")
-#' custom_counts <- read.table("SVM_GD2_dashboard/data/datasets/custom_counts.tsv", sep = "\t", header = TRUE)
-#' custom_coldata <- read.table("SVM_GD2_dashboard/data/datasets/custom_metadata.tsv", sep = "\t", header = TRUE)
+#' custom_counts <-
+#'   read.table("SVM_GD2_dashboard/data/datasets/custom_counts.tsv", sep = "\t", header = TRUE)
+#' custom_coldata <-
+#'   read.table("SVM_GD2_dashboard/data/datasets/custom_metadata.tsv", sep = "\t", header = TRUE)
 #' mgraph <- load_metabolic_network("path/to/metabolic_network.graphml")
 #'
 #' # Compute Reaction Activity scores for the custom dataset
@@ -508,10 +516,13 @@ computeReactionActivityScores <- function(counts=NULL, metadata=NULL, dds=NULL, 
 #'
 #' @examples
 #' # Example RAS matrix with necessary reaction IDs
-#' RAS <- matrix(runif(6 * 10), nrow = 6, dimnames = list(c("R05946", "R05940", "R05939", "R05948", "R05947", "R05941")))
+#' RAS <- matrix(runif(6 * 10), nrow = 6,
+#'   dimnames = list(c("R05946", "R05940", "R05939", "R05948", "R05947", "R05941")))
 #'
 #' # Example SVM model
-#' svm_model <- svm(x = data.frame(x = rnorm(10), y = rnorm(10)), y = rnorm(10), type = "eps-regression")
+#' svm_model <- svm(x = data.frame(x = rnorm(10), y = rnorm(10)),
+#'   y = rnorm(10),
+#'   type = "eps-regression")
 #'
 #' # Compute GD2 scores with raw input
 #' scores <- computeGD2Score(RAS, svm_model, adjust_input = "raw")
