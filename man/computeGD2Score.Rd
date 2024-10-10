@@ -18,7 +18,7 @@ computeGD2Score(
 \item{svm_model}{An SVM model used for predicting the GD2 score.}
 
 \item{adjust_input}{A character string indicating how to adjust the input data.
-Options are "raw" (no adjustment), "ranged" (rescale to \link{0, 1}), and "scaled" (standardize with mean 0 and standard deviation 1). Default is "raw".}
+Options are "raw" (no adjustment), "ranged" (rescale to [0, 1]), and "scaled" (standardize with mean 0 and standard deviation 1). Default is "raw".}
 
 \item{range_output}{A logical value indicating whether to rescale the output data. Default is FALSE.}
 
