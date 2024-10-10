@@ -520,7 +520,7 @@ computeReactionActivityScores <- function(counts=NULL, metadata=NULL, dds=NULL, 
 #'   dimnames = list(c("R05946", "R05940", "R05939", "R05948", "R05947", "R05941")))
 #'
 #' # Example SVM model
-#' svm_model <- svm(x = data.frame(x = rnorm(10), y = rnorm(10)),
+#' svm_model <- e1071::svm(x = data.frame(x = rnorm(10), y = rnorm(10)),
 #'   y = rnorm(10),
 #'   type = "eps-regression")
 #'
