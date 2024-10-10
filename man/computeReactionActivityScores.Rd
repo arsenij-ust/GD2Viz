@@ -52,8 +52,10 @@ This function integrates gene expression data with a metabolic network to comput
 \dontrun{
 # Load necessary data
 geom <- readRDS("./SVM_GD2_dashboard/data/geom_train_data.Rds")
-custom_counts <- read.table("SVM_GD2_dashboard/data/datasets/custom_counts.tsv", sep = "\t", header = TRUE)
-custom_coldata <- read.table("SVM_GD2_dashboard/data/datasets/custom_metadata.tsv", sep = "\t", header = TRUE)
+custom_counts <-
+  read.table("SVM_GD2_dashboard/data/datasets/custom_counts.tsv", sep = "\t", header = TRUE)
+custom_coldata <-
+  read.table("SVM_GD2_dashboard/data/datasets/custom_metadata.tsv", sep = "\t", header = TRUE)
 mgraph <- load_metabolic_network("path/to/metabolic_network.graphml")
 
 # Compute Reaction Activity scores for the custom dataset

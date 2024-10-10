@@ -26,8 +26,12 @@ It can take either a counts table with metadata or a DESeqDataSet object.
 \dontrun{
 geom <- readRDS("./SVM_GD2_dashboard/data/geom_train_data.Rds")
 
-counts <- read.table("SVM_GD2_dashboard/data/datasets/rus_cell_lines_counts.tsv", sep = "\t", header = TRUE)
-metadata <- read.table("SVM_GD2_dashboard/data/datasets/rus_cell_lines_metadata.tsv", sep = "\t", header = TRUE)
+counts <-
+  read.table("SVM_GD2_dashboard/data/datasets/rus_cell_lines_counts.tsv",
+             sep = "\t", header = TRUE)
+metadata <-
+  read.table("SVM_GD2_dashboard/data/datasets/rus_cell_lines_metadata.tsv",
+             sep = "\t", header = TRUE)
 
 dds <- normalizeTestDataset(counts = counts, metadata = metadata, geom = geom)
 }

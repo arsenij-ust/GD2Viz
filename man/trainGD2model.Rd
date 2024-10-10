@@ -27,6 +27,10 @@ trainGD2model(
 
 \item{adjust_input}{A character string indicating how to adjust the input data.
 Options are "raw" (no adjustment), "ranged" (rescale to [0, 1]), and "scaled" (standardize with mean 0 and standard deviation 1). Default is "raw".}
+
+\item{center}{TODOTODO}
+
+\item{type_column}{TODOTODO}
 }
 \value{
 An SVM model trained on the input and output sums derived from the RAS data.
