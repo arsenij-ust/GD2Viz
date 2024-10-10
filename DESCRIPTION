@@ -24,6 +24,7 @@ Imports:
     fresh,
     dplyr,
     magrittr,
+    colorspace,
     prompter,
     shinycssloaders,
     tidyr,
