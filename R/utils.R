@@ -101,6 +101,7 @@ assignSampleExpression <- function(igraph, sample_expr, gene_column = "symbol", 
 #' @param gene_column A character string specifying the name of the edge attribute in the graph that contains gene identifiers. Defaults to "symbol".
 #' @param attr_name A character string specifying the name of the edge attribute to which the computed reaction activity values should be assigned. Defaults to "edge_sum".
 #' @param output_graph A logical value indicating whether the function should return the modified graph with assigned edge attributes (TRUE) or a data frame of computed reaction activities (FALSE). Defaults to FALSE.
+#' @param rowname_column TODOTODO
 #'
 #' @return If `output_graph` is TRUE, returns a list of modified igraph objects with assigned reaction activity edge attributes for each sample. If `output_graph` is FALSE, returns a data frame containing computed reaction activity values for each sample and reaction.
 #'
@@ -236,6 +237,7 @@ assignTP <- function(igraph, transition_probability, column="miriam.kegg.reactio
 #' @param attr_rownames A character string specifying the name of the edge attribute that provides row names for the transition probability matrix.
 #' @param target_node An optional character string specifying the target node from which paths are considered. Defaults to NULL.
 #' @param pass_through A logical value indicating whether to compute transition probabilities with an additional step (recursive adjustment). Defaults to FALSE.
+#' @param mgraph TODOTODO
 #'
 #' @return A matrix of computed transition probabilities. Rows correspond to edge attributes specified by `attr_rownames`, and columns correspond to the igraph objects in `igraph_list` (samples).
 #'
@@ -580,6 +582,8 @@ computeGD2Score <- function(RAS, svm_model, adjust_input = c("raw", "ranged", "s
 #' @param adjust_ras A character string indicating which RAS matrix to use from \code{train_data}. Options are "ras", "ras_prob", "ras_prob_path", and "ras_prob_rec". Default is "ras".
 #' @param adjust_input A character string indicating how to adjust the input data.
 #' Options are "raw" (no adjustment), "ranged" (rescale to \[0, 1\]), and "scaled" (standardize with mean 0 and standard deviation 1). Default is "raw".
+#' @param center TODOTODO
+#' @param type_column TODOTODO
 #'
 #' @return An SVM model trained on the input and output sums derived from the RAS data.
 #'
