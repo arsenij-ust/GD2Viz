@@ -32,7 +32,8 @@
 #' GD2Viz main function
 #'
 #' @return A Shiny App is launched for interactive data exploration
-#' @examples TODO
+#' @examples
+#' # TODO
 #' @export
 GD2Viz <- function() {
 
@@ -41,12 +42,6 @@ GD2Viz <- function() {
     "## Launching GD2Viz\n",
     "##---------------------------------------------------------------------------##"
   )
-  
+
   shinyApp(ui = gd2visUI, server = gd2visServer)
 }
-
-
-  
-  
-  
-  
