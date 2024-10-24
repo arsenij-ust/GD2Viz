@@ -18,7 +18,7 @@ computeGD2Score(
 \item{svm_model}{An SVM model used for predicting the GD2 score.}
 
 \item{adjust_input}{A character string indicating how to adjust the input data.
-Options are "raw" (no adjustment), "ranged" (rescale to \link{0, 1}), and "scaled" (standardize with mean 0 and standard deviation 1). Default is "raw".}
+Options are "raw" (no adjustment), "ranged" (rescale to [0, 1]), and "scaled" (standardize with mean 0 and standard deviation 1). Default is "raw".}
 
 \item{range_output}{A logical value indicating whether to rescale the output data. Default is FALSE.}
 
@@ -33,10 +33,13 @@ It allows for various adjustments to the input data before scoring.
 }
 \examples{
 # Example RAS matrix with necessary reaction IDs
-RAS <- matrix(runif(6 * 10), nrow = 6, dimnames = list(c("R05946", "R05940", "R05939", "R05948", "R05947", "R05941")))
+RAS <- matrix(runif(6 * 10), nrow = 6,
+  dimnames = list(c("R05946", "R05940", "R05939", "R05948", "R05947", "R05941")))
 
 # Example SVM model
-svm_model <- svm(x = data.frame(x = rnorm(10), y = rnorm(10)), y = rnorm(10), type = "eps-regression")
+svm_model <- e1071::svm(x = data.frame(x = rnorm(10), y = rnorm(10)),
+  y = rnorm(10),
+  type = "eps-regression")
 
 # Compute GD2 scores with raw input
 scores <- computeGD2Score(RAS, svm_model, adjust_input = "raw")

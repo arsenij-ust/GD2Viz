@@ -12,10 +12,10 @@ range01(x, ...)
 \item{...}{Additional arguments to be passed to \code{min} and \code{max} functions.}
 }
 \value{
-A numeric vector with values rescaled to the range \link{0, 1}.
+A numeric vector with values rescaled to the range [0, 1].
 }
 \description{
-The \code{range01} function rescales a vector to the range \link{0, 1}.
+The \code{range01} function rescales a vector to the range [0, 1].
 }
 \examples{
 # Rescale a vector to the range [0, 1]

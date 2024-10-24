@@ -8,7 +8,8 @@ trainGD2model(
   train_data,
   adjust_ras = c("ras", "ras_prob", "ras_prob_path", "ras_prob_rec"),
   adjust_input = c("raw", "ranged", "scaled"),
-  center = TRUE
+  center = TRUE,
+  type_column = "X_study"
 )
 }
 \arguments{
@@ -25,7 +26,11 @@ trainGD2model(
 \item{adjust_ras}{A character string indicating which RAS matrix to use from \code{train_data}. Options are "ras", "ras_prob", "ras_prob_path", and "ras_prob_rec". Default is "ras".}
 
 \item{adjust_input}{A character string indicating how to adjust the input data.
-Options are "raw" (no adjustment), "ranged" (rescale to \link{0, 1}), and "scaled" (standardize with mean 0 and standard deviation 1). Default is "raw".}
+Options are "raw" (no adjustment), "ranged" (rescale to [0, 1]), and "scaled" (standardize with mean 0 and standard deviation 1). Default is "raw".}
+
+\item{center}{TODOTODO}
+
+\item{type_column}{TODOTODO}
 }
 \value{
 An SVM model trained on the input and output sums derived from the RAS data.

@@ -1,7 +1,9 @@
+library(igraph)
+
 # Sample graph creation function for reuse
 create_sample_graph <- function() {
   g <- make_ring(10)
-  
+
   # Assign a list of symbols to some edges
   symbols <- lapply(1:10, function(i) {
     if (i %% 3 == 0) {
@@ -10,9 +12,9 @@ create_sample_graph <- function() {
       sample(letters, 1) # 1 symbol for other edges
     }
   })
-  
-  E(g)$miriam.kegg.reaction <- paste0(sample(letters, 10, replace = TRUE), 
-                                      sample.int(10, replace = TRUE), 
+
+  E(g)$miriam.kegg.reaction <- paste0(sample(letters, 10, replace = TRUE),
+                                      sample.int(10, replace = TRUE),
                                       sample.int(10, replace = TRUE))
   E(g)$symbol <- symbols
   return(g)
@@ -33,7 +35,7 @@ create_sample_counts <- function() {
 test_that("assignSampleExpression assigns correct edge attributes to graph", {
   g <- create_sample_graph()
   sample_expr <- create_sample_expr()
-  
+
   g_with_expr <- assignSampleExpression(g, sample_expr, output_graph = TRUE)
   attr_names <- c("symbol", "edge_sum")
   expect_true(all(attr_names %in% names(edge.attributes(g_with_expr))))
@@ -47,9 +49,9 @@ test_that("assignSampleExpression assigns correct edge attributes to graph", {
 test_that("assignSampleExpression returns correct vector of edge sums", {
   g <- create_sample_graph()
   sample_expr <- create_sample_expr()
-  
+
   edge_expr_vec <- assignSampleExpression(g, sample_expr, output_graph = FALSE)
-  
+
   expect_length(edge_expr_vec, length(E(g)))
   for (i in seq_along(E(g))) {
     genes <- unique(unlist(edge_attr(g, "symbol", i)))
@@ -62,9 +64,9 @@ test_that("assignSampleExpression handles custom gene_column and attr_name", {
   g <- create_sample_graph()
   sample_expr <- create_sample_expr()
   E(g)$gene_ids <- E(g)$symbol
-  
+
   g_with_expr <- assignSampleExpression(g, sample_expr, gene_column = "gene_ids", attr_name = "custom_sum", output_graph = TRUE)
-  
+
   expect_true(all("custom_sum" %in% names(edge.attributes(g_with_expr))))
   for (i in seq_along(E(g))) {
     genes <- unique(unlist(edge_attr(g, "gene_ids", i)))
@@ -76,12 +78,12 @@ test_that("assignSampleExpression handles custom gene_column and attr_name", {
 test_that("assignSampleExpression handles missing gene identifiers in sample_expr", {
   g <- create_sample_graph()
   sample_expr <- create_sample_expr()
-  
+
   # Ensure some symbols are not in sample_expr
   E(g)$symbol[1:2] <- c("missing1", "missing2")
-  
+
   g_with_expr <- assignSampleExpression(g, sample_expr, output_graph = TRUE)
-  
+
   for (i in seq_along(E(g))) {
     genes <- unique(unlist(edge_attr(g, "symbol", i)))
     expected_sum <- sum(sample_expr[genes], na.rm = TRUE)
@@ -92,10 +94,10 @@ test_that("assignSampleExpression handles missing gene identifiers in sample_exp
 test_that("assignSampleExpression works with an empty graph", {
   g <- make_empty_graph()
   sample_expr <- create_sample_expr()
-  
+
   g_with_expr <- assignSampleExpression(g, sample_expr, output_graph = TRUE)
   edge_expr_vec <- assignSampleExpression(g, sample_expr, output_graph = FALSE)
-  
+
   expect_equal(length(E(g_with_expr)), 0)
   expect_equal(length(edge_expr_vec), 0)
 })
@@ -104,9 +106,9 @@ test_that("assignSampleExpression works with single edge", {
   g <- make_graph(edges = c(1, 2))
   E(g)$symbol <- "a"
   sample_expr <- create_sample_expr()
-  
+
   g_with_expr <- assignSampleExpression(g, sample_expr, output_graph = TRUE)
-  
+
   expected_sum <- sum(sample_expr["a"], na.rm = TRUE)
   expect_equal(edge_attr(g_with_expr, "edge_sum"), expected_sum)
 })
@@ -114,9 +116,9 @@ test_that("assignSampleExpression works with single edge", {
 test_that("computeReactionActivity modifies graph correctly", {
   g <- create_sample_graph()
   counts <- create_sample_counts()
-  
+
   graphs_with_activity <- computeReactionActivity(g, counts, output_graph = TRUE)
-  
+
   expect_equal(length(graphs_with_activity), ncol(counts))
   for (i in seq_along(graphs_with_activity)) {
     g_with_activity <- graphs_with_activity[[i]]
@@ -132,9 +134,9 @@ test_that("computeReactionActivity modifies graph correctly", {
 test_that("computeReactionActivity returns correct data frame of reaction activities", {
   g <- create_sample_graph()
   counts <- create_sample_counts()
-  
+
   reaction_activity_df <- computeReactionActivity(g, counts, output_graph = FALSE)
-  
+
   expect_equal(ncol(reaction_activity_df), ncol(counts))
   expect_equal(nrow(reaction_activity_df), length(E(g)))
   for (i in 1:ncol(reaction_activity_df)) {
@@ -150,9 +152,9 @@ test_that("computeReactionActivity handles custom gene_column and attr_name", {
   g <- create_sample_graph()
   counts <- create_sample_counts()
   E(g)$gene_ids <- E(g)$symbol
-  
+
   graphs_with_activity <- computeReactionActivity(g, counts, gene_column = "gene_ids", attr_name = "custom_sum", output_graph = TRUE)
-  
+
   expect_equal(length(graphs_with_activity), ncol(counts))
   for (i in seq_along(graphs_with_activity)) {
     g_with_activity <- graphs_with_activity[[i]]
@@ -168,12 +170,12 @@ test_that("computeReactionActivity handles custom gene_column and attr_name", {
 # test_that("computeReactionActivity handles missing gene identifiers in counts", {
 #   g <- create_sample_graph()
 #   counts <- create_sample_counts()
-#   
+#
 #   # Ensure some symbols are not in counts
 #   E(g)$symbol[1:2] <- list(c("missing1", "missing2"), "missing3")
-#   
+#
 #   graphs_with_activity <- computeReactionActivity(g, counts, output_graph = TRUE)
-#   
+#
 #   expect_equal(length(graphs_with_activity), ncol(counts))
 #   for (i in seq_along(graphs_with_activity)) {
 #     g_with_activity <- graphs_with_activity[[i]]
@@ -189,10 +191,10 @@ test_that("computeReactionActivity handles custom gene_column and attr_name", {
 test_that("computeReactionActivity works with an empty graph", {
   g <- make_empty_graph()
   counts <- create_sample_counts()
-  
+
   graphs_with_activity <- computeReactionActivity(g, counts, output_graph = TRUE)
   # reaction_activity_df <- computeReactionActivity(g, counts, output_graph = FALSE)
-  
+
   expect_equal(length(graphs_with_activity), ncol(counts))
   for (g_with_activity in graphs_with_activity) {
     expect_equal(length(E(g_with_activity)), 0)
@@ -202,10 +204,10 @@ test_that("computeReactionActivity works with an empty graph", {
 
 test_that("getEdgeWeightNStepsAway returns correct edge weight when reachable", {
   # Create a sample adjacency matrix
-  g <- matrix(c(0, 1, 2, 
-                0, 0, 0, 
+  g <- matrix(c(0, 1, 2,
+                0, 0, 0,
                 1, 0, 0), nrow = 3, byrow = TRUE)
-  
+
   # Test case where the edge is reachable
   weight <- getEdgeWeightNStepsAway(g, 2, 3)
   expect_equal(weight, 2)
@@ -224,10 +226,10 @@ test_that("getEdgeWeightNStepsAway returns NULL when edge is not reachable", {
 
 test_that("getEdgeWeightNStepsAway handles graph with multiple paths", {
   # Create a sample adjacency matrix with multiple paths
-  g <- matrix(c(0, 1, 2, 
-                0, 0, 3, 
+  g <- matrix(c(0, 1, 2,
+                0, 0, 3,
                 1, 0, 0), nrow = 3, byrow = TRUE)
-  
+
   # Test case where multiple paths are available
   weight <- getEdgeWeightNStepsAway(g, 2, 3)
   expect_equal(weight, 3)
@@ -235,10 +237,10 @@ test_that("getEdgeWeightNStepsAway handles graph with multiple paths", {
 
 test_that("getEdgeWeightNStepsAway handles graph with no incoming edges", {
   # Create a sample adjacency matrix with no incoming edges for the starting node
-  g <- matrix(c(0, 1, 0, 
-                0, 0, 0, 
+  g <- matrix(c(0, 1, 0,
+                0, 0, 0,
                 1, 0, 0), nrow = 3, byrow = TRUE)
-  
+
   # Test case where no incoming edges exist for the starting node
   weight <- getEdgeWeightNStepsAway(g, 2, 1)
   expect_null(weight)
@@ -246,12 +248,12 @@ test_that("getEdgeWeightNStepsAway handles graph with no incoming edges", {
 
 # test_that("getEdgeWeightNStepsAway handles larger graph", {
 #   # Create a larger sample adjacency matrix
-#   g <- matrix(c(0, 1, 0, 0, 0, 
-#                 0, 0, 1, 0, 0, 
-#                 0, 0, 0, 1, 0, 
-#                 0, 0, 0, 0, 1, 
+#   g <- matrix(c(0, 1, 0, 0, 0,
+#                 0, 0, 1, 0, 0,
+#                 0, 0, 0, 1, 0,
+#                 0, 0, 0, 0, 1,
 #                 1, 0, 0, 0, 0), nrow = 5, byrow = TRUE)
-#   
+#
 #   # Test case in a larger graph
 #   weight <- getEdgeWeightNStepsAway(g, 4, 1)
 #   expect_equal(weight, 1)
@@ -259,12 +261,12 @@ test_that("getEdgeWeightNStepsAway handles graph with no incoming edges", {
 
 # test_that("getEdgeWeightNStepsAway handles graph with cycles", {
 #   # Create a sample adjacency matrix with cycles
-#   g <- matrix(c(0, 1, 0, 0, 0, 
-#                 0, 0, 1, 0, 0, 
-#                 0, 0, 0, 1, 0, 
-#                 0, 0, 0, 0, 1, 
+#   g <- matrix(c(0, 1, 0, 0, 0,
+#                 0, 0, 1, 0, 0,
+#                 0, 0, 0, 1, 0,
+#                 0, 0, 0, 0, 1,
 #                 1, 0, 0, 0, 0), nrow = 5, byrow = TRUE)
-#   
+#
 #   # Test case where the graph contains cycles
 #   weight <- getEdgeWeightNStepsAway(g, 3, 5)
 #   expect_equal(weight, 1)
@@ -274,13 +276,13 @@ test_that("getEdgeWeightNStepsAway handles graph with no incoming edges", {
 #   # Create a sample igraph object
 #   g <- make_ring(10)
 #   E(g)$`miriam.kegg.reaction` <- sample(letters[1:5], 10, replace = TRUE)
-#   
+#
 #   # Create a sample transition probability vector
 #   tp <- setNames(runif(5), letters[1:5])
-#   
+#
 #   # Assign transition probabilities to graph edges
 #   g_with_tp <- assignTP(g, tp)
-#   
+#
 #   for (i in seq_along(E(g))) {
 #     reaction <- unique(unlist(edge_attr(g, "miriam.kegg.reaction", i)))
 #     expect_equal(edge_attr(g_with_tp, "tp", i), tp[reaction])
@@ -291,13 +293,13 @@ test_that("getEdgeWeightNStepsAway handles graph with no incoming edges", {
 #   # Create a sample igraph object
 #   g <- make_ring(10)
 #   E(g)$`custom.reaction` <- sample(letters[1:5], 10, replace = TRUE)
-#   
+#
 #   # Create a sample transition probability vector
 #   tp <- setNames(runif(5), letters[1:5])
-#   
+#
 #   # Assign transition probabilities to graph edges using custom column and attr_name
 #   g_with_tp <- assignTP(g, tp, column = "custom.reaction", attr_name = "custom_tp")
-#   
+#
 #   for (i in seq_along(E(g))) {
 #     reaction <- unique(unlist(edge_attr(g, "custom.reaction", i)))
 #     expect_equal(edge_attr(g_with_tp, "custom_tp", i), tp[reaction])
@@ -308,13 +310,13 @@ test_that("getEdgeWeightNStepsAway handles graph with no incoming edges", {
 #   # Create a sample igraph object
 #   g <- make_ring(10)
 #   E(g)$`miriam.kegg.reaction` <- sample(letters[1:5], 10, replace = TRUE)
-#   
+#
 #   # Create a sample transition probability vector with one missing value
 #   tp <- setNames(runif(4), letters[1:4])
-#   
+#
 #   # Assign transition probabilities to graph edges
 #   g_with_tp <- assignTP(g, tp)
-#   
+#
 #   for (i in seq_along(E(g))) {
 #     reaction <- unique(unlist(edge_attr(g, "miriam.kegg.reaction", i)))
 #     if (reaction %in% names(tp)) {
@@ -328,13 +330,13 @@ test_that("getEdgeWeightNStepsAway handles graph with no incoming edges", {
 # test_that("assignTP works with an empty graph", {
 #   # Create an empty graph
 #   g <- make_empty_graph()
-#   
+#
 #   # Create a sample transition probability vector
 #   tp <- setNames(runif(5), letters[1:5])
-#   
+#
 #   # Assign transition probabilities to graph edges
 #   g_with_tp <- assignTP(g, tp)
-#   
+#
 #   expect_equal(length(E(g_with_tp)), 0)
 # })
 
@@ -342,13 +344,13 @@ test_that("getEdgeWeightNStepsAway handles graph with no incoming edges", {
 #   # Create a graph with a single edge
 #   g <- make_graph(edges = c(1, 2))
 #   E(g)$`miriam.kegg.reaction` <- "a"
-#   
+#
 #   # Create a sample transition probability vector
 #   tp <- setNames(runif(1), "a")
-#   
+#
 #   # Assign transition probabilities to graph edges
 #   g_with_tp <- assignTP(g, tp)
-#   
+#
 #   expect_equal(edge_attr(g_with_tp, "tp", 1), tp["a"])
 # })
 
@@ -356,13 +358,13 @@ test_that("getEdgeWeightNStepsAway handles graph with no incoming edges", {
 #   # Create a sample igraph object
 #   g <- make_ring(10)
 #   E(g)$`miriam.kegg.reaction` <- sample(letters[1:2], 10, replace = TRUE)
-#   
+#
 #   # Create a sample transition probability vector
 #   tp <- setNames(runif(2), letters[1:2])
-#   
+#
 #   # Assign transition probabilities to graph edges
 #   g_with_tp <- assignTP(g, tp)
-#   
+#
 #   for (i in seq_along(E(g))) {
 #     reaction <- unique(unlist(edge_attr(g, "miriam.kegg.reaction", i)))
 #     expect_equal(edge_attr(g_with_tp, "tp", i), tp[reaction])
@@ -373,13 +375,13 @@ test_that("getEdgeWeightNStepsAway handles graph with no incoming edges", {
 #   # Create a sample igraph object
 #   g <- make_ring(10)
 #   E(g)$`miriam.kegg.reaction` <- lapply(1:10, function(x) sample(letters[1:2], sample(1:2, 1)))
-#   
+#
 #   # Create a sample transition probability vector
 #   tp <- setNames(runif(2), letters[1:2])
-#   
+#
 #   # Assign transition probabilities to graph edges
 #   g_with_tp <- assignTP(g, tp)
-#   
+#
 #   for (i in seq_along(E(g))) {
 #     reactions <- unique(unlist(edge_attr(g, "miriam.kegg.reaction", i)))
 #     expected_tp <- sum(tp[reactions], na.rm = TRUE)
@@ -396,14 +398,14 @@ test_that("computeTransitionProbability computes correct transition probabilitie
   E(g1)$weight <- runif(10)
   E(g2)$weight <- runif(10)
   igraph_list <- list(g1, g2)
-  
+
   # Compute transition probabilities
   transition_probs <- computeTransitionProbability(igraph_list, attr_name = "weight", attr_rownames = "miriam.kegg.reaction")
-  
+
   # Check the output matrix dimensions
   expect_equal(ncol(transition_probs), length(igraph_list))
   expect_equal(nrow(transition_probs), length(unique(E(g1)$`miriam.kegg.reaction`)))
-  
+
   # Check if the transition probabilities sum to 1 for each node
   for (i in 1:ncol(transition_probs)) {
     g <- igraph_list[[i]]
@@ -428,13 +430,13 @@ test_that("computeTransitionProbability handles target_node", {
   E(g1)$`miriam.kegg.reaction` <- sample(letters[1:5], 10, replace = TRUE)
   E(g1)$weight <- runif(10)
   igraph_list <- list(g1)
-  
+
   # Set target_node
   target_node <- V(g1)[1]
-  
+
   # Compute transition probabilities
   transition_probs <- computeTransitionProbability(igraph_list, attr_name = "weight", attr_rownames = "miriam.kegg.reaction", target_node = target_node)
-  
+
   # Check if the transition probabilities are computed correctly for paths from the target node
   path_list <- all_simple_paths(g1, from = target_node)
   for (path in path_list) {
@@ -459,10 +461,10 @@ test_that("computeTransitionProbability handles pass_through", {
   E(g1)$`miriam.kegg.reaction` <- sample(letters[1:5], 10, replace = TRUE)
   E(g1)$weight <- runif(10)
   igraph_list <- list(g1)
-  
+
   # Compute transition probabilities with pass_through
   transition_probs <- computeTransitionProbability(igraph_list, attr_name = "weight", attr_rownames = "miriam.kegg.reaction", pass_through = TRUE, mgraph = g1)
-  
+
   # Check if the transition probabilities are recursively adjusted correctly
   g_df <- as_data_frame(g1)
   r_tp_1_list <- apply(transition_probs, 2, function(x) {
@@ -497,10 +499,10 @@ test_that("computeTransitionProbability handles pass_through", {
 test_that("computeTransitionProbability handles empty graph list", {
   # Create an empty list of igraph objects
   igraph_list <- list()
-  
+
   # Compute transition probabilities
   transition_probs <- computeTransitionProbability(igraph_list, attr_name = "weight", attr_rownames = "miriam.kegg.reaction")
-  
+
   # Check if the result is an empty matrix
   expect_equal(ncol(transition_probs), 0)
   expect_equal(nrow(transition_probs), 0)
@@ -510,10 +512,10 @@ test_that("computeTransitionProbability handles graphs with no edges", {
   # Create a graph with no edges
   g <- make_empty_graph(n = 10)
   igraph_list <- list(g)
-  
+
   # Compute transition probabilities
   transition_probs <- computeTransitionProbability(igraph_list, attr_name = "weight", attr_rownames = "miriam.kegg.reaction")
-  
+
   # Check if the result is a matrix with zeros
   expect_equal(ncol(transition_probs), length(igraph_list))
   expect_equal(nrow(transition_probs), 0)
@@ -525,10 +527,10 @@ test_that("computeTransitionProbability works with a single edge", {
   E(g)$`miriam.kegg.reaction` <- "a"
   E(g)$weight <- runif(1)
   igraph_list <- list(g)
-  
+
   # Compute transition probabilities
   transition_probs <- computeTransitionProbability(igraph_list, attr_name = "weight", attr_rownames = "miriam.kegg.reaction")
-  
+
   # Check if the transition probability is correctly computed
   expect_equal(ncol(transition_probs), length(igraph_list))
   expect_equal(nrow(transition_probs), 1)

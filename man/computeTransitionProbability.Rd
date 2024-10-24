@@ -23,6 +23,8 @@ computeTransitionProbability(
 \item{target_node}{An optional character string specifying the target node from which paths are considered. Defaults to NULL.}
 
 \item{pass_through}{A logical value indicating whether to compute transition probabilities with an additional step (recursive adjustment). Defaults to FALSE.}
+
+\item{mgraph}{TODOTODO}
 }
 \value{
 A matrix of computed transition probabilities. Rows correspond to edge attributes specified by \code{attr_rownames}, and columns correspond to the igraph objects in \code{igraph_list} (samples).
@@ -43,5 +45,7 @@ E(g2)$`miriam.kegg.reaction` <- sample(letters[1:5], 10, replace = TRUE)
 igraph_list <- list(g1, g2)
 
 # Compute transition probabilities
-transition_probs <- computeTransitionProbability(igraph_list, attr_name = "weight", attr_rownames = "miriam.kegg.reaction")
+transition_probs <-
+  computeTransitionProbability(igraph_list, attr_name = "weight",
+                               attr_rownames = "miriam.kegg.reaction")
 }
