@@ -1334,7 +1334,6 @@ gd2visServer <- function(input, output, session) {
     if (input$dataType == "countMeta" && !is.null(input$metadataFile) && !is.null(input$countsFile)) {
       customColdata <- read.table(file = input$metadataFile$datapath, sep = "\t", header = TRUE)
       customCounts <- read.table(file = input$countsFile$datapath, sep = "\t", header = TRUE)
-      
       tryCatch({
         customDataVal <- computeReactionActivityScores(
           counts = customCounts, 
@@ -1810,8 +1809,9 @@ gd2visServer <- function(input, output, session) {
     
     norm_counts <- DESeq2::counts(customData()$custom_dds, normalized=TRUE)
     norm_counts <- log2(norm_counts + 1)
+    
     i_genes <- intersect(names(stem), rownames(norm_counts))
-    X <- norm_counts[i_genes,]
+    X <- norm_counts[i_genes,,drop=FALSE]
     w <- stem[i_genes]
     
     if (input$customColData == "none") {
@@ -1831,11 +1831,15 @@ gd2visServer <- function(input, output, session) {
     }
     
     s <- apply( X, 2, function(z) {cor( z, w, method="sp", use="complete.obs" )} )
-    s <- range01(s)
-    
     pred_values <- customGD2()$predList[[input$customRASType]]
+
     if(input$customGD2StemnessRange == "yes"){
-      pred_values <- range01(pred_values)
+      if(length(s)==1){
+        warning("Ranging values is possible only if n > 1")
+      } else {
+        s <- range01(s)
+        pred_values <- range01(pred_values)
+      }
     }
     
     plot_df <- data.frame(Group = group, GD2Score = pred_values, Stemness = s)
@@ -1916,6 +1920,17 @@ gd2visServer <- function(input, output, session) {
     dds <- customData()$custom_dds
     group_col <- input$selectCompColData
     
+    # Check if the dds has only one sample
+    if (ncol(dds) == 1) {
+      showNotification(
+        "Error: The dataset contains only one sample. Comparison statistics cannot be generated.",
+        type = "error",
+        duration = 10,
+        closeButton = TRUE
+      )
+      return(customLFCData(NULL))
+    }
+    
     ras <- customData()[[input$customRASComp]]
     
     indxA <- which(
@@ -1991,7 +2006,7 @@ gd2visServer <- function(input, output, session) {
   
   ## RAS comparison graph -----
   output$customGroupCompGraph <- renderVisNetwork({
-    req(input$generateComparison, input$selectCompColData, input$selected_level_A, input$selected_level_B)
+    req(customLFCData(), input$generateComparison, input$selectCompColData, input$selected_level_A, input$selected_level_B)
     pval_df <- customLFCData()
     
     # print(pval_df)
@@ -2070,7 +2085,7 @@ gd2visServer <- function(input, output, session) {
   })
   ## RAS comparison plot -----
   output$customGroupComp <- renderPlot({
-    req(input$generateComparison, input$selectCompColData, input$selected_level_A, input$selected_level_B)
+    req(customLFCData(), input$generateComparison, input$selectCompColData, input$selected_level_A, input$selected_level_B)
     pval_df <- customLFCData()
     
     # print(pval_df)
@@ -2391,7 +2406,7 @@ gd2visServer <- function(input, output, session) {
             threshold <- input$customTabDGEMethod
             colData(dds)$strat <- ifelse(colData(dds)$GD2Score >= threshold, "GD2_High", "GD2_Low")
           } else if (input$customTabDGEStratMethodSel == "q") {
-            print(as.numeric(colData(dds)$GD2Score))
+            #print(as.numeric(colData(dds)$GD2Score))
             quantiles <- quantile(as.numeric(colData(dds)$GD2Score), probs = c(0,input$customTabDGEMethod,1))
             # print(quantiles)
             low_threshold <- quantiles[2]

@@ -278,30 +278,35 @@ computeTransitionProbability <- function(igraph_list, attr_name, attr_rownames, 
   
   rownames(res) <- unlist(igraph::edge_attr(igraph_list[[1]], attr_rownames))
   res <- na.omit(res)
-  res <- res[-which(duplicated(rownames(res))),]
+  res <- res[-which(duplicated(rownames(res))),,drop=FALSE]
+
   # compute paths from target 
   if(!is.null(target_node)){
     path_list <- igraph::all_simple_paths(igraph_list[[1]], from = target_node)
     prob_list <- list()
     last_reaction <- c()
+
     for(i in path_list){
       path_name <- paste0(names(i), collapse = "_")
-      
+      #print("check 1")
       VP = names(i)
       EP = rep(VP, each=2)[-1]
       EP = EP[-length(EP)]
-      
+      #print("check 2")
       eid <- get.edge.ids(mgraph, EP)
       r <- unlist(edge_attr(mgraph, attr_rownames, eid))
+      #print("check 3")
       last_reaction <- c(last_reaction, tail(r, n=1))
+      #print("check 4")
       if(length(r)>1){
-        res2 <- apply(res[r,], 2, prod)
+        res2 <- apply(res[r,,drop=FALSE], 2, prod)
       } else {
-        res2 <- res[r,]
+        res2 <- apply(res[r,,drop=FALSE], 2, function(x){x})
       }
+      #print(res2)
       prob_list[[path_name]] <- res2
     }
-    
+    #print(prob_list)
     res3 <- bind_rows(prob_list) %>% as.data.frame()
     # set rownames
     rownames(res3) <- last_reaction
@@ -314,7 +319,8 @@ computeTransitionProbability <- function(igraph_list, attr_name, attr_rownames, 
     res3 <- rbind(res3, newdf)
     
     # sort by rownames 
-    res <- res3[rownames(res),]
+    res <- res3[rownames(res),,drop=FALSE]
+    #print(res)
   }
   
   if(pass_through){
@@ -385,11 +391,16 @@ normalizeTestDataset <- function(counts = NULL, metadata = NULL, dds = NULL, geo
       stop("Sample names in counts must match row names in metadata.")
     }
     
-    metadata <- metadata[colnames(counts),]
+    # Align metadata with counts, handling single sample
+    if (ncol(counts) == 1) {
+      metadata <- metadata[rownames(metadata) == colnames(counts), , drop = FALSE]
+    } else {
+      metadata <- metadata[colnames(counts),]
+    }
     
-    dds <- DESeqDataSetFromMatrix(countData = as.matrix(counts),
+    dds <- suppressWarnings(DESeqDataSetFromMatrix(countData = as.matrix(counts),
                                   colData = metadata,
-                                  design = ~1)
+                                  design = ~1))
   }
   
   # Sanity check for DESeqDataSet object
@@ -405,7 +416,7 @@ normalizeTestDataset <- function(counts = NULL, metadata = NULL, dds = NULL, geo
   }
   
   # Estimate size factors for the new dataset based on the training dataset
-  sizeFactors(dds) <- DESeq2::estimateSizeFactorsForMatrix(DESeq2::counts(dds)[features, ], geoMeans = geom[features])
+  sizeFactors(dds) <- DESeq2::estimateSizeFactorsForMatrix(DESeq2::counts(dds)[features,,drop=FALSE], geoMeans = geom[features])
   
   return(dds)
 }
@@ -460,9 +471,18 @@ computeReactionActivityScores <- function(counts=NULL, metadata=NULL, dds=NULL, 
   
   norm_counts <- log10(DESeq2::counts(custom_dds, normalize = TRUE) + 1)
   
+  if (is.vector(norm_counts)) {
+    norm_counts <- as.matrix(norm_counts) # Ensure matrix format for single sample
+    colnames(norm_counts) <- colnames(DESeq2::counts(custom_dds))
+  }
+  
   message("Computing RAS...")
   ras <- computeReactionActivity(mgraph, norm_counts)
   
+  if (is.vector(ras)) {
+    ras <- as.matrix(ras) # Ensure matrix format for single sample
+    colnames(ras) <- colnames(DESeq2::counts(custom_dds))
+  }
   message("Computing graph per sample...")
   graph_list <- computeReactionActivity(mgraph, norm_counts, output_graph = TRUE)
   
@@ -473,9 +493,11 @@ computeReactionActivityScores <- function(counts=NULL, metadata=NULL, dds=NULL, 
   transition_probability_rec <- computeTransitionProbability(graph_list, "edge_sum", "miriam.kegg.reaction", target_node=NULL, pass_through=TRUE, mgraph = mgraph)
   
   r <- intersect(rownames(ras), rownames(transition_probability))
-  ras_prob <- ras[r,] * transition_probability[r,]
-  ras_prob_path <- ras[r,] * transition_probability_paths[r,]
-  ras_prob_rec <- ras[r,] * transition_probability_rec[r,]
+  # Adjust for single sample in matrix operations
+  ras_prob <- ras[r, , drop = FALSE] * transition_probability[r, , drop = FALSE]
+  ras_prob_path <- ras[r, , drop = FALSE] * transition_probability_paths[r, , drop = FALSE]
+  ras_prob_rec <- ras[r, , drop = FALSE] * transition_probability_rec[r, , drop = FALSE]
+  
   
   # ras_prob_up <- ras[r,] + (ras[r,] * transition_probability[r,])
   # ras_prob_up_path <- ras[r,] + (ras[r,] * transition_probability_paths[r,])
