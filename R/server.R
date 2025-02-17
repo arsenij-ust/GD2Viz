@@ -1656,6 +1656,7 @@ gd2visServer <- function(input, output, session) {
       y = ~y, 
       type = 'scatter', 
       mode = 'markers', 
+      text = rownames(df),
       color = group, 
       colors = colors) %>%
       layout(
