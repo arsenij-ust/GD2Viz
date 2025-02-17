@@ -23,6 +23,8 @@ computeReactionActivity(
 \item{attr_name}{A character string specifying the name of the edge attribute to which the computed reaction activity values should be assigned. Defaults to "edge_sum".}
 
 \item{output_graph}{A logical value indicating whether the function should return the modified graph with assigned edge attributes (TRUE) or a data frame of computed reaction activities (FALSE). Defaults to FALSE.}
+
+\item{rowname_column}{TODOTODO}
 }
 \value{
 If \code{output_graph} is TRUE, returns a list of modified igraph objects with assigned reaction activity edge attributes for each sample. If \code{output_graph} is FALSE, returns a data frame containing computed reaction activity values for each sample and reaction.

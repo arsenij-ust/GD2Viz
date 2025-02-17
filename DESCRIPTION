@@ -19,39 +19,42 @@ Description: Compute GD2 score for your RNA-seq datasets and visualize the resul
 Depends:
     R (>= 4.4.0)
 Imports: 
-  shiny,
-  bs4Dash,
-  fresh,
-  dplyr,
-  prompter,
-  shinycssloaders,
-  tidyr,
-  utils,
-  ggplot2,
-  plotly,
-  AnnotationDbi,
-  DESeq2,
-  SummarizedExperiment,
-  GenomicRanges,
-  DT,
-  zip,
-  circlize,
-  ComplexHeatmap,
-  KEGGREST,
-  shinyjs,
-  visNetwork,
-  igraph,
-  kernlab,
-  rentrez,
-  IHW
-Suggests: 
+    shiny,
+    bs4Dash,
+    fresh,
+    dplyr,
+    magrittr,
+    colorspace,
+    prompter,
+    shinycssloaders,
+    tidyr,
+    utils,
+    ggplot2,
+    plotly,
+    AnnotationDbi,
+    DESeq2,
+    SummarizedExperiment,
+    DT,
+    zip,
+    circlize,
+    ComplexHeatmap,
+    KEGGREST,
+    shinyjs,
+    visNetwork,
+    igraph,
+    kernlab,
     org.Hs.eg.db,
+    ideal,
+    stringr,
+    rentrez,
+    IHW
+Suggests: 
     testthat (>= 3.0.0),
     htmltools,
+    e1071,
     markdown
 License: MIT + file LICENSE
 Encoding: UTF-8
-VignetteBuilder: knitr
 URL: https://github.com/yourusername/GD2Viz
 BugReports: https://github.com/yourusername/GD2Viz/issues
 RoxygenNote: 7.3.2

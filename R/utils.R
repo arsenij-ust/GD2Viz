@@ -22,12 +22,12 @@ resample <- function(x, ...) x[sample.int(length(x), ...)]
 
 #' Rescale Vector to Range 0-1
 #'
-#' The `range01` function rescales a vector to the range [0, 1].
+#' The `range01` function rescales a vector to the range \[0, 1\].
 #'
 #' @param x A numeric vector to be rescaled.
 #' @param ... Additional arguments to be passed to `min` and `max` functions.
 #'
-#' @return A numeric vector with values rescaled to the range [0, 1].
+#' @return A numeric vector with values rescaled to the range \[0, 1\].
 #'
 #' @examples
 #' # Rescale a vector to the range [0, 1]
@@ -72,7 +72,7 @@ range01 <- function(x, ...){
 #' # Get the aggregated sample expression values as a vector
 #' edge_expr_vec <- assignSampleExpression(g, sample_expr, output_graph = FALSE)
 assignSampleExpression <- function(igraph, sample_expr, gene_column = "symbol", attr_name = "edge_sum", output_graph = FALSE) {
-  
+
   if (output_graph) {
     for (i in seq_along(igraph::E(igraph))) {
       genes <- unique(unlist(igraph::edge_attr(igraph, gene_column, i)))
@@ -101,6 +101,7 @@ assignSampleExpression <- function(igraph, sample_expr, gene_column = "symbol", 
 #' @param gene_column A character string specifying the name of the edge attribute in the graph that contains gene identifiers. Defaults to "symbol".
 #' @param attr_name A character string specifying the name of the edge attribute to which the computed reaction activity values should be assigned. Defaults to "edge_sum".
 #' @param output_graph A logical value indicating whether the function should return the modified graph with assigned edge attributes (TRUE) or a data frame of computed reaction activities (FALSE). Defaults to FALSE.
+#' @param rowname_column TODOTODO
 #'
 #' @return If `output_graph` is TRUE, returns a list of modified igraph objects with assigned reaction activity edge attributes for each sample. If `output_graph` is FALSE, returns a data frame containing computed reaction activity values for each sample and reaction.
 #'
@@ -124,16 +125,16 @@ assignSampleExpression <- function(igraph, sample_expr, gene_column = "symbol", 
 #' # Compute reaction activity values and get as a data frame
 #' reaction_activity_df <- computeReactionActivity(g, counts, output_graph = FALSE)
 computeReactionActivity <- function(igraph, counts, gene_column = "symbol", attr_name = "edge_sum", output_graph = FALSE, rowname_column = "miriam.kegg.reaction") {
-  
+
   res <- apply(counts, 2, function(x) {
     assignSampleExpression(igraph, x, gene_column = gene_column, attr_name = attr_name, output_graph = output_graph)
   })
-  
+
   if (!output_graph) {
     rownames(res) <- unlist(igraph::edge_attr(igraph, rowname_column))
     res <- res[!duplicated(rownames(res)), ]
   }
-  
+
   return(res)
 }
 
@@ -161,10 +162,10 @@ computeReactionActivity <- function(igraph, counts, gene_column = "symbol", attr
 getEdgeWeightNStepsAway <- function(g, start_col, start_row) {
   current_col <- start_col
   current_row <- start_row
-  
+
   prev_cols <- current_row
   prev_rows <- which(g[, prev_cols] != 0)
-  
+
   if (length(prev_rows) == 0) {
     # No incoming edge, n steps away not reachable
     return(NULL)
@@ -175,11 +176,11 @@ getEdgeWeightNStepsAway <- function(g, start_col, start_row) {
     max_indices <- which(g[prev_rows, prev_cols] == max_weight)
     # If there are multiple edges with the same maximum weight, select one randomly
     max_index <- resample(max_indices, 1)
-    
+
     # Follow the selected incoming edge to the previous node
     current_col <- prev_cols[1]
     current_row <- prev_rows[max_index]
-    
+
     if (g[current_row, current_col] == 1) {
       return(getEdgeWeightNStepsAway(g, current_col, current_row))
     } else {
@@ -218,7 +219,7 @@ getEdgeWeightNStepsAway <- function(g, start_col, start_row) {
 #' # Assign transition probabilities to graph edges
 #' g_with_tp <- assignTP(g, tp)
 assignTP <- function(igraph, transition_probability, column="miriam.kegg.reaction", attr_name = "tp"){
-  
+
   for(i in seq(1:length(igraph::E(igraph)))){
     reaction<- unique(unlist(igraph::edge_attr(igraph, column, i)))
     igraph::edge_attr(graph = igraph, name = attr_name, index = i) <- transition_probability[reaction]
@@ -236,6 +237,7 @@ assignTP <- function(igraph, transition_probability, column="miriam.kegg.reactio
 #' @param attr_rownames A character string specifying the name of the edge attribute that provides row names for the transition probability matrix.
 #' @param target_node An optional character string specifying the target node from which paths are considered. Defaults to NULL.
 #' @param pass_through A logical value indicating whether to compute transition probabilities with an additional step (recursive adjustment). Defaults to FALSE.
+#' @param mgraph TODOTODO
 #'
 #' @return A matrix of computed transition probabilities. Rows correspond to edge attributes specified by `attr_rownames`, and columns correspond to the igraph objects in `igraph_list` (samples).
 #'
@@ -254,20 +256,22 @@ assignTP <- function(igraph, transition_probability, column="miriam.kegg.reactio
 #' igraph_list <- list(g1, g2)
 #'
 #' # Compute transition probabilities
-#' transition_probs <- computeTransitionProbability(igraph_list, attr_name = "weight", attr_rownames = "miriam.kegg.reaction")
+#' transition_probs <-
+#'   computeTransitionProbability(igraph_list, attr_name = "weight",
+#'                                attr_rownames = "miriam.kegg.reaction")
 computeTransitionProbability <- function(igraph_list, attr_name, attr_rownames, target_node=NULL, pass_through=FALSE, mgraph){
-  
+
   if(pass_through) target_node <- NULL
-  
+
   # compute trasition probabilites with step length 1
   res <- sapply(igraph_list, function(g){
     adm <- as_adjacency_matrix(g, attr=attr_name, sparse = FALSE)
     adm[is.na(adm)] <- 0
     adm_norm <- t(apply(adm, 1, function(x) x/sum(x)))
     adm_norm[is.nan(adm_norm)] <- 0
-    
+
     edge_df <- igraph::as_data_frame(g)
-    edge_df$weight <- NA 
+    edge_df$weight <- NA
     for(r in 1:nrow(edge_df)){
       from_node <- unlist(edge_df[r,c("from")])
       to_node <- unlist(edge_df[r,c("to")])
@@ -275,7 +279,7 @@ computeTransitionProbability <- function(igraph_list, attr_name, attr_rownames, 
     }
     return(edge_df$weight)
   })
-  
+
   rownames(res) <- unlist(igraph::edge_attr(igraph_list[[1]], attr_rownames))
   res <- na.omit(res)
   res <- res[-which(duplicated(rownames(res))),,drop=FALSE]
@@ -288,11 +292,10 @@ computeTransitionProbability <- function(igraph_list, attr_name, attr_rownames, 
 
     for(i in path_list){
       path_name <- paste0(names(i), collapse = "_")
-      #print("check 1")
       VP = names(i)
       EP = rep(VP, each=2)[-1]
       EP = EP[-length(EP)]
-      #print("check 2")
+
       eid <- get.edge.ids(mgraph, EP)
       r <- unlist(edge_attr(mgraph, attr_rownames, eid))
       #print("check 3")
@@ -306,29 +309,30 @@ computeTransitionProbability <- function(igraph_list, attr_name, attr_rownames, 
       #print(res2)
       prob_list[[path_name]] <- res2
     }
-    #print(prob_list)
+
     res3 <- bind_rows(prob_list) %>% as.data.frame()
     # set rownames
     rownames(res3) <- last_reaction
-    
+
     # fill not existing edges
     missing_edges <- setdiff(unlist(igraph::edge_attr(igraph_list[[1]], attr_rownames)), rownames(res3))
     newdf <- matrix(0, nrow=length(missing_edges), ncol = ncol(res3)) %>% as.data.frame()
     rownames(newdf) <- missing_edges
     colnames(newdf) <- colnames(res3)
     res3 <- rbind(res3, newdf)
-    
+
     # sort by rownames 
     res <- res3[rownames(res),,drop=FALSE]
     #print(res)
+
   }
-  
+
   if(pass_through){
     g_df <- igraph::as_data_frame(igraph_list[[1]])
     r_tp_1_list <- apply(res, 2, function(x){
       graph <- assignTP(igraph_list[[1]], x)
       adm <- as_adjacency_matrix(graph, attr="tp", sparse = FALSE)
-      
+
       t <- sapply(1:length(x), function(i){
         if(x[i] == 1){
           from_node <- unlist(g_df[which(g_df[[attr_rownames]] == names(x)[i]),"from"])
@@ -375,10 +379,14 @@ computeTransitionProbability <- function(igraph_list, attr_name, attr_rownames, 
 #' @examples
 #' \dontrun{
 #' geom <- readRDS("./SVM_GD2_dashboard/data/geom_train_data.Rds")
-#' 
-#' counts <- read.table("SVM_GD2_dashboard/data/datasets/rus_cell_lines_counts.tsv", sep = "\t", header = TRUE)
-#' metadata <- read.table("SVM_GD2_dashboard/data/datasets/rus_cell_lines_metadata.tsv", sep = "\t", header = TRUE)
-#' 
+#'
+#' counts <-
+#'   read.table("SVM_GD2_dashboard/data/datasets/rus_cell_lines_counts.tsv",
+#'              sep = "\t", header = TRUE)
+#' metadata <-
+#'   read.table("SVM_GD2_dashboard/data/datasets/rus_cell_lines_metadata.tsv",
+#'              sep = "\t", header = TRUE)
+#'
 #' dds <- normalizeTestDataset(counts = counts, metadata = metadata, geom = geom)
 #' }
 normalizeTestDataset <- function(counts = NULL, metadata = NULL, dds = NULL, geom) {
@@ -386,11 +394,11 @@ normalizeTestDataset <- function(counts = NULL, metadata = NULL, dds = NULL, geo
     if (is.null(counts) || is.null(metadata)) {
       stop("Either a DESeqDataSet object or both counts and metadata must be provided.")
     }
-    
+
     if (!all(colnames(counts) %in% rownames(metadata))) {
       stop("Sample names in counts must match row names in metadata.")
     }
-    
+
     # Align metadata with counts, handling single sample
     if (ncol(counts) == 1) {
       metadata <- metadata[rownames(metadata) == colnames(counts), , drop = FALSE]
@@ -402,22 +410,21 @@ normalizeTestDataset <- function(counts = NULL, metadata = NULL, dds = NULL, geo
                                   colData = metadata,
                                   design = ~1))
   }
-  
+
   # Sanity check for DESeqDataSet object
   if (!inherits(dds, "DESeqDataSet")) {
     stop("dds must be a DESeqDataSet object.")
   }
-  
+
   # Intersect the genes of the count data and geom
   features <- intersect(names(geom), rownames(dds))
-  
+
   if (length(features) == 0) {
     stop("No common genes between the count data and geometric means. Gene names must be in the Gene Symbol format.")
   }
-  
+
   # Estimate size factors for the new dataset based on the training dataset
   sizeFactors(dds) <- DESeq2::estimateSizeFactorsForMatrix(DESeq2::counts(dds)[features,,drop=FALSE], geoMeans = geom[features])
-  
   return(dds)
 }
 
@@ -445,7 +452,6 @@ normalizeTestDataset <- function(counts = NULL, metadata = NULL, dds = NULL, geo
 #' @details This function integrates gene expression data with a metabolic network to compute reaction activity scores. It estimates size factors for the custom dataset based on the geometric means of the training dataset and normalizes the gene expression data accordingly. The function then computes Reaction Activity scores and transition probabilities for the custom dataset using the provided metabolic network. Various adjustments are applied to the Reaction Activity scores to derive different metrics, including those considering transition probabilities, target nodes, and recursive adjustment methods.
 #'
 #' @seealso \code{\link{DESeqDataSetFromMatrix}}, \code{\link{estimateSizeFactorsForMatrix}}, \code{\link{computeReactionActivity}}, \code{\link{computeTransitionProbability}}
-#' @import DESeq2
 #' @importFrom stringr str_detect
 #' @importFrom igraph as_data_frame
 #' @importFrom igraph all_simple_paths
@@ -455,8 +461,10 @@ normalizeTestDataset <- function(counts = NULL, metadata = NULL, dds = NULL, geo
 #' \dontrun{
 #' # Load necessary data
 #' geom <- readRDS("./SVM_GD2_dashboard/data/geom_train_data.Rds")
-#' custom_counts <- read.table("SVM_GD2_dashboard/data/datasets/custom_counts.tsv", sep = "\t", header = TRUE)
-#' custom_coldata <- read.table("SVM_GD2_dashboard/data/datasets/custom_metadata.tsv", sep = "\t", header = TRUE)
+#' custom_counts <-
+#'   read.table("SVM_GD2_dashboard/data/datasets/custom_counts.tsv", sep = "\t", header = TRUE)
+#' custom_coldata <-
+#'   read.table("SVM_GD2_dashboard/data/datasets/custom_metadata.tsv", sep = "\t", header = TRUE)
 #' mgraph <- load_metabolic_network("path/to/metabolic_network.graphml")
 #'
 #' # Compute Reaction Activity scores for the custom dataset
@@ -464,13 +472,13 @@ normalizeTestDataset <- function(counts = NULL, metadata = NULL, dds = NULL, geo
 #' }
 computeReactionActivityScores <- function(counts=NULL, metadata=NULL, dds=NULL, mgraph, geom) {
   custom_dds <- normalizeTestDataset(counts, metadata, dds, geom)
-  
+
   if(!all(c("B3GALT4", "ST8SIA1", "ST8SIA5", "B4GALNT1") %in% rownames(custom_dds))){
     stop("Necessary gene symbols not found in the count matrix.")
   }
-  
+
   norm_counts <- log10(DESeq2::counts(custom_dds, normalize = TRUE) + 1)
-  
+
   if (is.vector(norm_counts)) {
     norm_counts <- as.matrix(norm_counts) # Ensure matrix format for single sample
     colnames(norm_counts) <- colnames(DESeq2::counts(custom_dds))
@@ -483,26 +491,27 @@ computeReactionActivityScores <- function(counts=NULL, metadata=NULL, dds=NULL, 
     ras <- as.matrix(ras) # Ensure matrix format for single sample
     colnames(ras) <- colnames(DESeq2::counts(custom_dds))
   }
+
   message("Computing graph per sample...")
   graph_list <- computeReactionActivity(mgraph, norm_counts, output_graph = TRUE)
-  
+
   message("Computing transition probabilities...")
-  
+
   transition_probability <- computeTransitionProbability(graph_list, "edge_sum", "miriam.kegg.reaction", target_node=NULL, mgraph = mgraph)
   transition_probability_paths <- computeTransitionProbability(graph_list, "edge_sum", "miriam.kegg.reaction", target_node="C01290", mgraph = mgraph)
   transition_probability_rec <- computeTransitionProbability(graph_list, "edge_sum", "miriam.kegg.reaction", target_node=NULL, pass_through=TRUE, mgraph = mgraph)
-  
+
   r <- intersect(rownames(ras), rownames(transition_probability))
+
   # Adjust for single sample in matrix operations
   ras_prob <- ras[r, , drop = FALSE] * transition_probability[r, , drop = FALSE]
   ras_prob_path <- ras[r, , drop = FALSE] * transition_probability_paths[r, , drop = FALSE]
   ras_prob_rec <- ras[r, , drop = FALSE] * transition_probability_rec[r, , drop = FALSE]
   
-  
   # ras_prob_up <- ras[r,] + (ras[r,] * transition_probability[r,])
   # ras_prob_up_path <- ras[r,] + (ras[r,] * transition_probability_paths[r,])
   # ras_prob_up_rec <- ras[r,] + (ras[r,] * transition_probability_rec[r,])
-  
+
   return(list(
     custom_dds = custom_dds,
     ras = as.matrix(ras),
@@ -520,8 +529,8 @@ computeReactionActivityScores <- function(counts=NULL, metadata=NULL, dds=NULL, 
 #'
 #' @param RAS A matrix of reaction activity scores with reaction IDs as row names and samples as columns.
 #' @param svm_model An SVM model used for predicting the GD2 score.
-#' @param adjust_input A character string indicating how to adjust the input data. 
-#' Options are "raw" (no adjustment), "ranged" (rescale to [0, 1]), and "scaled" (standardize with mean 0 and standard deviation 1). Default is "raw".
+#' @param adjust_input A character string indicating how to adjust the input data.
+#' Options are "raw" (no adjustment), "ranged" (rescale to \[0, 1\]), and "scaled" (standardize with mean 0 and standard deviation 1). Default is "raw".
 #' @param range_output A logical value indicating whether to rescale the output data. Default is FALSE.
 #' @param center A logical value indicating whether to center the data when scaling. Default is TRUE.
 #'
@@ -529,36 +538,39 @@ computeReactionActivityScores <- function(counts=NULL, metadata=NULL, dds=NULL, 
 #'
 #' @examples
 #' # Example RAS matrix with necessary reaction IDs
-#' RAS <- matrix(runif(6 * 10), nrow = 6, dimnames = list(c("R05946", "R05940", "R05939", "R05948", "R05947", "R05941")))
-#' 
+#' RAS <- matrix(runif(6 * 10), nrow = 6,
+#'   dimnames = list(c("R05946", "R05940", "R05939", "R05948", "R05947", "R05941")))
+#'
 #' # Example SVM model
-#' svm_model <- svm(x = data.frame(x = rnorm(10), y = rnorm(10)), y = rnorm(10), type = "eps-regression")
+#' svm_model <- e1071::svm(x = data.frame(x = rnorm(10), y = rnorm(10)),
+#'   y = rnorm(10),
+#'   type = "eps-regression")
 #'
 #' # Compute GD2 scores with raw input
 #' scores <- computeGD2Score(RAS, svm_model, adjust_input = "raw")
 #'
 #' @export
 computeGD2Score <- function(RAS, svm_model, adjust_input = c("raw", "ranged", "scaled"), range_output = FALSE, center=TRUE){
-  
+
   key_reactions <- c("R05946", "R05940", "R05939", "R05948", "R05947", "R05941")
   RAS <- as.matrix(RAS)
 
   if(!all(key_reactions %in% rownames(RAS))) {
     stop("Necessary reaction IDs not found in the RAS data.")
   }
-  
+
   input <- data.frame(
     R05946 = RAS["R05946", ],
     R05940 = RAS["R05940", ]
   )
-  
+
   output <- data.frame(
     R05939 = RAS["R05939", ],
     R05948 = RAS["R05948", ],
     R05947 = RAS["R05947", ],
     R05941 = RAS["R05941", ]
   )
-  
+
   if(adjust_input == "raw"){
     inputSum <- rowSums(input)
     outputSum <- rowSums(output)
@@ -571,16 +583,16 @@ computeGD2Score <- function(RAS, svm_model, adjust_input = c("raw", "ranged", "s
     inputSum <- rowSums(scale(x=input, center=center))
     outputSum <- rowSums(scale(x=output, center=center))
   }
-  
+
   df_custom <- data.frame(x=inputSum, y=outputSum)
   preds_custom <- predict(svm_model, df_custom[,c("x", "y")], type = "decision")
-  
+
   if (range_output) {
     preds_custom <- range01(preds_custom)
   }
-  
+
   preds_custom <- as.numeric(preds_custom)
-  
+
   names(preds_custom) <- colnames(RAS)
   return(list(preds = preds_custom, input_df = df_custom))
 }
@@ -601,8 +613,10 @@ computeGD2Score <- function(RAS, svm_model, adjust_input = c("raw", "ranged", "s
 #'     \item \code{ras_prob_rec} - A matrix of receptor-specific reaction activity scores with probabilities.
 #'   }
 #' @param adjust_ras A character string indicating which RAS matrix to use from \code{train_data}. Options are "ras", "ras_prob", "ras_prob_path", and "ras_prob_rec". Default is "ras".
-#' @param adjust_input A character string indicating how to adjust the input data. 
-#' Options are "raw" (no adjustment), "ranged" (rescale to [0, 1]), and "scaled" (standardize with mean 0 and standard deviation 1). Default is "raw".
+#' @param adjust_input A character string indicating how to adjust the input data.
+#' Options are "raw" (no adjustment), "ranged" (rescale to \[0, 1\]), and "scaled" (standardize with mean 0 and standard deviation 1). Default is "raw".
+#' @param center TODOTODO
+#' @param type_column TODOTODO
 #'
 #' @return An SVM model trained on the input and output sums derived from the RAS data.
 #'
@@ -612,31 +626,31 @@ computeGD2Score <- function(RAS, svm_model, adjust_input = c("raw", "ranged", "s
 #' model <- trainGD2model(train_data, adjust_ras = "ras", adjust_input = "raw")
 #' }
 trainGD2model <- function(train_data, adjust_ras = c("ras", "ras_prob", "ras_prob_path", "ras_prob_rec"), adjust_input = c("raw", "ranged", "scaled"), center=TRUE, type_column = "X_study"){
-  
+
   key_reactions <- c("R05946", "R05940", "R05939", "R05948", "R05947", "R05941")
-  
+
   if(!adjust_ras %in% names(train_data)) {
     stop("Selected RAS type not in training data.")
   }
-  
+
   RAS <- train_data[[adjust_ras]]
-  
+
   if(!all(key_reactions %in% rownames(RAS))) {
     stop("Necessary reaction IDs not found in the RAS data.")
   }
-  
+
   input <- data.frame(
     R05946 = RAS["R05946", ],
     R05940 = RAS["R05940", ]
   )
-  
+
   output <- data.frame(
     R05939 = RAS["R05939", ],
     R05948 = RAS["R05948", ],
     R05947 = RAS["R05947", ],
     R05941 = RAS["R05941", ]
   )
-  
+
   if(adjust_input == "raw"){
     inputSum <- rowSums(input)
     outputSum <- rowSums(output)
@@ -649,13 +663,13 @@ trainGD2model <- function(train_data, adjust_ras = c("ras", "ras_prob", "ras_pro
     inputSum <- rowSums(scale(x=input, center=center))
     outputSum <- rowSums(scale(x=output, center=center))
   }
-  
+
   df.train <- data.frame(
-    x=inputSum, 
-    y=outputSum, 
+    x=inputSum,
+    y=outputSum,
     type=factor(train_data$coldata[[type_column]])
   )
-  
+
   kernfit <- kernlab::ksvm(data=df.train, x=type~.,type = "C-svc", kernel = 'vanilladot')
   return(kernfit)
 }
@@ -725,10 +739,10 @@ plotGD2Score <- function(df, plot_type = "scatter", Group.1 = NULL, group_title 
     }
     return(fig)
   }
-  
+
   yaxisls <- NULL
   xaxisls <- NULL
-  
+
   if (plot_type == "scatter") {
     fig <- plot_ly(
       data = df,
@@ -792,16 +806,16 @@ plotGD2Score <- function(df, plot_type = "scatter", Group.1 = NULL, group_title 
       title = 'GD2 Score'
     )
   }
-  
+
   fig <- common_trace(fig, df, HighlightGroup, plot_type)
-  
+
   fig <- fig %>%
     layout(
       showlegend = FALSE,
       yaxis = yaxisls,
       xaxis = xaxisls
     )
-  
+
   return(fig)
 }
 
@@ -818,7 +832,7 @@ createLinkGeneSymbol <- function(val) {
 # https://github.com/federicomarini/ideal/blob/devel/R/table-enhancers.R
 geneinfo <- function(gene_id) {
   entrezinfo <- rentrez::entrez_summary("gene", gene_id)
-  
+
   return(entrezinfo)
 }
 
@@ -837,18 +851,18 @@ geneinfo <- function(gene_id) {
 #   ),
 #   bs4dash_yiq(
 #     contrasted_threshold = 10,
-#     text_dark = "#FFF", 
+#     text_dark = "#FFF",
 #     text_light = "#272c30"
 #   ),
 #   bs4dash_layout(
 #     main_bg = "#EEF7FF"
 #   ),
 #   bs4dash_sidebar_light(
-#     bg = "#7AB2B2", 
+#     bg = "#7AB2B2",
 #     color = "#272c30",
 #     hover_color = "#FFF",
-#     submenu_bg = "#4D869C", 
-#     submenu_color = "#4D869C", 
+#     submenu_bg = "#4D869C",
+#     submenu_color = "#4D869C",
 #     submenu_hover_color = "#FFF"
 #   ),
 #   bs4dash_status(
@@ -919,7 +933,7 @@ add_plot_maximize_observer <- function(input,
     # } else {
     #   non_max_height
     # }
-    
+
     js_call <- sprintf(
       "
       $('#%s').trigger('resize');
@@ -931,7 +945,7 @@ add_plot_maximize_observer <- function(input,
     #    document.getElementById('%s').style.setProperty('height', '%s', 'important');",
     #   box_id, plot_height, plot_name, plot_height
     # )
-    
+
     # js_call <- sprintf(
     #   "document.getElementById('%s').style.height = '%s';
     #    document.getElementById('%s').style.height = '%s';",
