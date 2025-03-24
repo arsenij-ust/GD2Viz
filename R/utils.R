@@ -753,7 +753,7 @@ plotGD2Score <- function(df, plot_type = "scatter", Group.1 = NULL, group_title 
       text = rownames(df),
       color = ~as.character(Group),
       colors = colors
-    )
+    ) %>% toWebGL()
     yaxisls <- list(
       categoryorder = "array",
       categoryarray = Group.1,

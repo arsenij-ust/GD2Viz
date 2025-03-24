@@ -379,10 +379,11 @@ gd2visServer <- function(input, output, session) {
       group <- tcgaTumorData$coldata[, input$tcgaTumorColData]
       meandf_custom <- aggregate(tcgaTumorGD2()$prediction, list(group), FUN = mean)
       group_title <- input$tcgaTumorColData
+      # print(meandf_custom)
       if(length(unique(group)) == 2){
         colors <- c("#164863", "#ff851b")
       } else {
-        colors <- NULL
+        colors <- "#164863"
       }
     }
     
@@ -403,7 +404,7 @@ gd2visServer <- function(input, output, session) {
     plot_type <- input$tcgaTumorGD2ScorePlotType
     highlightGroup <- input$tcgaTumorHighlightGroup
     
-    plotGD2Score(plot_df, plot_type, Group.1, group_title, colors, highlightGroup) %>% toWebGL()
+    plotGD2Score(plot_df, plot_type, Group.1, group_title, colors, highlightGroup)
     
   })
   
@@ -425,7 +426,7 @@ gd2visServer <- function(input, output, session) {
       if(length(unique(group)) == 2){
         colors <- c("#164863", "#ff851b")
       } else {
-        colors <- NULL
+        colors <- "#164863"
       }
     }
     
@@ -468,7 +469,7 @@ gd2visServer <- function(input, output, session) {
       if(length(unique(group)) == 2){
         colors <- c("#164863", "#ff851b")
       } else {
-        colors <- NULL
+        colors <- "#164863"
       }
     }
     
@@ -511,7 +512,7 @@ gd2visServer <- function(input, output, session) {
       if(length(unique(group)) == 2){
         colors <- c("#164863", "#ff851b")
       } else {
-        colors <- NULL
+        colors <- "#164863"
       }
     }
     
@@ -554,7 +555,7 @@ gd2visServer <- function(input, output, session) {
       if(length(unique(group)) == 2){
         colors <- c("#164863", "#ff851b")
       } else {
-        colors <- NULL
+        colors <- "#164863"
       }
     }
     
@@ -597,7 +598,7 @@ gd2visServer <- function(input, output, session) {
       if(length(unique(group)) == 2){
         colors <- c("#164863", "#ff851b")
       } else {
-        colors <- NULL
+        colors <- "#164863"
       }
     }
     
