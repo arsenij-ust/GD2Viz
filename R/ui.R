@@ -120,17 +120,17 @@ gd2visUI = dashboardPage(
     sidebarMenu(
       sidebarHeader("Main tabs:"),
       menuItem(
-        "Explore datasets",
+        "Public Datasets",
         tabName = "exploreDataTab",
         icon = icon("database")
       ),
       menuItem(
-        "TCGA Project Exploration",
+        "TCGA Cancer Types",
         tabName = "tcgaDetailTab",
         icon = icon("magnifying-glass-plus")
       ),
       menuItem(
-        "Custom dataset",
+        "Analyze Your Data",
         tabName = "customDataTab",
         icon = icon("file-arrow-up")
       )
@@ -254,7 +254,7 @@ gd2visUI = dashboardPage(
             title = "Welcome to GD2Viz", status = "primary", solidHeader = TRUE, width = 12,
             collapsible = TRUE,
             tagList(includeMarkdown(
-              system.file("extdata/documentation", "welcome.md", package = "GD2Viz")
+              system.file("extdata/documentation", "welcome.md", package = "GD2Viz_extended")
             ))
           ),
           box(
@@ -283,7 +283,7 @@ gd2visUI = dashboardPage(
                   accordionItem(
                     title = "What is Reaction Activity Score (RAS)?",
                     p("The graph is weighted using Reaction Activity Scores (RAS), calculated from gene expression data. Some reactions of the graph have more than one emzyme involved, then it is useful to compute the RAS values. RAS values depend on whether the enzymes of a reaction are subunits and work only in presence of all enzyme subunits (AND relation) or as independent enzymes (OR relation). In case of an AND relation, the minimal gene expression value of the involved reactions is used as the RAS value. If the enzymes of a reaction are in an OR relation, the RAS value is computed as the sum of all involved gene expression values. These values weight the graph's edges, creating a directed graph with metabolites as nodes."),
-                    p("Early steps in the ganglioside pathway are performed with enzymes of relative high substrate specificity, whereas downstream enzymes are promiscuitive and elongate in the parallel series of this pathway. To adjust for identical RAS values we used the topological information of transition probabilities (TP), three methods were developed: the 'TP adjustment', 'recursively adjusted RAS' and 'path-based RAS adjustment.' For the simple 'TP adjustment' we compute the TPs from one node to the next following node(s) proportional to the RAS values of the outgoing edge(s) and multiply the RAS values of the edges with the TP values. 'Recursively adjusted RAS' replaces TP values that are equal to 1 by recursively prolongate the TP value from previous edges in the chain, that are not equal to 1, while 'path-based RAS adjustment' sums transition probabilities along all paths from a starting node. Lactosylceramide was chosen as the starting node for this calculation. For further details on the used methods, see 'Ustjanzew et al., Unraveling the Glycosphingolipid Metabolism by Leveraging Transcriptome-weighted Network Analysis on Neuroblastic Tumors. Cancer and Metabolism, 2024.'"),
+                    p("Early steps in the ganglioside pathway are performed with enzymes of relative high substrate specificity, whereas downstream enzymes are promiscuitive and elongate in the parallel series of this pathway. To adjust for identical RAS values we used the topological information of transition probabilities (TP), three methods were developed: the 'TP adjustment', and 'recursively adjusted RAS'. For the simple 'TP adjustment' we compute the TPs from one node to the next following node(s) proportional to the RAS values of the outgoing edge(s) and multiply the RAS values of the edges with the TP values. 'Recursively adjusted RAS' replaces TP values that are equal to 1 by recursively prolongate the TP value from previous edges in the chain, that are not equal to 1. Lactosylceramide was chosen as the starting node for this calculation. For further details on the used methods, see 'Ustjanzew et al., Unraveling the Glycosphingolipid Metabolism by Leveraging Transcriptome-weighted Network Analysis on Neuroblastic Tumors. Cancer and Metabolism, 2024.'"),
                     status = NULL,
                     collapsed = TRUE,
                     solidHeader = FALSE
@@ -306,11 +306,11 @@ gd2visUI = dashboardPage(
                 )
             )
             # tagList(includeMarkdown(
-            #   system.file("extdata/documentation", "gd2score.md", package = "GD2Viz")
+            #   system.file("extdata/documentation", "gd2score.md", package = "GD2Viz_extended")
             # ))
           ),
           box(
-            title = "Gatting started with GD2Viz", status = "primary", solidHeader = TRUE, width = 12,
+            title = "Getting started with GD2Viz", status = "primary", solidHeader = TRUE, width = 12,
             collapsible = TRUE,
             accordion(
               id = "tabdescription_accordion",
@@ -318,27 +318,27 @@ gd2visUI = dashboardPage(
               .list =
                 list(
                   accordionItem(
-                    title = "Tab: Explore datasets",
+                    title = "Tab: Public Datasets",
                     tagList(includeMarkdown(
-                      system.file("extdata/documentation", "datasets_description.md", package = "GD2Viz")
+                      system.file("extdata/documentation", "datasets_description.md", package = "GD2Viz_extended")
                     )),
                     status = NULL,
                     collapsed = TRUE,
                     solidHeader = FALSE
                   ),
                   accordionItem(
-                    title = "Tab: TCGA Project Exploration",
+                    title = "Tab: TCGA Cancer Types",
                     tagList(includeMarkdown(
-                      system.file("extdata/documentation", "tcga_description.md", package = "GD2Viz")
+                      system.file("extdata/documentation", "tcga_description.md", package = "GD2Viz_extended")
                     )),
                     status = NULL,
                     collapsed = TRUE,
                     solidHeader = FALSE
                   ),
                   accordionItem(
-                    title = "Tab: Custom dataset",
+                    title = "Tab: Analyze Your Data",
                     tagList(includeMarkdown(
-                      system.file("extdata/documentation", "custom_data_description.md", package = "GD2Viz")
+                      system.file("extdata/documentation", "custom_data_description.md", package = "GD2Viz_extended")
                     )),
                     status = NULL,
                     collapsed = TRUE,
@@ -347,12 +347,12 @@ gd2visUI = dashboardPage(
               )
             )
             # tagList(includeMarkdown(
-            #   system.file("extdata/documentation", "gd2score.md", package = "GD2Viz")
+            #   system.file("extdata/documentation", "gd2score.md", package = "GD2Viz_extended")
             # ))
           )
         )
       ),
-      ### Datasets tab -------------------
+      ### Public Datasets tab -------------------
       tabItem(
         tabName = "exploreDataTab",
         fluidRow(
@@ -375,7 +375,7 @@ gd2visUI = dashboardPage(
                   "Choose RAS processing:",
                   tags$span(icon("circle-question")) %>%
                     add_prompt(
-                      message = "this is a plot, and I add some text to show the size of the box.",
+                      message = "Select how to preprocess Reaction Activity Scores (RAS) before computing the GD2 score: Raw: Use unaltered RAS values. Ranged: Normalize each reaction to a [0, 1] scale across samples. Scaled: Standardize values (zero-mean).",
                       position = "right",
                       type = "info",
                       size = "large",
@@ -392,7 +392,7 @@ gd2visUI = dashboardPage(
                   "Visualize RAS type:",
                   tags$span(icon("circle-question")) %>%
                     add_prompt(
-                      message = "this is a plot, and I add some text to show the size of the box.",
+                      message =  "Choose how RAS values are adjusted for visualization: 1) Unadjusted RAS: Raw scores from gene expression. 2) Adjusted by transition prob.: Weighted by network topology. 3) Recursive adjustment: Refines weights through reaction chains.",
                       position = "right",
                       type = "info",
                       size = "large",
@@ -402,7 +402,7 @@ gd2visUI = dashboardPage(
                 choices = list(
                   "unadjusted RAS" = "ras",
                   "RAS adj. by transision prob." = "ras_prob",
-                  "RAS adj. by path-based transition probability" = "ras_prob_path",
+                  #"RAS adj. by path-based transition probability" = "ras_prob_path",
                   "RAS adj. by recurive transition probability" = "ras_prob_rec"
                 ),
                 selected = "ras_prob"
@@ -459,7 +459,7 @@ gd2visUI = dashboardPage(
                 status = "primary",
                 collapsible = FALSE,
                 tagList(includeMarkdown(
-                  system.file("extdata/documentation", "tcga_citation.md", package = "GD2Viz")
+                  system.file("extdata/documentation", "tcga_citation.md", package = "GD2Viz_extended")
                 ))
               )
             ),
@@ -505,7 +505,7 @@ gd2visUI = dashboardPage(
                 status = "primary",
                 collapsible = FALSE,
                 tagList(includeMarkdown(
-                  system.file("extdata/documentation", "tcga_citation.md", package = "GD2Viz")
+                  system.file("extdata/documentation", "tcga_citation.md", package = "GD2Viz_extended")
                 ))
               )
             ),
@@ -552,7 +552,7 @@ gd2visUI = dashboardPage(
                 status = "primary",
                 collapsible = FALSE,
                 tagList(includeMarkdown(
-                  system.file("extdata/documentation", "gtex_citation.md", package = "GD2Viz")
+                  system.file("extdata/documentation", "gtex_citation.md", package = "GD2Viz_extended")
                 ))
               )
             ),
@@ -599,7 +599,7 @@ gd2visUI = dashboardPage(
                 status = "primary",
                 collapsible = FALSE,
                 tagList(includeMarkdown(
-                  system.file("extdata/documentation", "target_citation.md", package = "GD2Viz")
+                  system.file("extdata/documentation", "target_citation.md", package = "GD2Viz_extended")
                 ))
               )
             ),
@@ -646,7 +646,7 @@ gd2visUI = dashboardPage(
                 status = "primary",
                 collapsible = FALSE,
                 tagList(includeMarkdown(
-                  system.file("extdata/documentation", "stjude_citation.md", package = "GD2Viz")
+                  system.file("extdata/documentation", "stjude_citation.md", package = "GD2Viz_extended")
                 ))
               )
             ),
@@ -692,14 +692,14 @@ gd2visUI = dashboardPage(
                 status = "primary",
                 collapsible = FALSE,
                 tagList(includeMarkdown(
-                  system.file("extdata/documentation", "cbttc_citation.md", package = "GD2Viz")
+                  system.file("extdata/documentation", "cbttc_citation.md", package = "GD2Viz_extended")
                 ))
               )
             )
           )
         )
       ),
-      ### TCGA Details tab -------------------
+      ### TCGA Cancer Types tab -------------------
       tabItem(
         tabName = "tcgaDetailTab",
         fluidRow(
@@ -728,13 +728,33 @@ gd2visUI = dashboardPage(
               column(4,
                      radioButtons(
                        "tcgaTabScale",
-                       "Choose RAS processing:",
+                       label=div(
+                         "Choose RAS processing:",
+                         tags$span(icon("circle-question")) %>%
+                           add_prompt(
+                             message = "Select how to preprocess Reaction Activity Scores (RAS) before computing the GD2 score: Raw: Use unaltered RAS values. Ranged: Normalize each reaction to a [0, 1] scale across samples. Scaled: Standardize values (zero-mean).",
+                             position = "right",
+                             type = "info",
+                             size = "large",
+                             rounded = TRUE
+                           )
+                       ),
                        choices = c("raw", "ranged", "scaled"),
                        selected = "raw"
                      ),
                      selectInput(
                        "tcgaTabScoreRange",
-                       "Range Values [0-1]:",
+                       label=div(
+                         "Range Values [0-1]:",
+                         tags$span(icon("circle-question")) %>%
+                           add_prompt(
+                             message = "This affects only the range of the x-axis in the following plot.",
+                             position = "right",
+                             type = "info",
+                             size = "large",
+                             rounded = TRUE
+                           )
+                       ),
                        choices = c("yes", "no"),
                        selected = "no"
                      )
@@ -742,11 +762,21 @@ gd2visUI = dashboardPage(
               column(4,
                      radioButtons(
                        "tcgaTabRASType",
-                       "Visuaize RAS type",
+                       label=div(
+                         "Visuaize RAS type",
+                         tags$span(icon("circle-question")) %>%
+                           add_prompt(
+                             message = "Choose how RAS values are adjusted for visualization: 1) Unadjusted RAS: Raw scores from gene expression. 2) Adjusted by transition prob.: Weighted by network topology. 3) Recursive adjustment: Refines weights through reaction chains.",
+                             position = "right",
+                             type = "info",
+                             size = "large",
+                             rounded = TRUE
+                           )
+                       ),
                        choices = list(
                          "unadjusted RAS" = "ras",
                          "RAS adj. by transision prob." = "ras_prob",
-                         "RAS adj. by path-based transition probability" = "ras_prob_path",
+                         #"RAS adj. by path-based transition probability" = "ras_prob_path",
                          "RAS adj. by recurive transition probability" = "ras_prob_rec"),
                        selected = "ras_prob")
               )
@@ -777,67 +807,123 @@ gd2visUI = dashboardPage(
             status = "danger",
             solidHeader = FALSE,
             fluidRow(
-              column(4,
-                     # h4("Subset TCGA data:"),
-                     # uiOutput("tcgaTabDGEProjectUI"),
-                     # uiOutput("tcgaTabDGEColDataUI"),
-                     uiOutput("tcgaTabDGESubtypeUI"),
-                     fluidRow(
-                       column(6,valueBoxOutput("ProjectSampleNr", width = 12)),
-                       column(6,valueBoxOutput("SubgroupSampleNr", width = 12))
-                     )
-                     ),
-              column(4,
-                     selectInput(
-                       "tcgaTabDGEStratMethodSel",
-                       "2. Select stratification method:",
-                       choices = list("Median"="m", "One Threshold"="t", "Upper/Lower Percentiles"="q"),
-                       selected = "m"
-                     ),
-                     uiOutput("tcgaTabDGEMethodUI"),
-                     # uiOutput("tcgaTabDGESampleNrUI")
-                     fluidRow(
-                       column(6,valueBoxOutput("GD2LowSampleNr", width = 12)),
-                       column(6,valueBoxOutput("GD2HighSampleNr", width = 12))
-                     )
-                     ),
-              column(4,
-                     numericInput(
-                       "tcgaTabDGEFDR",
-                       "False Discovery Rate",
-                       value = 0.05,
-                       min = 0,
-                       max = 1,
-                       step = 0.01),
-                     selectInput(
-                       "tcgaTabDGEFiltering",
-                       "Apply independent filtering automatically:",
-                       choices = c("TRUE", "FALSE"),
-                       selected = "TRUE"
-                     ),
-                     selectInput(
-                       "tcgaTabDGEShrink",
-                       "Shrink the log fold change for the contrast of interest:",
-                       choices = c("TRUE", "FALSE"),
-                       selected = "TRUE"
-                     ),
-                     selectInput(
-                       "tcgaTabDGEWeight",
-                       "Use Independent Hypothesis Weighting (IHW) as a filtering function:",
-                       choices = c("TRUE", "FALSE"),
-                       selected = "FALSE"
-                     ),
-                     # selectInput(
-                     #   "tcgaTabDGEParallel",
-                     #   "Use parallel execution of DESeq function using BiocParallel:",
-                     #   choices = c("TRUE", "FALSE"),
-                     #   selected = "FALSE"
-                     # ),
-                     bs4Dash::actionButton("tcgaTabDGECompute", "Run Differential Expression Analysis", status = "warning")
-                     )
+              column(
+                4,
+                # h4("Subset TCGA data:"),
+                # uiOutput("tcgaTabDGEProjectUI"),
+                # uiOutput("tcgaTabDGEColDataUI"),
+                uiOutput("tcgaTabDGESubtypeUI"),
+                fluidRow(column(
+                  6, valueBoxOutput("ProjectSampleNr", width = 12)
+                ), column(
+                  6, valueBoxOutput("SubgroupSampleNr", width = 12)
+                ))
+              ),
+              column(
+                4,
+                selectInput(
+                  "tcgaTabDGEStratMethodSel",
+                  "2. Select stratification method:",
+                  choices = list(
+                    "Median" = "m",
+                    "Custom Threshold" = "t",
+                    "Upper/Lower Percentiles" = "q"
+                  ),
+                  selected = "m"
+                ),
+                uiOutput("tcgaTabDGEMethodUI"),
+                # uiOutput("tcgaTabDGESampleNrUI")
+                fluidRow(column(
+                  6, valueBoxOutput("GD2LowSampleNr", width = 12)
+                ), column(
+                  6, valueBoxOutput("GD2HighSampleNr", width = 12)
+                ))
+              ),
+              column(
+                4,
+                radioButtons(
+                  "tcgaTabDGEtool",
+                  label = h3("Select method"),
+                  choices = list("DESeq2" = 1, "Limma-voom" = 2),
+                  selected = 2
+                ), 
+                hr(),
+                conditionalPanel(
+                  condition = "input.tcgaTabDGEtool == 1",
+                  # DESeq2-specific
+                  numericInput(
+                    "tcgaTabDGEFDR",
+                    "False Discovery Rate",
+                    value = 0.05,
+                    min = 0,
+                    max = 1,
+                    step = 0.01
+                  ),
+                  selectInput(
+                    "tcgaTabDGEFiltering",
+                    "Apply independent filtering automatically:",
+                    choices = c("TRUE", "FALSE"),
+                    selected = "TRUE"
+                  ),
+                  selectInput(
+                    "tcgaTabDGEShrink",
+                    "Shrink the log fold change for the contrast of interest:",
+                    choices = c("TRUE", "FALSE"),
+                    selected = "TRUE"
+                  ),
+                  selectInput(
+                    "tcgaTabDGEWeight",
+                    "Use Independent Hypothesis Weighting (IHW) as a filtering function:",
+                    choices = c("TRUE", "FALSE"),
+                    selected = "FALSE"
+                  )
+                ),
+                
+                conditionalPanel(
+                  condition = "input.tcgaTabDGEtool == 2",
+                  # Limma-voom-specific
+                  checkboxInput(
+                    "tcgaTabLimmaQualityWeights",
+                    "Use quality weights (voomWithQualityWeights)",
+                    value = FALSE
+                  ),
+                  checkboxInput(
+                    "tcgaTabLimmaRobust",
+                    "Use robust empirical Bayes shrinkage",
+                    value = TRUE
+                  ),
+                  selectInput(
+                    "tcgaTabLimmaAdjustMethod",
+                    "Multiple testing correction method",
+                    choices = c("BH", "holm", "bonferroni", "BY", "none"),
+                    selected = "BH"
+                  ),
+                  checkboxInput(
+                    "tcgaTabLimmaUseTreat",
+                    "Use treat() with minimum log2 fold change threshold",
+                    value = FALSE
+                  ),
+                  conditionalPanel(
+                    condition = "input.tcgaTabLimmaUseTreat == true",
+                    numericInput(
+                      "tcgaTabLimmaTreatLFC",
+                      "Minimum absolute log2 fold change",
+                      value = 1,
+                      min = 0,
+                      step = 0.1
+                    )
+                  )
+                ),
+                bs4Dash::actionButton(
+                  "tcgaTabDGECompute",
+                  "Run Differential Expression Analysis",
+                  status = "warning"
+                ), br(), br(),
+                uiOutput("tcgaTabDGEResultDownloadUI")
+              )
             )
           )
-        ),
+        ), 
         fluidRow(
           box(
             width = 4,
@@ -849,7 +935,17 @@ gd2visUI = dashboardPage(
           ),
           box(
             width = 8,
-            title = "DEA Genes",
+            title = div(
+              "DEA Genes",
+              tags$span(icon("circle-question")) %>%
+                add_prompt(
+                  message = "This table demonstrates the resulting statistics from the differential gene expression analysis. Select a gene by clicking on the row to show further information in the 'Gene infobox' and 'Selected Gene' sections. The symbol button links to the respective NCBI gene card.",
+                  position = "right",
+                  type = "info",
+                  size = "large",
+                  rounded = TRUE
+                )
+            ),
             status = "primary",
             solidHeader = TRUE,
             tags$head(tags$style(HTML(
@@ -916,7 +1012,17 @@ gd2visUI = dashboardPage(
         fluidRow(
           box(
             width = 6,
-            title = "p-Value Histogram",
+            title = div(
+              "p-Value Histogram",
+              tags$span(icon("circle-question")) %>%
+                add_prompt(
+                  message = "This histogram shows the distribution of p-values from the differential expression analysis. A strong enrichment near p = 0 suggests a substantial number of significantly differentially expressed genes associated with GD2 score strata.",
+                  position = "right",
+                  type = "info",
+                  size = "large",
+                  rounded = TRUE
+                )
+            ),
             status = "primary",
             solidHeader = TRUE,
             plotOutput("pvals_hist") %>%
@@ -924,7 +1030,17 @@ gd2visUI = dashboardPage(
           ),
           box(
             width = 6,
-            title = "Histogram of the Log2 Fold-Changes",
+            title = div(
+              "Histogram of the Log2 Fold-Changes",
+              tags$span(icon("circle-question")) %>%
+                add_prompt(
+                  message = "This histogram displays the distribution of log2 fold-changes between groups stratified by GD2 score. The sharp, symmetric peak around log2FC = 0 indicates that most genes are not strongly differentially expressed. However, the presence of longer tails on both sides suggests that a subset of genes exhibits meaningful up- or down-regulation, supporting the idea of transcriptomic shifts associated with GD2 status.",
+                  position = "right",
+                  type = "info",
+                  size = "large",
+                  rounded = TRUE
+                )
+            ),
             status = "primary",
             solidHeader = TRUE,
             plotOutput("logfc_hist") %>%
@@ -940,7 +1056,17 @@ gd2visUI = dashboardPage(
         fluidRow(
           box(
             width = 6,
-            title = "MA plot",
+            title = div(
+              "MA plot",
+              tags$span(icon("circle-question")) %>%
+                add_prompt(
+                  message = "This MA plot displays the log2 fold-change (y-axis) versus the mean normalized expression (x-axis, log10 scale) for each gene.",
+                  position = "right",
+                  type = "info",
+                  size = "large",
+                  rounded = TRUE
+                )
+            ),
             status = "primary",
             solidHeader = TRUE,
             plotOutput("plotma") %>%
@@ -948,7 +1074,17 @@ gd2visUI = dashboardPage(
           ),
           box(
             width = 6,
-            title = "Volcano plot",
+            title = div(
+              "Volcano plot",
+              tags$span(icon("circle-question")) %>%
+                add_prompt(
+                  message = "The volcano plot combines statistical significance (-log10 p-value) and biological effect size (log2 fold-change). Vertical red lines represent fold-change thresholds, while the horizontal line marks the p-value cutoff.",
+                  position = "right",
+                  type = "info",
+                  size = "large",
+                  rounded = TRUE
+                )
+            ),
             status = "primary",
             solidHeader = TRUE,
             plotlyOutput("volcanoplot") %>%
@@ -961,12 +1097,12 @@ gd2visUI = dashboardPage(
             status = "primary",
             collapsible = FALSE,
             tagList(includeMarkdown(
-              system.file("extdata/documentation", "DEA_acknowledgment.md", package = "GD2Viz")
+              system.file("extdata/documentation", "DEA_acknowledgment.md", package = "GD2Viz_extended")
             ))
           )
         )
       ),
-      ### Custom data tab -------------------
+      ### Analyze Your Data tab -------------------
       tabItem(
         tabName = "customDataTab",
         fluidRow(
@@ -982,7 +1118,17 @@ gd2visUI = dashboardPage(
             status = "warning",
             solidHeader = FALSE,
 
-            radioButtons("dataType", "Choose Data Type:",
+            radioButtons("dataType", label = div(
+              "Choose Data Type:",
+              tags$span(icon("circle-question")) %>%
+                add_prompt(
+                  message = "Upload options: 1) Two text files: a raw count matrix (genes × samples) and matching metadata (samples × groups). Sample names must align in both files. 2) A SummarizedExperiment or DESeqDataSet object. (Note: For large datasets, use the R functions locally)",
+                  position = "right",
+                  type = "info",
+                  size = "large",
+                  rounded = TRUE
+                )
+            ),
                          choices = list("count matrix & metadata" = "countMeta",
                                         "DESeqDataSet object" = "dds"),
                          selected = "countMeta"),
@@ -1001,7 +1147,17 @@ gd2visUI = dashboardPage(
           ),
           box(width = 3, title = "2. Model Settings", status = "info", solidHeader = FALSE,
 
-              radioButtons("customScale", "Choose RAS processing:",
+              radioButtons("customScale", label = div(
+                "Choose RAS processing:",
+                tags$span(icon("circle-question")) %>%
+                  add_prompt(
+                    message = "Select how to preprocess Reaction Activity Scores (RAS) before computing the GD2 score: Raw: Use unaltered RAS values. Ranged: Normalize each reaction to a [0, 1] scale across samples. Scaled: Standardize values (zero-mean).",
+                    position = "right",
+                    type = "info",
+                    size = "large",
+                    rounded = TRUE
+                  )
+              ),
                            choices = c("raw", "ranged", "scaled"),
                            selected = "raw"),
               bs4Dash::actionButton("computeCustomScore", "Compute GD2 Score", status = "info"),
@@ -1009,7 +1165,10 @@ gd2visUI = dashboardPage(
           ),
           box(width = 3, title = "3. Global Plot Settings", solidHeader = FALSE, status = "olive",
               radioButtons("customRASType", "Visuaize RAS type",
-                           choices = list("unadjusted RAS" = "ras", "RAS adj. by transision prob." = "ras_prob", "RAS adj. by path-based transition probability" = "ras_prob_path", "RAS adj. by recurive transition probability" = "ras_prob_rec"),
+                           choices = list("unadjusted RAS" = "ras", 
+                                          "RAS adj. by transision prob." = "ras_prob", 
+                                          #"RAS adj. by path - based transition probability" = "ras_prob_path", 
+                                          "RAS adj. by recurive transition probability" = "ras_prob_rec"),
                            selected = "ras_prob"),
               uiOutput("selectCustomGroupUI")
               # bs4Dash::actionButton("updateCustoPlots", "Update plots", status = "success")
@@ -1024,7 +1183,17 @@ gd2visUI = dashboardPage(
           box(id = "customRASheatmapBox",
               width = 12,
               height = "500px",
-              title = "Reaction Activity Scores",
+              title = div(
+                "Reaction Activity Scores",
+                tags$span(icon("circle-question")) %>%
+                  add_prompt(
+                    message = "Heatmap of the selected RAS values. Samples x KEGG Reaction IDs. Click on the gears symbol in the upeer right corner to adjust the heatmap further.",
+                    position = "right",
+                    type = "info",
+                    size = "large",
+                    rounded = TRUE
+                  )
+              ),
               status = "primary",
               solidHeader = TRUE,
               maximizable = TRUE,
@@ -1085,7 +1254,17 @@ gd2visUI = dashboardPage(
         ),
         fluidRow(
           box(width = 6,
-              title = "GD2 Promoting & Diminishing Reaction Activity",
+              title = div(
+                "GD2 Promoting & Diminishing Reaction Activity",
+                tags$span(icon("circle-question")) %>%
+                  add_prompt(
+                    message = "Scatter plot showing the sums of Reaction Activity Scores for GD2-promoting and GD2-Diminishing reactions. The lines represent the decision weights from the SVM model. Zero-line is the hyperplane.",
+                    position = "right",
+                    type = "info",
+                    size = "large",
+                    rounded = TRUE
+                  )
+              ),
               height = "500px",
               status = "primary",
               solidHeader = TRUE,
@@ -1094,7 +1273,17 @@ gd2visUI = dashboardPage(
           ),
           box(id = "customGD2ScoreBox",
               width = 6,
-              title = "GD2 Score",
+              title = div(
+                "GD2 Score",
+                tags$span(icon("circle-question")) %>%
+                  add_prompt(
+                    message = "This plot shows the predicted GD2 score of the uploaded samples grouped by the selected experimental varable in the 'Global Plot Settings' section. Click on the gears symbol in the upper right corner to change the plot type. If plot type = scatter, you visualize the expression of a selected gene on the x-axis.",
+                    position = "right",
+                    type = "info",
+                    size = "large",
+                    rounded = TRUE
+                  )
+              ),
               status = "primary",
               solidHeader = TRUE,
               height = "500px",
@@ -1246,7 +1435,10 @@ gd2visUI = dashboardPage(
                        column(6,valueBoxOutput("customSubgroupSampleNr", width = 12))
                      ),
                      radioButtons("customRASTypeDGE", "3. Use RAS type",
-                                  choices = list("unadjusted RAS" = "ras", "RAS adj. by transision prob." = "ras_prob", "RAS adj. by path-based transition probability" = "ras_prob_path", "RAS adj. by recurive transition probability" = "ras_prob_rec"),
+                                  choices = list("unadjusted RAS" = "ras", 
+                                                 "RAS adj. by transision prob." = "ras_prob", 
+                                                 #"RAS adj. by path-based transition probability" = "ras_prob_path", 
+                                                 "RAS adj. by recurive transition probability" = "ras_prob_rec"),
                                   selected = "ras_prob")
               ),
               column(4,
@@ -1264,38 +1456,85 @@ gd2visUI = dashboardPage(
                      )
               ),
               column(4,
-                     numericInput(
-                       "customTabDGEFDR",
-                       "False Discovery Rate",
-                       value = 0.05,
-                       min = 0,
-                       max = 1,
-                       step = 0.01),
-                     selectInput(
-                       "customTabDGEFiltering",
-                       "Apply independent filtering automatically:",
-                       choices = c("TRUE", "FALSE"),
-                       selected = "TRUE"
+                     radioButtons(
+                       "customTabDGEtool",
+                       label = h3("Select method"),
+                       choices = list("DESeq2" = 1, "Limma-voom" = 2),
+                       selected = 2
+                     ), 
+                     hr(),
+                     conditionalPanel(
+                       condition = "input.customTabDGEtool == 1",
+                       # DESeq2-specific
+                       numericInput(
+                         "customTabDGEFDR",
+                         "False Discovery Rate",
+                         value = 0.05,
+                         min = 0,
+                         max = 1,
+                         step = 0.01
+                       ),
+                       selectInput(
+                         "customTabDGEFiltering",
+                         "Apply independent filtering automatically:",
+                         choices = c("TRUE", "FALSE"),
+                         selected = "TRUE"
+                       ),
+                       selectInput(
+                         "customTabDGEShrink",
+                         "Shrink the log fold change for the contrast of interest:",
+                         choices = c("TRUE", "FALSE"),
+                         selected = "TRUE"
+                       ),
+                       selectInput(
+                         "customTabDGEWeight",
+                         "Use Independent Hypothesis Weighting (IHW) as a filtering function:",
+                         choices = c("TRUE", "FALSE"),
+                         selected = "FALSE"
+                       )
                      ),
-                     selectInput(
-                       "customTabDGEShrink",
-                       "Shrink the log fold change for the contrast of interest:",
-                       choices = c("TRUE", "FALSE"),
-                       selected = "TRUE"
+                     
+                     conditionalPanel(
+                       condition = "input.customTabDGEtool == 2",
+                       # Limma-voom-specific
+                       checkboxInput(
+                         "customTabLimmaQualityWeights",
+                         "Use quality weights (voomWithQualityWeights)",
+                         value = FALSE
+                       ),
+                       checkboxInput(
+                         "customTabLimmaRobust",
+                         "Use robust empirical Bayes shrinkage",
+                         value = TRUE
+                       ),
+                       selectInput(
+                         "customTabLimmaAdjustMethod",
+                         "Multiple testing correction method",
+                         choices = c("BH", "holm", "bonferroni", "BY", "none"),
+                         selected = "BH"
+                       ),
+                       checkboxInput(
+                         "customTabLimmaUseTreat",
+                         "Use treat() with minimum log2 fold change threshold",
+                         value = FALSE
+                       ),
+                       conditionalPanel(
+                         condition = "input.customTabLimmaUseTreat == true",
+                         numericInput(
+                           "customTabLimmaTreatLFC",
+                           "Minimum absolute log2 fold change",
+                           value = 1,
+                           min = 0,
+                           step = 0.1
+                         )
+                       )
                      ),
-                     selectInput(
-                       "customTabDGEWeight",
-                       "Use Independent Hypothesis Weighting (IHW) as a filtering function:",
-                       choices = c("TRUE", "FALSE"),
-                       selected = "FALSE"
-                     ),
-                     # selectInput(
-                     #   "tcgaTabDGEParallel",
-                     #   "Use parallel execution of DESeq function using BiocParallel:",
-                     #   choices = c("TRUE", "FALSE"),
-                     #   selected = "FALSE"
-                     # ),
-                     bs4Dash::actionButton("customTabDGECompute", "Run Differential Expression Analysis", status = "warning")
+                     bs4Dash::actionButton(
+                       "customTabDGECompute",
+                       "Run Differential Expression Analysis",
+                       status = "warning"
+                     ), br(), br(),
+                     uiOutput("customTabDGEResultDownloadUI")
               )
             )
           )
@@ -1311,7 +1550,17 @@ gd2visUI = dashboardPage(
           ),
           box(
             width = 8,
-            title = "DEA Genes",
+            title = div(
+              "DEA Genes",
+              tags$span(icon("circle-question")) %>%
+                add_prompt(
+                  message = "This table demonstrates the resulting statistics from the differential gene expression analysis. Select a gene by clicking on the row to show further information in the 'Gene infobox' and 'Selected Gene' sections. The symbol button links to the respective NCBI gene card.",
+                  position = "right",
+                  type = "info",
+                  size = "large",
+                  rounded = TRUE
+                )
+            ),
             status = "primary",
             solidHeader = TRUE,
             tags$head(tags$style(HTML(
@@ -1378,7 +1627,17 @@ gd2visUI = dashboardPage(
         fluidRow(
           box(
             width = 6,
-            title = "p-Value Histogram",
+            title = div(
+              "p-Value Histogram",
+              tags$span(icon("circle-question")) %>%
+                add_prompt(
+                  message = "This histogram shows the distribution of p-values from the differential expression analysis. A strong enrichment near p = 0 suggests a substantial number of significantly differentially expressed genes associated with GD2 score strata.",
+                  position = "right",
+                  type = "info",
+                  size = "large",
+                  rounded = TRUE
+                )
+            ),
             status = "primary",
             solidHeader = TRUE,
             plotOutput("custom_pvals_hist") %>%
@@ -1386,7 +1645,17 @@ gd2visUI = dashboardPage(
           ),
           box(
             width = 6,
-            title = "Histogram of the Log2 Fold-Changes",
+            title = div(
+              "Histogram of the Log2 Fold-Changes",
+              tags$span(icon("circle-question")) %>%
+                add_prompt(
+                  message = "This histogram displays the distribution of log2 fold-changes between groups stratified by GD2 score. The sharp, symmetric peak around log2FC = 0 indicates that most genes are not strongly differentially expressed. However, the presence of longer tails on both sides suggests that a subset of genes exhibits meaningful up- or down-regulation, supporting the idea of transcriptomic shifts associated with GD2 status.",
+                  position = "right",
+                  type = "info",
+                  size = "large",
+                  rounded = TRUE
+                )
+            ),
             status = "primary",
             solidHeader = TRUE,
             plotOutput("custom_logfc_hist") %>%
@@ -1402,7 +1671,17 @@ gd2visUI = dashboardPage(
         fluidRow(
           box(
             width = 6,
-            title = "MA plot",
+            title = div(
+              "MA plot",
+              tags$span(icon("circle-question")) %>%
+                add_prompt(
+                  message = "This MA plot displays the log2 fold-change (y-axis) versus the mean normalized expression (x-axis, log10 scale) for each gene.",
+                  position = "right",
+                  type = "info",
+                  size = "large",
+                  rounded = TRUE
+                )
+            ),
             status = "primary",
             solidHeader = TRUE,
             plotOutput("custom_plotma") %>%
@@ -1410,7 +1689,17 @@ gd2visUI = dashboardPage(
           ),
           box(
             width = 6,
-            title = "Volcano plot",
+            title = div(
+              "Volcano plot",
+              tags$span(icon("circle-question")) %>%
+                add_prompt(
+                  message = "The volcano plot combines statistical significance (-log10 p-value) and biological effect size (log2 fold-change). Vertical red lines represent fold-change thresholds, while the horizontal line marks the p-value cutoff.",
+                  position = "right",
+                  type = "info",
+                  size = "large",
+                  rounded = TRUE
+                )
+            ),
             status = "primary",
             solidHeader = TRUE,
             plotlyOutput("custom_volcanoplot") %>%
@@ -1423,7 +1712,7 @@ gd2visUI = dashboardPage(
             status = "primary",
             collapsible = FALSE,
             tagList(includeMarkdown(
-              system.file("extdata/documentation", "DEA_acknowledgment.md", package = "GD2Viz")
+              system.file("extdata/documentation", "DEA_acknowledgment.md", package = "GD2Viz_extended")
             ))
           )
         )

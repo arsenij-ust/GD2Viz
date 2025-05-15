@@ -559,12 +559,12 @@ computeGD2Score <- function(RAS, svm_model, adjust_input = c("raw", "ranged", "s
     stop("Necessary reaction IDs not found in the RAS data.")
   }
 
-  input <- data.frame(
+  promoting_df <- data.frame(
     R05946 = RAS["R05946", ],
     R05940 = RAS["R05940", ]
   )
 
-  output <- data.frame(
+  diminishing_df <- data.frame(
     R05939 = RAS["R05939", ],
     R05948 = RAS["R05948", ],
     R05947 = RAS["R05947", ],
@@ -572,19 +572,19 @@ computeGD2Score <- function(RAS, svm_model, adjust_input = c("raw", "ranged", "s
   )
 
   if(adjust_input == "raw"){
-    inputSum <- rowSums(input)
-    outputSum <- rowSums(output)
+    promotingSum <- rowSums(promoting_df)
+    diminishingSum <- rowSums(diminishing_df)
   } else if(adjust_input == "ranged"){
-    input <- apply(input, 2, range01)
-    output <- apply(output, 2, range01)
-    inputSum <- rowSums(input)
-    outputSum <- rowSums(output)
+    promoting_df <- apply(promoting_df, 2, range01)
+    diminishing_df <- apply(diminishing_df, 2, range01)
+    promotingSum <- rowSums(promoting_df)
+    diminishingSum <- rowSums(diminishing_df)
   } else if(adjust_input == "scaled"){
-    inputSum <- rowSums(scale(x=input, center=center))
-    outputSum <- rowSums(scale(x=output, center=center))
+    promotingSum <- rowSums(scale(x=promoting_df, center=center))
+    diminishingSum <- rowSums(scale(x=diminishing_df, center=center))
   }
 
-  df_custom <- data.frame(x=inputSum, y=outputSum)
+  df_custom <- data.frame(x=promotingSum, y=diminishingSum)
   preds_custom <- predict(svm_model, df_custom[,c("x", "y")], type = "decision")
 
   if (range_output) {
@@ -600,76 +600,90 @@ computeGD2Score <- function(RAS, svm_model, adjust_input = c("raw", "ranged", "s
 
 #' Train GD2 Model
 #'
-#' The `trainGD2model` function trains a GD2 model using a specified reaction activity score (RAS) matrix from training data.
-#' It allows for various adjustments to the input data before training and can rescale the output.
+#' The `trainGD2model` function trains a GD2 model using a specified reaction activity score (RAS) matrix from training data
+#' stored as a SummarizedExperiment object.
 #'
-#' @param train_data A list containing the training data. It should include:
+#' @param train_data A SummarizedExperiment object containing training data. It should include:
 #'   \itemize{
-#'     \item \code{geom} - Geometric information.
-#'     \item \code{coldata} - Column data information.
-#'     \item \code{ras} - A matrix of reaction activity scores for key reactions.
-#'     \item \code{ras_prob} - A matrix of reaction activity scores with probabilities.
-#'     \item \code{ras_prob_path} - A matrix of pathway-specific reaction activity scores with probabilities.
-#'     \item \code{ras_prob_rec} - A matrix of receptor-specific reaction activity scores with probabilities.
+#'     \item assays: "ras", "ras_prob", "ras_prob_path", "ras_prob_rec".
+#'     \item colData: Column data information.
+#'     \item metadata(train_data)$geom: A numeric vector of geometric mean data for genes.
 #'   }
-#' @param adjust_ras A character string indicating which RAS matrix to use from \code{train_data}. Options are "ras", "ras_prob", "ras_prob_path", and "ras_prob_rec". Default is "ras".
-#' @param adjust_input A character string indicating how to adjust the input data.
-#' Options are "raw" (no adjustment), "ranged" (rescale to \[0, 1\]), and "scaled" (standardize with mean 0 and standard deviation 1). Default is "raw".
-#' @param center TODOTODO
-#' @param type_column TODOTODO
+#' @param adjust_ras Which assay to use. One of "ras", "ras_prob", "ras_prob_path", or "ras_prob_rec".
+#' @param adjust_input How to adjust the input matrix: "raw", "ranged", or "scaled".
+#' @param center Logical; whether to mean-center data if using "scaled" adjustment.
+#' @param type_column Column name in colData indicating the sample type.
 #'
-#' @return An SVM model trained on the input and output sums derived from the RAS data.
+#' @return An SVM model trained using kernlab::ksvm.
 #'
 #' @examples
 #' \dontrun{
 #' # Train GD2 model with raw input
 #' model <- trainGD2model(train_data, adjust_ras = "ras", adjust_input = "raw")
 #' }
-trainGD2model <- function(train_data, adjust_ras = c("ras", "ras_prob", "ras_prob_path", "ras_prob_rec"), adjust_input = c("raw", "ranged", "scaled"), center=TRUE, type_column = "X_study"){
+trainGD2model <- function(train_data,
+                          adjust_ras = c("ras", "ras_prob", "ras_prob_rec"),
+                          adjust_input = c("raw", "ranged", "scaled"),
+                          center = TRUE,
+                          type_column = "X_study") {
+  
+  if (!is(train_data, "SummarizedExperiment")) {
+    stop("train_data must be a SummarizedExperiment object.")
+  }
+  
+  adjust_ras <- match.arg(adjust_ras)
+  adjust_input <- match.arg(adjust_input)
 
   key_reactions <- c("R05946", "R05940", "R05939", "R05948", "R05947", "R05941")
 
-  if(!adjust_ras %in% names(train_data)) {
-    stop("Selected RAS type not in training data.")
+  # Check for assay
+  if (!adjust_ras %in% SummarizedExperiment::assayNames(train_data)) {
+    stop("Selected RAS type not found in assays of train_data.")
   }
-
-  RAS <- train_data[[adjust_ras]]
+  
+  RAS <- SummarizedExperiment::assay(train_data, adjust_ras)
 
   if(!all(key_reactions %in% rownames(RAS))) {
     stop("Necessary reaction IDs not found in the RAS data.")
   }
-
-  input <- data.frame(
+  
+  promoting_df <- data.frame(
     R05946 = RAS["R05946", ],
     R05940 = RAS["R05940", ]
   )
 
-  output <- data.frame(
+  diminishing_df <- data.frame(
     R05939 = RAS["R05939", ],
     R05948 = RAS["R05948", ],
     R05947 = RAS["R05947", ],
     R05941 = RAS["R05941", ]
   )
-
+  
   if(adjust_input == "raw"){
-    inputSum <- rowSums(input)
-    outputSum <- rowSums(output)
+    promotingSum <- rowSums(promoting_df)
+    diminishingSum <- rowSums(diminishing_df)
   } else if(adjust_input == "ranged"){
-    input <- apply(input, 2, range01)
-    output <- apply(output, 2, range01)
-    inputSum <- rowSums(input)
-    outputSum <- rowSums(output)
+    promoting_df <- apply(promoting_df, 2, range01)
+    diminishing_df <- apply(diminishing_df, 2, range01)
+    promotingSum <- rowSums(promoting_df)
+    diminishingSum <- rowSums(diminishing_df)
   } else if(adjust_input == "scaled"){
-    inputSum <- rowSums(scale(x=input, center=center))
-    outputSum <- rowSums(scale(x=output, center=center))
+    promotingSum <- rowSums(scale(x=promoting_df, center=center))
+    diminishingSum <- rowSums(scale(x=diminishing_df, center=center))
   }
-
+  
+  coldata <- as.data.frame(SummarizedExperiment::colData(train_data))
+  
+  if (!type_column %in% colnames(coldata)) {
+    stop("type_column not found in colData of train_data.")
+  }
+  
   df.train <- data.frame(
-    x=inputSum,
-    y=outputSum,
-    type=factor(train_data$coldata[[type_column]])
+    x=promotingSum,
+    y=diminishingSum,
+    type=factor(coldata[[type_column]])
   )
-
+  
   kernfit <- kernlab::ksvm(data=df.train, x=type~.,type = "C-svc", kernel = 'vanilladot')
   return(kernfit)
 }
@@ -747,11 +761,13 @@ plotGD2Score <- function(df, plot_type = "scatter", Group.1 = NULL, group_title 
     fig <- plot_ly(
       data = df,
       x = ~Score,
-      y = ~as.character(Group),
+      # y = ~as.character(Group),
+      y = ~replace(as.character(Group), is.na(Group), "NA"),
       type = "scatter",
       mode = "markers",
       text = rownames(df),
-      color = ~as.character(Group),
+      # color = ~as.character(Group),
+      color = ~replace(as.character(Group), is.na(Group), "NA"),
       colors = colors
     ) %>% toWebGL()
     yaxisls <- list(
@@ -839,7 +855,7 @@ geneinfo <- function(gene_id) {
 # Shiny resource paths ----------------------------------------------------
 .onLoad <- function(libname, pkgname) {
   # Create link to logo
-  shiny::addResourcePath("GD2Viz", system.file("www", package = "GD2Viz"))
+  shiny::addResourcePath("GD2Viz", system.file("www", package = "GD2Viz_extended"))
 }
 
 # Dashboard design -------------------
@@ -965,3 +981,5 @@ add_plot_maximize_observer <- function(input,
     shinyjs::runjs(js_call)
   }, ignoreInit = TRUE)
 }
+
+

@@ -12,6 +12,3 @@ A Shiny App is launched for interactive data exploration
 \description{
 GD2Viz main function
 }
-\examples{
-# TODO
-}

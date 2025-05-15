@@ -61,6 +61,12 @@ For detailed instructions and examples, please refer to the [GD2Viz Vignette](#)
 
 ---
 
+Cite us:
+
+Ustjanzew et al. Predicting GD2 expression across cancer types by the integration of pathway topology and transcriptome data. 2025
+
+---
+
 For more information, visit our [website](http://www.unimedizin-mainz.de/imbei) or consult the [GD2Viz Vignette](#). If you have any questions or need assistance, please don't hesitate to reach out to our support team.
 
 ---

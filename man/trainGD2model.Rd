@@ -6,38 +6,34 @@
 \usage{
 trainGD2model(
   train_data,
-  adjust_ras = c("ras", "ras_prob", "ras_prob_path", "ras_prob_rec"),
+  adjust_ras = c("ras", "ras_prob", "ras_prob_rec"),
   adjust_input = c("raw", "ranged", "scaled"),
   center = TRUE,
   type_column = "X_study"
 )
 }
 \arguments{
-\item{train_data}{A list containing the training data. It should include:
+\item{train_data}{A SummarizedExperiment object containing training data. It should include:
 \itemize{
-\item \code{geom} - Geometric information.
-\item \code{coldata} - Column data information.
-\item \code{ras} - A matrix of reaction activity scores for key reactions.
-\item \code{ras_prob} - A matrix of reaction activity scores with probabilities.
-\item \code{ras_prob_path} - A matrix of pathway-specific reaction activity scores with probabilities.
-\item \code{ras_prob_rec} - A matrix of receptor-specific reaction activity scores with probabilities.
+\item assays: "ras", "ras_prob", "ras_prob_path", "ras_prob_rec".
+\item colData: Column data information.
+\item metadata(train_data)$geom: A numeric vector of geometric mean data for genes.
 }}
 
-\item{adjust_ras}{A character string indicating which RAS matrix to use from \code{train_data}. Options are "ras", "ras_prob", "ras_prob_path", and "ras_prob_rec". Default is "ras".}
+\item{adjust_ras}{Which assay to use. One of "ras", "ras_prob", "ras_prob_path", or "ras_prob_rec".}
 
-\item{adjust_input}{A character string indicating how to adjust the input data.
-Options are "raw" (no adjustment), "ranged" (rescale to [0, 1]), and "scaled" (standardize with mean 0 and standard deviation 1). Default is "raw".}
+\item{adjust_input}{How to adjust the input matrix: "raw", "ranged", or "scaled".}
 
-\item{center}{TODOTODO}
+\item{center}{Logical; whether to mean-center data if using "scaled" adjustment.}
 
-\item{type_column}{TODOTODO}
+\item{type_column}{Column name in colData indicating the sample type.}
 }
 \value{
-An SVM model trained on the input and output sums derived from the RAS data.
+An SVM model trained using kernlab::ksvm.
 }
 \description{
-The \code{trainGD2model} function trains a GD2 model using a specified reaction activity score (RAS) matrix from training data.
-It allows for various adjustments to the input data before training and can rescale the output.
+The \code{trainGD2model} function trains a GD2 model using a specified reaction activity score (RAS) matrix from training data
+stored as a SummarizedExperiment object.
 }
 \examples{
 \dontrun{

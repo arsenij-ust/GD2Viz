@@ -32,8 +32,6 @@
 #' GD2Viz main function
 #'
 #' @return A Shiny App is launched for interactive data exploration
-#' @examples
-#' # TODO
 #' @export
 GD2Viz <- function() {
 

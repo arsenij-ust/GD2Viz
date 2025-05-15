@@ -1,5 +1,5 @@
-Package: GD2Viz
-Title: Compute and visualize GD2 score of RNA-seq datasets
+Package: GD2Viz_extended
+Title: Explore GD2 scores of large datasets. Compute and visualize GD2 score of your RNA-seq datasets.
 Version: 0.01.1
 Date: 2024-06-06
 Authors@R: 
@@ -33,6 +33,7 @@ Imports:
     plotly,
     AnnotationDbi,
     DESeq2,
+    limma,
     SummarizedExperiment,
     DT,
     zip,
@@ -44,7 +45,6 @@ Imports:
     igraph,
     kernlab,
     org.Hs.eg.db,
-    ideal,
     stringr,
     rentrez,
     IHW
@@ -55,8 +55,8 @@ Suggests:
     markdown
 License: MIT + file LICENSE
 Encoding: UTF-8
-URL: https://github.com/yourusername/GD2Viz
-BugReports: https://github.com/yourusername/GD2Viz/issues
+URL: https://github.com/arsenij-ust/GD2Viz
+BugReports: https://github.com/arsenij-ust/GD2Viz/issues
 RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3

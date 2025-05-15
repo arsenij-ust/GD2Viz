@@ -1,9 +1,8 @@
+<div  style="background-color:#164863;"><a href="https://www.stjude.cloud/" target="_blank" rel="St. jude Cloud logo"><img src="../../www/stjudecloud-logo-full.png" alt="" /></a></div>
+
 ## Acknowledgements
 
-The St. Jude Cloud RNA-seq data and phenotype data for computing and visualizing the GD2 Score can be accessed from the [St. Jude Cloud Genomics Platform](https://platform.stjude.cloud/data/cohorts?file_types=FEATURE_COUNTS&select_all). 
-
-We acknowledge the single datasets that were used for this GD2 Score [here](https://university.stjude.cloud/docs/citing-stjude-cloud#dataset-reference-table).
-
+The GD2 Score was computed and visualized using the St. Jude Cloud RNA-seq data and phenotype data obtained from the [St. Jude Cloud Genomics Platform](https://platform.stjude.cloud/). We acknowledge St. Jude Cloud as a collaborative data sharing partner in support of this research.
 
 ### Citation of St. Jude Cloud
 
