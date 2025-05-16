@@ -2,16 +2,6 @@ get_welcome_tab <- function(has_private_data=FALSE) {
 tabItem(
   tabName = "welcomeTab",
   fluidRow(
-    if (!has_private_data) {
-      fluidRow(
-        box(
-          status = "warning",
-          title = "Limited Functionality",
-          solidHeader = TRUE,
-          "This version does not include access to private datasets. Only upload-based analysis is enabled."
-        )
-      )
-    },
     box(
       title = "Welcome to GD2Viz", status = "primary", solidHeader = TRUE, width = 12,
       collapsible = TRUE,
@@ -19,6 +9,14 @@ tabItem(
         system.file("extdata/documentation", "welcome.md", package = "GD2Viz")
       ))
     ),
+    if (!has_private_data) {
+      box(
+        status = "warning",
+        title = "Limited Functionality",
+        solidHeader = TRUE,
+        "This lightweight GD2Viz version does not include access to external datasets, like TCGA, GTEx and TARGET. In this locally available version, you can only upload and analyze your own RNA-Seq datasets. You can access the extended version of GD2Viz online at 'http://shiny.imbei.uni-mainz.de:3838/GD2Viz'."
+      )
+    },
     box(
       title = "Background Information", status = "primary", solidHeader = TRUE, width = 12,
       imageOutput("visual_abstract", height="auto"),
