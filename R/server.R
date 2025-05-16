@@ -17,11 +17,11 @@ gd2visServer <- function(input, output, session, data_path = NULL) {
   
   # Conditionally load private data
   if (has_private_data) {
-    tcgaData   <- readRDS(file.path(data_path, "RAS_datasets", "TCGA_RAS.Rds"))
-    gtexData   <- readRDS(file.path(data_path, "RAS_datasets", "GTEX_RAS.Rds"))
-    targetData <- readRDS(file.path(data_path, "RAS_datasets", "TARGET_RAS.Rds"))
-    stjudeData <- readRDS(file.path(data_path, "RAS_datasets", "STJUDE_RAS.Rds"))
-    cbttcData  <- readRDS(file.path(data_path, "RAS_datasets", "CBTTC_RAS.Rds"))
+    tcgaData   <- readRDS(system.file("extdata","RAS_datasets", "TCGA_RAS.Rds", package="GD2VizData"))
+    gtexData   <- readRDS(system.file("extdata","RAS_datasets", "GTEX_RAS.Rds", package="GD2VizData"))
+    targetData <- readRDS(system.file("extdata","RAS_datasets", "TARGET_RAS.Rds", package="GD2VizData"))
+    stjudeData <- readRDS(system.file("extdata","RAS_datasets", "STJUDE_RAS.Rds", package="GD2VizData"))
+    cbttcData  <- readRDS(system.file("extdata","RAS_datasets", "CBTTC_RAS.Rds", package="GD2VizData"))
     
     tcga_coldata <- colData(tcgaData)
     tcgaNormalIndx <- which(tcga_coldata$Sample_Type == "Solid Tissue Normal")
@@ -1215,22 +1215,17 @@ gd2visServer <- function(input, output, session, data_path = NULL) {
                      metadata <- input$tcgaTabGroup
                      subtype <- input$tcgaTabDGESubtype
                      incProgress(amount = 0.1, detail = "Loading data...")
-                     TCGA_dds <- readRDS(
-                       file.path(
-                         data_path,
-                         "TCGA_projects", 
-                         paste0("TCGA-", project, ".Rds")
-                         )
-                       )
-                     
-                     # print(TCGA_dds)
+                     TCGA_dds <- readRDS(system.file(
+                       "extdata",
+                       "TCGA_projects",
+                       paste0("TCGA-", project, ".Rds"),
+                       package = "GD2VizData"
+                     ))
                      
                      # Check sample number
                      if (subtype != "All Samples") {
                        TCGA_dds <- TCGA_dds[, which(colData(TCGA_dds)[[metadata]] == subtype)]
-                       # print(metadata)
-                       # print(subtype)
-                       # print(TCGA_dds)
+
                        if (ncol(TCGA_dds) < 2) {
                          stop(
                            "Selected subgroup has less than two samples. Please select a different subgroup."
@@ -1351,13 +1346,12 @@ gd2visServer <- function(input, output, session, data_path = NULL) {
                        metadata <- input$tcgaTabGroup
                        subtype <- input$tcgaTabDGESubtype
                        incProgress(amount = 0.1, detail = "Loading data...")
-                       TCGA_dds <- readRDS(
-                         file.path(
-                           data_path,
-                           "TCGA_projects", 
-                           paste0("TCGA-", project, ".Rds")
-                         )
-                       )
+                       TCGA_dds <- readRDS(system.file(
+                         "extdata",
+                         "TCGA_projects",
+                         paste0("TCGA-", project, ".Rds"),
+                         package = "GD2VizData"
+                       ))
                        
                        if (subtype != "All Samples") {
                          TCGA_dds <- TCGA_dds[, which(colData(TCGA_dds)[[metadata]] == subtype)]

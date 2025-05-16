@@ -4,10 +4,7 @@
 \alias{GD2Viz}
 \title{GD2Viz main function}
 \usage{
-GD2Viz(data_path = NULL)
-}
-\arguments{
-\item{data_path}{Optional path to GD2VizData repo for extern datasets.}
+GD2Viz()
 }
 \value{
 A Shiny App is launched for interactive data exploration
