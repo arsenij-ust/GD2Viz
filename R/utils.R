@@ -855,7 +855,7 @@ geneinfo <- function(gene_id) {
 # Shiny resource paths ----------------------------------------------------
 .onLoad <- function(libname, pkgname) {
   # Create link to logo
-  shiny::addResourcePath("GD2Viz", system.file("www", package = "GD2Viz_extended"))
+  shiny::addResourcePath("GD2Viz", system.file("www", package = "GD2Viz"))
 }
 
 # Dashboard design -------------------

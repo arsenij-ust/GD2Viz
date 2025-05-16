@@ -1,34 +1,113 @@
 
 # server definition ---------------------------------------------------------
-gd2visServer <- function(input, output, session) {
+gd2visServer <- function(input, output, session, data_path = NULL) {
+  
   options(shiny.maxRequestSize = 1000 * 1024^2)
-  trainData <- readRDS(system.file("extdata", "train_data.Rds", package = "GD2Viz_extended"))
-  mgraph <- readRDS(system.file("extdata", "substrate_graph.Rds", package = "GD2Viz_extended")) %>% igraph::upgrade_graph()
+  
+  has_private_data <- !is.null(data_path) && dir.exists(data_path)
+  
+  # Always-present data
+  trainData <- readRDS(system.file("extdata", "train_data.Rds", package = "GD2Viz"))
+  mgraph <- readRDS(system.file("extdata", "substrate_graph.Rds", package = "GD2Viz")) %>% igraph::upgrade_graph()
   stem <- read.delim(
-    system.file("extdata", "stemness_sig_weights.tsv", package = "GD2Viz_extended"),
+    system.file("extdata", "stemness_sig_weights.tsv", package = "GD2Viz"),
     header = FALSE,
     row.names = 1
   ) %>% as.matrix() %>% drop()
   
-  tcgaData <- readRDS(system.file("extdata/RAS_datasets", "TCGA_RAS.Rds", package = "GD2Viz_extended"))
-  gtexData <- readRDS(system.file("extdata/RAS_datasets", "GTEX_RAS.Rds", package = "GD2Viz_extended"))
-  targetData <- readRDS(system.file("extdata/RAS_datasets", "TARGET_RAS.Rds", package = "GD2Viz_extended"))
-  stjudeData <- readRDS(system.file("extdata/RAS_datasets", "STJUDE_RAS.Rds", package = "GD2Viz_extended"))
-  cbttcData <- readRDS(system.file("extdata/RAS_datasets", "CBTTC_RAS.Rds", package = "GD2Viz_extended"))
-  
-  # divide TCGA into Tumor and Normal Datasets
-  tcga_coldata <- colData(tcgaData)
-  tcgaNormalIndx <- which(tcga_coldata$Sample_Type == "Solid Tissue Normal")
-  
-  tcgaNormalData <- SummarizedExperiment(assays = lapply(assays(tcgaData), function(x)
-    x[, tcgaNormalIndx, drop = FALSE]), colData = tcga_coldata[tcgaNormalIndx, , drop = FALSE])
-  
-  tcgaTumorData <- SummarizedExperiment(assays = lapply(assays(tcgaData), function(x)
-    x[, -tcgaNormalIndx, drop = FALSE]), colData = tcga_coldata[-tcgaNormalIndx, , drop = FALSE])
+  # Conditionally load private data
+  if (has_private_data) {
+    tcgaData   <- readRDS(file.path(data_path, "RAS_datasets", "TCGA_RAS.Rds"))
+    gtexData   <- readRDS(file.path(data_path, "RAS_datasets", "GTEX_RAS.Rds"))
+    targetData <- readRDS(file.path(data_path, "RAS_datasets", "TARGET_RAS.Rds"))
+    stjudeData <- readRDS(file.path(data_path, "RAS_datasets", "STJUDE_RAS.Rds"))
+    cbttcData  <- readRDS(file.path(data_path, "RAS_datasets", "CBTTC_RAS.Rds"))
+    
+    tcga_coldata <- colData(tcgaData)
+    tcgaNormalIndx <- which(tcga_coldata$Sample_Type == "Solid Tissue Normal")
+    
+    tcgaNormalData <- SummarizedExperiment(
+      assays = lapply(assays(tcgaData), function(x) x[, tcgaNormalIndx, drop = FALSE]),
+      colData = tcga_coldata[tcgaNormalIndx, , drop = FALSE])
+    
+    tcgaTumorData <- SummarizedExperiment(
+      assays = lapply(assays(tcgaData), function(x) x[, -tcgaNormalIndx, drop = FALSE]),
+      colData = tcga_coldata[-tcgaNormalIndx, , drop = FALSE])
+  }
 
+  # Dynamic Sidebar UI -----------
+  
+  output$sidebar_ui <- renderUI({
+    dashboardSidebar(
+      id = "sidebar",
+      
+      # Logo
+      tags$head(
+        tags$style(HTML("
+        #resizable-image {
+          transition: width 0.5s ease-in-out;
+        }
+      ")),
+        tags$script(HTML("
+        document.addEventListener('DOMContentLoaded', function() {
+          const img = document.getElementById('resizable-image');
+          const body = document.body;
+          function resizeImage() {
+            img.style.width = body.classList.contains('sidebar-collapse') ? '60px' : '180px';
+          }
+          resizeImage();
+          const observer = new MutationObserver(m => m.forEach(mutation => {
+            if (mutation.attributeName === 'class') resizeImage();
+          }));
+          observer.observe(body, { attributes: true });
+        });
+      "))
+      ),
+      div(
+        img(id = "resizable-image", src = "GD2Viz/GD2Viz6.png",
+            style = "width: 180px; height: auto; margin-bottom: 30px; display: block; margin-left: auto; margin-right: auto;")
+      ),
+      
+      skin = "light",
+      status = "primary",
+      elevation = 3,
+      
+      sidebarMenu(
+        menuItem("Welcome", tabName = "welcomeTab", icon = icon("house"))
+      ),
+      
+      sidebarMenu(
+        sidebarHeader("Main tabs:"),
+        
+        if (has_private_data) {
+          list(
+            menuItem("Public Datasets", tabName = "exploreDataTab", icon = icon("database")),
+            menuItem("TCGA Cancer Types", tabName = "tcgaDetailTab", icon = icon("magnifying-glass-plus"))
+          )
+        },
+        
+        menuItem("Analyze Your Data", tabName = "customDataTab", icon = icon("file-arrow-up"))
+      ),
+      
+      textOutput("package_version"),
+      
+      tags$head(
+        tags$style("
+        #package_version {
+          position: absolute;
+          bottom: 0;
+          align: center;
+          padding-left: 80px;
+        }
+      ")
+      )
+    )
+  })
+  
+  
   # Header info menus ----------------
   observeEvent(input$notification1, {
-    runjs("window.open('https://federicomarini.github.io/GeneTonic/articles/GeneTonic_manual.html', '_blank')")
+    runjs("window.open('https://github.com/arsenij-ust/GD2Viz', '_blank')")
   })
   
   observeEvent(input$notification2, {
@@ -55,25 +134,25 @@ gd2visServer <- function(input, output, session) {
         footer = NULL,
         easyClose = TRUE,
         tagList(includeMarkdown(
-          system.file("extdata/documentation", "about.md", package = "GD2Viz_extended")
+          system.file("extdata/documentation", "about.md", package = "GD2Viz")
         ), renderPrint({
-          utils::citation("GD2Viz_extended")
+          utils::citation("GD2Viz")
         }))
       )
     )
   })
   
-  observeEvent(input$notification1, {
+  observeEvent(input$notification4, {
     runjs("window.open('https://github.com/arsenij-ust/GD2Viz/issues', '_blank')")
   })
   
   output$package_version <- renderText({
-    paste("Version:", packageVersion("GD2Viz_extended"))
+    paste("Version:", packageVersion("GD2Viz"))
   })
   
   output$visual_abstract <- renderImage({
     # When input$n is 1, filename is ./images/image1.jpeg
-    filename <- system.file("www/", "visual_abstract.png", package = "GD2Viz_extended")
+    filename <- system.file("www/", "visual_abstract.png", package = "GD2Viz")
     width  <- session$clientData$output_visual_abstract_width
     height <- session$clientData$output_myImage_height
     
@@ -93,6 +172,7 @@ gd2visServer <- function(input, output, session) {
   ## Train GD2 model -----
   GD2model <- reactiveVal(NULL)
   observe({
+    req(has_private_data)
     req(input$dataTabScale, input$dataTabRASType)
     
     model <- trainGD2model(
@@ -106,6 +186,7 @@ gd2visServer <- function(input, output, session) {
   ## TCGA Tumor predict values -----
   tcgaTumorGD2 <- reactiveVal(NULL)
   observe({
+    req(has_private_data)
     req(tcgaTumorData,
         GD2model(),
         input$dataTabScale,
@@ -126,6 +207,7 @@ gd2visServer <- function(input, output, session) {
   })
   
   output$tcgaTumorColDataUI <- renderUI({
+    req(has_private_data)
     req(tcgaTumorData)
     
     selectableCols <- c(
@@ -145,6 +227,7 @@ gd2visServer <- function(input, output, session) {
   })
   
   output$tcgaTumorHighlightGroupUI <- renderUI({
+    req(has_private_data)
     req(tcgaTumorData, input$tcgaTumorColData)
     
     selectizeInput(
@@ -157,6 +240,7 @@ gd2visServer <- function(input, output, session) {
   })
   
   observe({
+    req(has_private_data)
     req(tcgaTumorData, input$tcgaTumorColData)
     updateSelectizeInput(
       session,
@@ -169,6 +253,7 @@ gd2visServer <- function(input, output, session) {
   ## TCGA Normal predict values -----
   tcgaNormalGD2 <- reactiveVal(NULL)
   observe({
+    req(has_private_data)
     req(tcgaNormalData,
         GD2model(),
         input$dataTabScale,
@@ -189,6 +274,7 @@ gd2visServer <- function(input, output, session) {
   })
   
   output$tcgaNormalColDataUI <- renderUI({
+    req(has_private_data)
     req(tcgaNormalData)
     
     selectableCols <- c(
@@ -208,6 +294,7 @@ gd2visServer <- function(input, output, session) {
   })
   
   output$tcgaNormalHighlightGroupUI <- renderUI({
+    req(has_private_data)
     req(tcgaNormalData, input$tcgaNormalColData)
     
     selectizeInput(
@@ -220,6 +307,7 @@ gd2visServer <- function(input, output, session) {
   })
   
   observe({
+    req(has_private_data)
     req(tcgaNormalData, input$tcgaNormalColData)
     updateSelectizeInput(
       session,
@@ -232,6 +320,7 @@ gd2visServer <- function(input, output, session) {
   ## GTEX predict values -----
   gtexGD2 <- reactiveVal(NULL)
   observe({
+    req(has_private_data)
     req(gtexData,
         GD2model(),
         input$dataTabScale,
@@ -252,6 +341,7 @@ gd2visServer <- function(input, output, session) {
   })
   
   output$gtexColDataUI <- renderUI({
+    req(has_private_data)
     req(gtexData)
     selectInput(
       "gtexColData",
@@ -262,6 +352,7 @@ gd2visServer <- function(input, output, session) {
   })
   
   output$gtexHighlightGroupUI <- renderUI({
+    req(has_private_data)
     req(gtexData, input$gtexColData)
     
     selectizeInput(
@@ -274,6 +365,7 @@ gd2visServer <- function(input, output, session) {
   })
   
   observe({
+    req(has_private_data)
     req(gtexData, input$gtexColData)
     updateSelectizeInput(
       session,
@@ -286,6 +378,7 @@ gd2visServer <- function(input, output, session) {
   ## TARGET predict values -----
   targetGD2 <- reactiveVal(NULL)
   observe({
+    req(has_private_data)
     req(targetData,
         GD2model(),
         input$dataTabScale,
@@ -306,6 +399,7 @@ gd2visServer <- function(input, output, session) {
   })
   
   output$targetColDataUI <- renderUI({
+    req(has_private_data)
     req(targetData)
     selectInput(
       "targetColData",
@@ -316,6 +410,7 @@ gd2visServer <- function(input, output, session) {
   })
   
   output$targetHighlightGroupUI <- renderUI({
+    req(has_private_data)
     req(targetData, input$targetColData)
     
     selectizeInput(
@@ -328,6 +423,7 @@ gd2visServer <- function(input, output, session) {
   })
   
   observe({
+    req(has_private_data)
     req(targetData, input$targetColData)
     updateSelectizeInput(
       session,
@@ -340,6 +436,7 @@ gd2visServer <- function(input, output, session) {
   ## St. Jude predict values -----
   stjudeGD2 <- reactiveVal(NULL)
   observe({
+    req(has_private_data)
     req(stjudeData,
         GD2model(),
         input$dataTabScale,
@@ -360,6 +457,7 @@ gd2visServer <- function(input, output, session) {
   })
   
   output$stjudeColDataUI <- renderUI({
+    req(has_private_data)
     req(stjudeData)
     selectInput(
       "stjudeColData",
@@ -370,6 +468,7 @@ gd2visServer <- function(input, output, session) {
   })
   
   output$stjudeHighlightGroupUI <- renderUI({
+    req(has_private_data)
     req(stjudeData, input$stjudeColData)
     
     selectizeInput(
@@ -382,6 +481,7 @@ gd2visServer <- function(input, output, session) {
   })
   
   observe({
+    req(has_private_data)
     req(stjudeData, input$stjudeColData)
     updateSelectizeInput(
       session,
@@ -394,6 +494,7 @@ gd2visServer <- function(input, output, session) {
   ## CBTTC predict values -----
   cbttcGD2 <- reactiveVal(NULL)
   observe({
+    req(has_private_data)
     req(cbttcData,
         GD2model(),
         input$dataTabScale,
@@ -414,6 +515,7 @@ gd2visServer <- function(input, output, session) {
   })
   
   output$cbttcColDataUI <- renderUI({
+    req(has_private_data)
     req(cbttcData)
     selectInput(
       "cbttcColData",
@@ -424,6 +526,7 @@ gd2visServer <- function(input, output, session) {
   })
   
   output$cbttcHighlightGroupUI <- renderUI({
+    req(has_private_data)
     req(cbttcData, input$cbttcColData)
     
     selectizeInput(
@@ -436,6 +539,7 @@ gd2visServer <- function(input, output, session) {
   })
   
   observe({
+    req(has_private_data)
     req(cbttcData, input$cbttcColData)
     updateSelectizeInput(
       session,
@@ -447,6 +551,7 @@ gd2visServer <- function(input, output, session) {
   
   ## TCGA Tumor GD2 Score Plot -----
   output$tcgaTumorGD2plot <- renderPlotly({
+    req(has_private_data)
     req(
       tcgaTumorGD2(),
       tcgaTumorData,
@@ -501,6 +606,7 @@ gd2visServer <- function(input, output, session) {
   
   ## TCGA Normal GD2 Score Plot -----
   output$tcgaNormalGD2plot <- renderPlotly({
+    req(has_private_data)
     req(
       tcgaNormalGD2(),
       tcgaNormalData,
@@ -554,6 +660,7 @@ gd2visServer <- function(input, output, session) {
 
   ## GTEX GD2 Score Plot -----
   output$gtexGD2plot <- renderPlotly({
+    req(has_private_data)
     req(gtexGD2(),
         gtexData,
         input$gtexColData,
@@ -605,6 +712,7 @@ gd2visServer <- function(input, output, session) {
 
   ## TARGET GD2 Score Plot -----
   output$targetGD2plot <- renderPlotly({
+    req(has_private_data)
     req(targetGD2(),
         targetData,
         input$targetColData,
@@ -656,6 +764,7 @@ gd2visServer <- function(input, output, session) {
 
   ## ST Jude Cloud GD2 Score Plot -----
   output$stjudeGD2plot <- renderPlotly({
+    req(has_private_data)
     req(stjudeGD2(),
         stjudeData,
         input$stjudeColData,
@@ -707,6 +816,7 @@ gd2visServer <- function(input, output, session) {
 
   ## CBTTC GD2 Score Plot -----
   output$cbttcGD2plot <- renderPlotly({
+    req(has_private_data)
     req(cbttcGD2(),
         cbttcData,
         input$cbttcColData,
@@ -760,6 +870,7 @@ gd2visServer <- function(input, output, session) {
 
   ## Group & Project UI -----
   output$tcgaTabProjectUI <- renderUI({
+    req(has_private_data)
     req(tcgaTumorData)
     projects <- unique(paste0(
       colData(tcgaTumorData)$Primary_Disease,
@@ -776,6 +887,7 @@ gd2visServer <- function(input, output, session) {
   })
   
   output$tcgaTabGroupUI <- renderUI({
+    req(has_private_data)
     req(tcgaTumorData, input$tcgaTabProject)
     
     tcgaProject <- sub(".*\\((.*)\\).*", "\\1", input$tcgaTabProject)
@@ -806,6 +918,7 @@ gd2visServer <- function(input, output, session) {
   ## Model training -----
   tcgaTumorTabGD2 <- reactiveVal(NULL)
   observe({
+    req(has_private_data)
     req(tcgaTumorData, input$tcgaTabScale, input$tcgaTabRASType)
     # rasTypes <- c("ras", "ras_prob", "ras_prob_path", "ras_prob_rec")
     # modelList <- list()
@@ -836,6 +949,7 @@ gd2visServer <- function(input, output, session) {
 
   ## GD2 plot -----
   output$tcgaDetailGD2plot <- renderPlotly({
+    req(has_private_data)
     req(tcgaTumorTabGD2(),
         tcgaTumorData,
         input$tcgaTabGroup,
@@ -882,6 +996,7 @@ gd2visServer <- function(input, output, session) {
   # DEA ----
   ## Input parameter UIs ----
   output$tcgaTabDGEProjectUI <- renderUI({
+    req(has_private_data)
     req(tcgaTumorData)
     projects <- unique(
       paste0(
@@ -900,6 +1015,7 @@ gd2visServer <- function(input, output, session) {
   })
   
   output$tcgaTabDGEColDataUI <- renderUI({
+    req(has_private_data)
     req(tcgaTumorData)
     
     selectInput(
@@ -913,6 +1029,7 @@ gd2visServer <- function(input, output, session) {
   DGEres <- reactiveVal(NULL)
   
   output$tcgaTabDGESubtypeUI <- renderUI({
+    req(has_private_data)
     req(tcgaTumorData, input$tcgaTabProject, input$tcgaTabGroup)
     
     tcgaProject <- sub(".*\\((.*)\\).*", "\\1", input$tcgaTabProject)
@@ -928,6 +1045,7 @@ gd2visServer <- function(input, output, session) {
   })
   
   output$tcgaTabDGEMethodUI <- renderUI({
+    req(has_private_data)
     req(tcgaTumorTabGD2(), input$tcgaTabDGEStratMethodSel)
     
     if (input$tcgaTabDGEStratMethodSel == "t") {
@@ -950,6 +1068,7 @@ gd2visServer <- function(input, output, session) {
   
   ## Sample number UI -----
   output$ProjectSampleNr <- renderValueBox({
+    req(has_private_data)
     req(input$tcgaTabProject, tcgaTumorData)
     
     tcgaProject <- sub(".*\\((.*)\\).*", "\\1", input$tcgaTabProject)
@@ -964,6 +1083,7 @@ gd2visServer <- function(input, output, session) {
     )
   })
   output$SubgroupSampleNr <- renderValueBox({
+    req(has_private_data)
     req(tcgaTumorData,
         input$tcgaTabProject,
         input$tcgaTabDGESubtype)
@@ -987,6 +1107,7 @@ gd2visServer <- function(input, output, session) {
     )
   })
   output$GD2HighSampleNr <- renderValueBox({
+    req(has_private_data)
     req(
       input$tcgaTabDGESubtype,
       tcgaTumorData,
@@ -1029,6 +1150,7 @@ gd2visServer <- function(input, output, session) {
     )
   })
   output$GD2LowSampleNr <- renderValueBox({
+    req(has_private_data)
     req(
       input$tcgaTabDGESubtype,
       tcgaTumorData,
@@ -1072,6 +1194,7 @@ gd2visServer <- function(input, output, session) {
   
   ## Extract DGE results
   observeEvent(input$tcgaTabDGECompute, {
+    req(has_private_data)
     req(
       input$tcgaTabProject,
       input$tcgaTabGroup,
@@ -1092,11 +1215,13 @@ gd2visServer <- function(input, output, session) {
                      metadata <- input$tcgaTabGroup
                      subtype <- input$tcgaTabDGESubtype
                      incProgress(amount = 0.1, detail = "Loading data...")
-                     TCGA_dds <- readRDS(system.file(
-                       "extdata/TCGA_projects",
-                       paste0("TCGA-", project, ".Rds"),
-                       package = "GD2Viz_extended"
-                     ))
+                     TCGA_dds <- readRDS(
+                       file.path(
+                         data_path,
+                         "TCGA_projects", 
+                         paste0("TCGA-", project, ".Rds")
+                         )
+                       )
                      
                      # print(TCGA_dds)
                      
@@ -1226,11 +1351,13 @@ gd2visServer <- function(input, output, session) {
                        metadata <- input$tcgaTabGroup
                        subtype <- input$tcgaTabDGESubtype
                        incProgress(amount = 0.1, detail = "Loading data...")
-                       TCGA_dds <- readRDS(system.file(
-                         "extdata/TCGA_projects",
-                         paste0("TCGA-", project, ".Rds"),
-                         package = "GD2Viz_extended"
-                       ))
+                       TCGA_dds <- readRDS(
+                         file.path(
+                           data_path,
+                           "TCGA_projects", 
+                           paste0("TCGA-", project, ".Rds")
+                         )
+                       )
                        
                        if (subtype != "All Samples") {
                          TCGA_dds <- TCGA_dds[, which(colData(TCGA_dds)[[metadata]] == subtype)]
@@ -1357,12 +1484,14 @@ gd2visServer <- function(input, output, session) {
   
   ## DEA Result -----
   output$diyres_summary <- renderPrint({
+    req(has_private_data)
     req(DGEres(), input$tcgaTabDGEFDR)
     # summary(DGEres()$res, alpha = as.numeric(input$tcgaTabDGEFDR))
     DESeq2::summary(DGEres()$res)
   })
   ### Results table -----
   output$table_res <- DT::renderDataTable({
+    req(has_private_data)
     req(DGEres())
     
     # Sort results by adjusted p-value
@@ -1390,6 +1519,7 @@ gd2visServer <- function(input, output, session) {
   })
   ### p-Value histogram -----
   output$pvals_hist <- renderPlot({
+    req(has_private_data)
     req(DGEres())
     
     res_df <- as.data.frame(DGEres()$res)
@@ -1419,6 +1549,7 @@ gd2visServer <- function(input, output, session) {
   })
   ### log2FC histogram -----
   output$logfc_hist <- renderPlot({
+    req(has_private_data)
     req(DGEres())
     
     res_df <- as.data.frame(DGEres()$res)
@@ -1434,6 +1565,7 @@ gd2visServer <- function(input, output, session) {
   })
   ### MA-plot -----
   output$plotma <- renderPlot({
+    req(has_private_data)
     req(DGEres())
     
     p <- plot_ma(DGEres()$res,
@@ -1444,6 +1576,7 @@ gd2visServer <- function(input, output, session) {
   })
   ### Volcano-plot -----
   output$volcanoplot <- renderPlotly({
+    req(has_private_data)
     req(DGEres())
     
     # p <- plot_volcano(DGEres()$res, FDR = input$tcgaTabDGEFDR)
@@ -1492,6 +1625,7 @@ gd2visServer <- function(input, output, session) {
   })
   ### Gene-plot -----
   output$genefinder_plot <- renderPlotly({
+    req(has_private_data)
     req(DGEres())
     shiny::validate(need(
       length(input$table_res_row_last_clicked) > 0,
@@ -1555,6 +1689,7 @@ gd2visServer <- function(input, output, session) {
   })
   ### Gene Info box -----
   output$rentrez_infobox <- renderUI({
+    req(has_private_data)
     req(DGEres())
     shiny::validate(
       need(

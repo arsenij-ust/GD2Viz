@@ -31,9 +31,12 @@
 
 #' GD2Viz main function
 #'
+#' @param data_path Optional path to GD2VizData repo for extern datasets.
 #' @return A Shiny App is launched for interactive data exploration
 #' @export
-GD2Viz <- function() {
+GD2Viz <- function(data_path = NULL) {
+  
+  has_private_data <- !is.null(data_path) && dir.exists(data_path)
 
   message(
     "##---------------------------------------------------------------------------##\n",
@@ -41,5 +44,10 @@ GD2Viz <- function() {
     "##---------------------------------------------------------------------------##"
   )
 
-  shinyApp(ui = gd2visUI, server = gd2visServer)
+  shinyApp(
+    ui = gd2visUI(has_private_data = has_private_data),
+    server = function(input, output, session) {
+      gd2visServer(input, output, session, data_path)
+    }
+  )
 }
