@@ -31,6 +31,7 @@ Imports:
     utils,
     ggplot2,
     ggrepel,
+    RColorBrewer,
     plotly,
     AnnotationDbi,
     S4Vectors,
@@ -56,6 +57,7 @@ Suggests:
     testthat (>= 3.0.0),
     htmltools,
     e1071,
+    airway,
     markdown
 License: MIT + file LICENSE
 Encoding: UTF-8

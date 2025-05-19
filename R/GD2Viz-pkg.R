@@ -56,7 +56,8 @@
 #' @importFrom stats sd cor median quantile aggregate ks.test p.adjust 
 #' model.matrix relevel na.omit
 #' @importFrom utils write.csv
-#' @importFrom methods iss
+#' @importFrom methods is
+#' @importFrom RColorBrewer brewer.pal
 #'
 #' @author
 #' Arsenij Ustjanzew \email{arsenij.ustjanzew@@uni-mainz.de}
