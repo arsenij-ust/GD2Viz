@@ -47,9 +47,9 @@ get_publicData_tab <- function() {
             ),
             choices = list(
               "unadjusted RAS" = "ras",
-              "RAS adj. by transision prob." = "ras_prob",
+              "RAS adj. by transition prob." = "ras_prob",
               #"RAS adj. by path-based transition probability" = "ras_prob_path",
-              "RAS adj. by recurive transition probability" = "ras_prob_rec"
+              "RAS adj. by recursive transition probability" = "ras_prob_rec"
             ),
             selected = "ras_prob"
           )

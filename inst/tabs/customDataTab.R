@@ -60,11 +60,11 @@ get_customData_tab <- function() {
           uiOutput("customGD2messageUI") %>% withSpinner(., type = 7, color="#164863", size = 0.5, hide.ui = FALSE)
       ),
       box(width = 3, title = "3. Global Plot Settings", solidHeader = FALSE, status = "olive",
-          radioButtons("customRASType", "Visuaize RAS type",
+          radioButtons("customRASType", "Visualize RAS type",
                        choices = list("unadjusted RAS" = "ras", 
-                                      "RAS adj. by transision prob." = "ras_prob", 
+                                      "RAS adj. by transition prob." = "ras_prob", 
                                       #"RAS adj. by path - based transition probability" = "ras_prob_path", 
-                                      "RAS adj. by recurive transition probability" = "ras_prob_rec"),
+                                      "RAS adj. by recursive transition probability" = "ras_prob_rec"),
                        selected = "ras_prob"),
           uiOutput("selectCustomGroupUI")
           # bs4Dash::actionButton("updateCustoPlots", "Update plots", status = "success")
@@ -332,9 +332,9 @@ get_customData_tab <- function() {
                  ),
                  radioButtons("customRASTypeDGE", "3. Use RAS type",
                               choices = list("unadjusted RAS" = "ras", 
-                                             "RAS adj. by transision prob." = "ras_prob", 
+                                             "RAS adj. by transition prob." = "ras_prob", 
                                              #"RAS adj. by path-based transition probability" = "ras_prob_path", 
-                                             "RAS adj. by recurive transition probability" = "ras_prob_rec"),
+                                             "RAS adj. by recursive transition probability" = "ras_prob_rec"),
                               selected = "ras_prob")
           ),
           column(4,

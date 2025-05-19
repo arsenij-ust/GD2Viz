@@ -62,7 +62,7 @@ get_TCGAData_tab <- function() {
                  radioButtons(
                    "tcgaTabRASType",
                    label=div(
-                     "Visuaize RAS type",
+                     "Visualize RAS type",
                      tags$span(icon("circle-question")) %>%
                        add_prompt(
                          message = "Choose how RAS values are adjusted for visualization: 1) Unadjusted RAS: Raw scores from gene expression. 2) Adjusted by transition prob.: Weighted by network topology. 3) Recursive adjustment: Refines weights through reaction chains.",
@@ -74,9 +74,9 @@ get_TCGAData_tab <- function() {
                    ),
                    choices = list(
                      "unadjusted RAS" = "ras",
-                     "RAS adj. by transision prob." = "ras_prob",
+                     "RAS adj. by transition prob." = "ras_prob",
                      #"RAS adj. by path-based transition probability" = "ras_prob_path",
-                     "RAS adj. by recurive transition probability" = "ras_prob_rec"),
+                     "RAS adj. by recursive transition probability" = "ras_prob_rec"),
                    selected = "ras_prob")
           )
           

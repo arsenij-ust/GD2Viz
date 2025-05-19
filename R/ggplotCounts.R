@@ -24,6 +24,8 @@
 #' place labels; defaults to TRUE.
 #'
 #' @return An object created by \code{ggplot}
+#' 
+#' @importFrom ggrepel geom_text_repel
 #' @export
 #'
 #' @examples
