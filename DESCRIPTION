@@ -30,6 +30,7 @@ Imports:
     tidyr,
     utils,
     ggplot2,
+    ggrepel,
     plotly,
     AnnotationDbi,
     S4Vectors,
@@ -48,6 +49,8 @@ Imports:
     org.Hs.eg.db,
     stringr,
     rentrez,
+    methods,
+    stats,
     IHW
 Suggests: 
     testthat (>= 3.0.0),
