@@ -9,7 +9,7 @@
 #' selectizeInput showModal sliderInput tagList updateSelectizeInput validate
 #' withProgress addResourcePath column conditionalPanel div fileInput fluidRow
 #' htmlOutput imageOutput img p plotOutput radioButtons tags tabPanel textOutput
-#' uiOutput verbatimTextOutput hr checkboxInput
+#' uiOutput verbatimTextOutput hr checkboxInput showNotification
 #' @importFrom bs4Dash bs4DashFooter bs4ValueBox renderValueBox accordion
 #' accordionItem boxSidebar dashboardBody dashboardHeader dashboardPage
 #' dashboardSidebar dropdownMenu sidebarHeader sidebarMenu tabBox tabItem
@@ -28,8 +28,10 @@
 #' read.table sessionInfo write.table head tail
 #' @importFrom ggplot2 aes aes_string element_line element_text facet_wrap
 #' geom_histogram geom_hline geom_point geom_vline ggplot ggtitle
-#' scale_colour_manual scale_color_manual theme theme_bw theme_classic theme_minimal unit xlab
-#' ylab geom_rug geom_boxplot scale_x_discrete geom_jitter position_jitter scale_color_discrete scale_y_log10 labs
+#' scale_colour_manual scale_color_manual theme theme_bw theme_classic 
+#' theme_minimal unit xlab ylab geom_rug geom_boxplot scale_x_discrete 
+#' geom_jitter position_jitter scale_color_discrete scale_y_log10 labs
+#' coord_cartesian geom_text scale_y_continuous
 #' @importFrom plotly ggplotly layout plot_ly renderPlotly plotlyOutput toWebGL
 #' add_trace
 #' @importFrom AnnotationDbi mapIds
@@ -51,8 +53,10 @@
 #' @importFrom kernlab predict ksvm
 #' @importFrom rentrez entrez_summary
 #' @importFrom IHW ihw
-#' @importFrom stats sd cor median quantile aggregate ks.test p.adjust
-#' na.omit
+#' @importFrom stats sd cor median quantile aggregate ks.test p.adjust 
+#' model.matrix relevel na.omit
+#' @importFrom utils write.csv
+#' @importFrom methods iss
 #'
 #' @author
 #' Arsenij Ustjanzew \email{arsenij.ustjanzew@@uni-mainz.de}
