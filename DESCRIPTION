@@ -58,7 +58,9 @@ Suggests:
     htmltools,
     e1071,
     airway,
-    markdown
+    markdown,
+    knitr,
+    rmarkdown
 License: MIT + file LICENSE
 Encoding: UTF-8
 URL: https://github.com/arsenij-ust/GD2Viz
@@ -66,4 +68,5 @@ BugReports: https://github.com/arsenij-ust/GD2Viz/issues
 RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3
+VignetteBuilder: knitr
 biocViews: GUI, GD2, Transcription, RNASeq, Ganglioside, Score, Pathways, ShinyApps

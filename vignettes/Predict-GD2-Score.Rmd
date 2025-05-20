@@ -1,0 +1,19 @@
+---
+title: "Predict-GD2-Score"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Predict-GD2-Score}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(GD2Viz)
+```
