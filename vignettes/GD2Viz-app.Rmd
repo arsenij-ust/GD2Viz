@@ -210,7 +210,7 @@ The results of the DEA can be downloaded.
 
 <img src="images/tab3_1.png" align="center" width="80%"/>
 
-The **Analyze Your Data** tab enables users to upload their own RNA-Seq datasets and compute both **Reaction Activity Scores (RAS)** and **GD2 Scores** using the GD2Viz framework. This tab provides a full analytical pipeline, from raw counts to visualization and interpretation, all within a user-friendly interface.
+The **Analyze Your Data** tab enables users to upload their own **RNA-Seq datasets** and compute both **Reaction Activity Scores (RAS)** and **GD2 Scores** using the GD2Viz framework. This tab provides a full analytical pipeline, from raw counts to visualization and interpretation, all within a user-friendly interface.
 
 ### Step 1: Data Upload
 
@@ -224,8 +224,16 @@ Users can upload their data in one of two formats:
 * **DESeqDataSet object** (`.rds` format):
 
   * This is a serialized R object containing counts and metadata, typically generated from the DESeq2 pipeline.
+  
+Text file with count data:
 
-> ⚠️ Make sure your input files are properly formatted. The metadata file can include experimental variables such as subtype, treatment, or batch for later grouping and analysis.
+<img src="images/tab3_7.png" align="center" width="90%"/>
+
+Text file with metadata (exerimental variables):
+
+<img src="images/tab3_8.png" align="center" width="15%"/>
+
+> ⚠️ Make sure your input files are properly formatted - same sample names and order. The metadata file can include experimental variables such as subtype, treatment, or batch for later grouping and analysis.
 
 ### Step 2: RAS Computation
 
@@ -243,7 +251,7 @@ Once selected, click **“Compute GD2 Score”** to train the SVM model and pred
 
 ### Step 4: Visualization and Interpretation
 
-The **Global Plot Settings** panel lets you choose which adjusted RAS type to visualize and allows you to group plots by any experimental variable defined in your metadata.
+The **Global Plot Settings** panel lets you choose which adjusted RAS type to visualize and allows you to **group samples by any experimental variable** defined in your metadata.
 
 ---
 
@@ -252,13 +260,13 @@ The **Global Plot Settings** panel lets you choose which adjusted RAS type to vi
 1. **RAS Heatmap**
 
    * Displays the computed RAS matrix as an adjustable heatmap.
-   * Customize row/column labels, scaling, clustering method, and distance metrics.
+   * Customize row/column labels, scaling, clustering method, and distance metrics by clicking on the gears symbol.
    
 <img src="images/tab3_4.png" align="center" width="60%"/>
 
 2. **Promoting vs. Diminishing Reactions Scatter Plot**
 
-   * Summarizes the balance of GD2-promoting vs. GD2-diminishing reactions used by the SVM model.
+   * Visualizes the sum of GD2-promoting vs. GD2-diminishing reactions used by the SVM model as predictive variables. The lines represent the GD2 Score scale, where zero is the hyper plane of the SVM model.
    
 <img src="images/tab3_2.png" align="center" width="60%"/>
 
@@ -267,11 +275,15 @@ The **Global Plot Settings** panel lets you choose which adjusted RAS type to vi
    * Visualize GD2 scores using scatter, box, or violin plots.
    * When scatter is selected, you can optionally plot GD2 scores against a selected gene of interest.
    
+The zero value of the GD2 Score represents the SVM hyper plane dividing GD2-high samples from GD2-low samples. The GD2 Score of a sample is equal to the SVM decision weight of the sample. This means, samples with GD2 Score far below zero are GD2 negative, samples close to zero have an unclear/intermediate GD2 expression and samples far above zero might express high levels of GD2.
+   
 <img src="images/tab3_6.png" align="center" width="60%"/>
 
 4. **GD2 Score vs. Stemness Score**
 
    * Explores the relationship between GD2 expression and cellular stemness, which may inform interpretation of differentiation states.
+   
+Refer for the Stemness score: Malta TM, Sokolov A, et al.; Cancer Genome Atlas Research Network; Stuart JM, Hoadley KA, Laird PW, Noushmehr H, Wiznerowicz M. Machine Learning Identifies Stemness Features Associated with Oncogenic Dedifferentiation. Cell. 2018 Apr 5;173(2):338-354.e15. doi: 10.1016/j.cell.2018.03.034.
    
 <img src="images/tab3_3.png" align="center" width="30%"/>
 
@@ -287,13 +299,13 @@ Users can compare two experimental groups to examine shifts in glycosphingolipid
   Highlights up- and downregulated reactions within the glycosphingolipid pathway.
 
 * **Ganglioside Pathway Visualization**:
-  Provides a detailed graphical analysis of ganglioside-specific reactions, including network-style views of reaction changes.
+  Provides a detailed graphical analysis of ganglioside-specific reactions.
 
 ---
 
 ### Differential Expression Analysis (DEA)
 
-The final section mirrors the functionality of the **TCGA Project View** tab. Users can perform DEA using GD2 score-based stratification:
+The final section mirrors the functionality of the **TCGA Cancer Types** tab. Users can perform DEA using GD2 score-based stratification:
 
 * Define GD2-high vs. GD2-low groups using the median, percentiles, or custom thresholds
 * Run the analysis and visualize results with:
