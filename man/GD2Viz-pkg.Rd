@@ -12,6 +12,7 @@ Welcome to \strong{GD2Viz}, a powerful and user-friendly visualization tool desi
 Useful links:
 \itemize{
   \item \url{https://github.com/arsenij-ust/GD2Viz}
+  \item \url{https://arsenij-ust.github.io/GD2Viz/}
   \item Report bugs at \url{https://github.com/arsenij-ust/GD2Viz/issues}
 }
 

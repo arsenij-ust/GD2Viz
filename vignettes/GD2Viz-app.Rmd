@@ -66,9 +66,12 @@ A local installation of the latest version of R and RStudio is required.
 
 The package can be installed with the `r BiocStyle::CRANpkg("remotes")` library:
 
-Here’s an improved version of the **Installation** section with enhanced clarity, professional tone, and smoother language:
+---
+
+When using GD2Viz for your research, please cite: Ustjanzew et al. Predicting GD2 expression across cancer types by the integration of pathway topology and transcriptome data. 2025
 
 ---
+
 
 ## Installation
 

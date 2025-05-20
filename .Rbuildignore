@@ -4,3 +4,7 @@
 ^LICENSE\.md$
 ^TODO\.md$
 ^MANIFEST\.txt$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$

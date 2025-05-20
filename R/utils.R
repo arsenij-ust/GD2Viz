@@ -613,7 +613,7 @@ computeGD2Score <- function(RAS, svm_model, adjust_input = c("raw", "ranged", "s
 #' @param adjust_input How to adjust the input matrix: "raw", "ranged", or "scaled".
 #' @param center Logical; whether to mean-center data if using "scaled" adjustment.
 #' @param type_column Column name in colData indicating the sample type.
-#'
+#' @export
 #' @return An SVM model trained using kernlab::ksvm.
 #'
 #' @examples

@@ -30,11 +30,18 @@ install.packages("devtools")
 devtools::install_github("arsenij-ust/GD2Viz")
 ```
 
+or using the `remotes` package:
+
+```r
+install.packages("remotes")
+remotes::install_github("arsenij-ust/GD2Viz")
+```
+
 ---
 
 ## Usage
 
-After installation, you can load the package and start using it:
+After installation, you can load the package and launch the app:
 
 ```R
 library(GD2Viz)
@@ -43,11 +50,9 @@ library(GD2Viz)
 GD2Viz()
 ```
 
-```R
-# TODO single steps how to use the package functions...
-```
+For detailed instructions and examples on how to use the app, please refer to the [GD2Viz Vignette](#).
 
-For detailed instructions and examples, please refer to the [GD2Viz Vignette](#).
+If you want to use the functions in the R environment, please refer to the second [GD2Viz Vignette](#).
 
 ---
 
@@ -61,7 +66,7 @@ For detailed instructions and examples, please refer to the [GD2Viz Vignette](#)
 
 ---
 
-Cite us:
+## **Cite us**:
 
 Ustjanzew et al. Predicting GD2 expression across cancer types by the integration of pathway topology and transcriptome data. 2025
 
