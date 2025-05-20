@@ -1797,7 +1797,14 @@ gd2visServer <- function(input, output, session, data_path = NULL) {
         sep = "\t",
         header = TRUE
       )
+      
       tryCatch({
+        geneSymbols <- rownames(customCounts)
+        validSymbols <- names(metadata(trainData)$geom)
+        if (!any(geneSymbols %in% validSymbols)) {
+          errorMessage <- "None of the gene identifiers in your counts file match known gene symbols. Please provide gene symbols, not Ensembl IDs or other formats."
+        }
+        
         customDataVal <- computeReactionActivityScores(
           counts = customCounts,
           metadata = customColdata,
@@ -1813,6 +1820,13 @@ gd2visServer <- function(input, output, session, data_path = NULL) {
     } else if (input$dataType == "dds" && !is.null(input$ddsFile)) {
       tryCatch({
         custom_dds <- readRDS(input$ddsFile$datapath)
+        
+        geneSymbols <- rownames(custom_dds)
+        validSymbols <- names(metadata(trainData)$geom)
+        if (!any(geneSymbols %in% validSymbols)) {
+          errorMessage <- "None of the gene identifiers in your counts file match known gene symbols. Please provide gene symbols, not Ensembl IDs or other formats."
+        }
+        
         customDataVal <- computeReactionActivityScores(
           dds = custom_dds,
           mgraph = mgraph,
