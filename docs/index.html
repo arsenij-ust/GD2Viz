@@ -52,29 +52,83 @@
   </div>
 </nav><div class="container template-home">
 <div class="row">
-  <main id="main" class="col-md-9"><p><img src="https://github.com/arsenij-ust/GD2Viz/blob/main/inst/www/GD2Viz6.png" alt="GD2Viz Logo" width="200px"></p>
+  <main id="main" class="col-md-9">
 <div class="section level1">
 <div class="page-header"><h1 id="welcome-to-gd2viz">Welcome to GD2Viz<a class="anchor" aria-label="anchor" href="#welcome-to-gd2viz"></a>
 </h1></div>
 <p>Welcome to <strong>GD2Viz</strong>, a powerful and user-friendly visualization tool designed to help researchers and clinicians explore, analyze, and interpret GD2 Scores across various RNA-Seq datasets. Utilizing the advanced methodology outlined by Ustjanzew et al. (2024), <strong>GD2Viz</strong> offers an in-depth examination of precomputed GD2 Scores from publicly available RNA-Seq datasets such as TCGA, GTEx, and TARGET. Users also have the flexibility to upload and analyze their own datasets within the context of GD2 Scores.</p>
-<p>This R Shiny application version of <strong>GD2Viz</strong> provides a range of interactive visualizations and preloaded datasets. Additionally, the <strong>GD2Viz</strong> R package includes several functions for computing Reaction Activity Scores of glycosphingolipid metabolism and predicting GD2 Scores directly within the R environment. For comprehensive guidance, refer to the <a href="#"><strong>GD2Viz Vignette</strong></a>.</p>
+<p><strong>GD2Viz</strong> provides a range of interactive visualizations and precomputed RNA-seq datasets. Additionally, the <strong>GD2Viz</strong> R package includes several functions for computing Reaction Activity Scores of glycosphingolipid metabolism and predicting GD2 Scores directly within the R environment. For comprehensive guidance, refer to the articles at <a href="https://arsenij-ust.github.io/GD2Viz/index.html"><strong>GD2Viz webpage</strong></a>.</p>
+<blockquote>
+<p>⚠️ <strong>Note:</strong> The local version <strong>does not</strong> include access to precomputed public datasets (e.g., TCGA, GTEx, TARGET). To explore GD2 Scores across these datasets, please use the online version of the app, available at: <a href="http://shiny.imbei.uni-mainz.de:3838/GD2Viz" class="external-link">http://shiny.imbei.uni-mainz.de:3838/GD2Viz</a></p>
+</blockquote>
 <hr>
 <div class="section level2">
-<h2 id="key-features">Key Features<a class="anchor" aria-label="anchor" href="#key-features"></a>
+<h2 id="key-key-features">🔑 Key Features<a class="anchor" aria-label="anchor" href="#key-key-features"></a>
 </h2>
+<p><strong>GD2Viz</strong> provides a comprehensive framework for the analysis, visualization, and interpretation of GD2 expression potential across bulk RNA-Seq datasets, with a focus on glycosphingolipid metabolism. The package includes both an interactive Shiny application and a set of R functions for programmatic use.</p>
+<div class="section level3">
+<h3 id="predictive-gd2-scoring">Predictive GD2 Scoring<a class="anchor" aria-label="anchor" href="#predictive-gd2-scoring"></a>
+</h3>
+<ul>
+<li>Implements a trained Support Vector Machine (SVM) model to infer GD2 Scores from transcriptomic data.</li>
+<li>Integrates pathway informed features from glycosphingolipid metabolism via Reaction Activity Scores (RAS).</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="visualization--exploration">Visualization &amp; Exploration<a class="anchor" aria-label="anchor" href="#visualization--exploration"></a>
+</h3>
 <ul>
 <li>
-<strong>Interactive Visualizations</strong>: Generate dynamic, real-time interactive plots, heatmaps, and network diagrams to thoroughly explore your data.</li>
-<li>
-<strong>GD2 Score Analysis for Large Datasets</strong>: Investigate GD2 Scores across extensive datasets like TCGA, TARGET, and GTEx. Dive deep into individual projects within the TCGA dataset and analyze GD2 Scores alongside various sample metadata.</li>
-<li>
-<strong>Predict GD2 Scores for Your Datasets</strong>: Effortlessly compute Reaction Activity Scores and GD2 Scores for your datasets, with options to visualize and download the results.</li>
-<li>
-<strong>User-Friendly Interface</strong>: Experience smooth navigation with our intuitive and thoughtfully designed user interface.</li>
-<li>
-<strong>Group Comparison</strong>: Compare two groups or conditions within your dataset to observe log-fold changes in Reaction Activity Scores of glycosphingolipid metabolism.</li>
+<strong>Interactive Shiny App</strong>: Explore GD2 Scores across large public datasets <a href="http://shiny.imbei.uni-mainz.de:3838/GD2Viz" class="external-link">online</a> (TCGA, GTEx, TARGET, St. Jude Cloud, CBTTC).</li>
+<li>Visualize GD2 Scores using scatter, box, and violin plots grouped by clinical or molecular subtypes.</li>
+<li>Heatmaps, scatter plots, and pathway diagrams to interpret RAS distributions.</li>
 </ul>
+</div>
+<div class="section level3">
+<h3 id="custom-dataset-analysis">Custom Dataset Analysis<a class="anchor" aria-label="anchor" href="#custom-dataset-analysis"></a>
+</h3>
+<ul>
+<li>Upload your own RNA-Seq data and compute RAS and GD2 Scores locally.</li>
+<li>Supports input as raw count matrices with metadata (as .tsv files) or <code>DESeqDataSet</code> objects.</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="differential-expression--group-comparison">Differential Expression &amp; Group Comparison<a class="anchor" aria-label="anchor" href="#differential-expression--group-comparison"></a>
+</h3>
+<ul>
+<li>Perform GD2-based sample stratification (e.g., high vs. low) and run DEA directly in the app or programmatically.</li>
+<li>Visualize DEA results with volcano plots, MA plots, p-value and log2 fold-change histograms.</li>
+<li>Searchable gene tables with built-in annotation and gene-specific expression profiles.</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="pathway-specific-insights">Pathway-Specific Insights<a class="anchor" aria-label="anchor" href="#pathway-specific-insights"></a>
+</h3>
+<ul>
+<li>Focused analysis of the ganglioside branch of glycosphingolipid metabolism.</li>
+<li>Log2 fold-change plots of RAS values between experimental groups.</li>
+<li>Network-style visualizations of ganglioside pathway activity changes.</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="programmatic-interface-r-package">Programmatic Interface (R Package)<a class="anchor" aria-label="anchor" href="#programmatic-interface-r-package"></a>
+</h3>
+<ul>
+<li>Compute RAS and predict GD2 Scores in batch mode for custom analyses.</li>
+<li>Seamless integration with Bioconductor workflows and standard transcriptomics formats.</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
+</h3>
+<blockquote>
+<p>⚠️ For detailed instructions and examples on how to use the app, please refer to the vignette <a href="https://arsenij-ust.github.io/GD2Viz/articles/GD2Viz-app.html">GD2Viz app - Explore public datasets and analyze your data</a>.</p>
+</blockquote>
+<blockquote>
+<p>⚠️ If you want to use the core functions in your R environment, please refer to the vignette “<a href="https://arsenij-ust.github.io/GD2Viz/articles/Predict-GD2-Score.html">Computing GD2 Scores Programmatically Using GD2Viz</a>”.</p>
+</blockquote>
 <hr>
+</div>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -101,8 +155,6 @@
 <span></span>
 <span><span class="co"># Launch the Shiny application</span></span>
 <span><span class="fu"><a href="reference/GD2Viz.html">GD2Viz</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>For detailed instructions and examples on how to use the app, please refer to the <a href="#">GD2Viz Vignette</a>.</p>
-<p>If you want to use the functions in the R environment, please refer to the second <a href="#">GD2Viz Vignette</a>.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -174,7 +226,12 @@
 </ul>
 </div>
 
-
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://arsenij-ust.github.io/GD2Viz/index.html"><img src="https://raw.githubusercontent.com/arsenij-ust/GD2Viz/refs/heads/main/inst/www/GD2Viz6.png" alt="GD2Viz Logo" width="200px"></a></li>
+</ul>
+</div>
 
   </aside>
 </div>
