@@ -107,7 +107,7 @@ gd2visServer <- function(input, output, session, data_path = NULL) {
   
   # Header info menus ----------------
   observeEvent(input$notification1, {
-    runjs("window.open('https://github.com/arsenij-ust/GD2Viz', '_blank')")
+    runjs("window.open('https://arsenij-ust.github.io/GD2Viz/articles/GD2Viz-app.html', '_blank')")
   })
   
   observeEvent(input$notification2, {

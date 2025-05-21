@@ -2,7 +2,7 @@
 
 Welcome to **GD2Viz**, a powerful and user-friendly visualization tool designed to help researchers and clinicians explore, analyze, and interpret GD2 Scores across various RNA-Seq datasets. Utilizing the advanced methodology outlined by Ustjanzew et al. (2024), **GD2Viz** offers an in-depth examination of precomputed GD2 Scores from publicly available RNA-Seq datasets such as TCGA, GTEx, and TARGET. Users also have the flexibility to upload and analyze their own datasets within the context of GD2 Scores.
 
-This R Shiny application version of **GD2Viz** provides a range of interactive visualizations and preloaded datasets. Additionally, the **GD2Viz** R package includes several functions for computing Reaction Activity Scores of glycosphingolipid metabolism and predicting GD2 Scores directly within the R environment. For comprehensive guidance, refer to the [**GD2Viz Vignette**](#).
+This R Shiny application version of **GD2Viz** provides a range of interactive visualizations and preloaded datasets. Additionally, the **GD2Viz** R package includes several functions for computing Reaction Activity Scores of glycosphingolipid metabolism and predicting GD2 Scores directly within the R environment. For comprehensive guidance, refer to the [**GD2Viz Vignette**](https://arsenij-ust.github.io/GD2Viz/articles/GD2Viz-app.html).
 
 ---
 
@@ -26,4 +26,4 @@ This R Shiny application version of **GD2Viz** provides a range of interactive v
 
 ---
 
-For more information, visit our [website](http://www.unimedizin-mainz.de/imbei) or consult the [GD2Viz Vignette](#). If you have any questions or need assistance, please don't hesitate to reach out to our support team.
+For more information, visit our [website](http://www.unimedizin-mainz.de/imbei) or consult the [GD2Viz Vignette](https://arsenij-ust.github.io/GD2Viz/articles/GD2Viz-app.html). If you have any questions or need assistance, please don't hesitate to reach out to our support team.
