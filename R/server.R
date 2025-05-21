@@ -1625,8 +1625,8 @@ gd2visServer <- function(input, output, session, data_path = NULL) {
       length(input$table_res_row_last_clicked) > 0,
       "Select a Gene in the 'DEA Genes' Table"
     ))
-    
-    selectedGene <- rownames(DGEres()$res)[input$table_res_row_last_clicked]
+    resdf <- as.data.frame(DGEres()$res[order(DGEres()$res$padj), ])
+    selectedGene <- rownames(resdf)[input$table_res_row_last_clicked]
     # selectedGeneSymbol <- values$annotation_obj$gene_name[match(selectedGene, values$annotation_obj$gene_id)]
     
     if (input$genefinder_plotType == "box") {
@@ -1691,8 +1691,8 @@ gd2visServer <- function(input, output, session, data_path = NULL) {
         "Select a gene in the 'DEA Genes' Table to display additional info (retrieved from the NCBI/ENTREZ db website)"
       )
     )
-    
-    selectedGene <- rownames(DGEres()$res)[input$table_res_row_last_clicked]
+    resdf <- as.data.frame(DGEres()$res[order(DGEres()$res$padj), ])
+    selectedGene <- rownames(resdf)[input$table_res_row_last_clicked]
     
     tryCatch({
       selgene_entrez <- AnnotationDbi::mapIds(
@@ -3458,8 +3458,8 @@ gd2visServer <- function(input, output, session, data_path = NULL) {
       length(input$custom_table_res_row_last_clicked) > 0,
       "Select a Gene in the 'DEA Genes' Table"
     ))
-    
-    selectedGene <- rownames(customDGEres()$res)[input$custom_table_res_row_last_clicked]
+    resdf <- as.data.frame(customDGEres()$res[order(customDGEres()$res$padj), ])
+    selectedGene <- rownames(resdf)[input$custom_table_res_row_last_clicked]
     # selectedGeneSymbol <- values$annotation_obj$gene_name[match(selectedGene, values$annotation_obj$gene_id)]
     
     if (input$custom_genefinder_plotType == "box") {
@@ -3540,8 +3540,8 @@ gd2visServer <- function(input, output, session, data_path = NULL) {
         "Select a gene in the 'DEA Genes' Table to display additional info (retrieved from the NCBI/ENTREZ db website)"
       )
     )
-    
-    selectedGene <- rownames(customDGEres()$res)[input$custom_table_res_row_last_clicked]
+    resdf <- as.data.frame(customDGEres()$res[order(customDGEres()$res$padj), ])
+    selectedGene <- rownames(resdf)[input$custom_table_res_row_last_clicked]
     
     tryCatch({
       selgene_entrez <- AnnotationDbi::mapIds(
