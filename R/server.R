@@ -1797,6 +1797,17 @@ gd2visServer <- function(input, output, session, data_path = NULL) {
         sep = "\t",
         header = TRUE
       )
+
+      if (names(customColdata)[1] == "X") {
+        print(TRUE)
+        rownames(customColdata) <- customColdata[[1]]
+        customColdata <- customColdata[, -1, drop = FALSE]
+      }
+      
+      if (names(customCounts)[1] == "X") {
+        rownames(customCounts) <- customCounts[[1]]
+        customCounts <- customCounts[, -1, drop = FALSE]
+      }
       
       tryCatch({
         geneSymbols <- rownames(customCounts)
