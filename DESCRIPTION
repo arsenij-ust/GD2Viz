@@ -1,6 +1,6 @@
 Package: GD2Viz
 Title: Explore GD2 scores of large datasets. Compute and visualize GD2 score of your RNA-seq datasets
-Version: 0.01.1
+Version: 0.01.2
 Date: 2025-05-15
 Authors@R: 
     c(

@@ -2055,7 +2055,7 @@ gd2visServer <- function(input, output, session, data_path = NULL) {
       
       # TSV file
       GD2Score_df <- do.call(cbind.data.frame, custom_gd2$predList)
-      colnames(GD2Score_df) <- c("ras", "ras_prob", "ras_prob_path", "ras_prob_rec")
+      colnames(GD2Score_df) <- c("ras", "ras_prob", "ras_prob_rec")
       rownames(GD2Score_df) <- names(custom_gd2$predList[[1]])
       tsv_path <- file.path(temp_dir, "GD2Viz_GD2Scores.tsv")
       write.table(
